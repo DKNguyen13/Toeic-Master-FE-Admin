@@ -1,6 +1,6 @@
 import React from "react";
+import { Home } from "lucide-react";
 import { Link } from "react-router-dom";
-import { AiOutlineHome } from "react-icons/ai";
 
 const NotFound: React.FC = () => {
   return (
@@ -11,14 +11,14 @@ const NotFound: React.FC = () => {
           Trang không tồn tại
         </h2>
         <p className="mt-2 text-gray-600">
-          Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.
+          Xin lỗi, trang bạn đang tìm kiếm không tồn tại.
         </p>
 
         <Link
           to="/"
           className="inline-flex items-center mt-6 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 transition"
         >
-          <AiOutlineHome className="mr-2" size={20} />
+          <Home className="mr-2" size={20} />
           Quay về Trang chủ
         </Link>
       </div>
