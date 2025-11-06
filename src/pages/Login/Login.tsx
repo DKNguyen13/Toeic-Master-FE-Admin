@@ -34,7 +34,7 @@ const Login: React.FC = () => {
     }
 
     try {
-      const res = await api.post("/auth/login", { email, password });
+      const res = await api.post("/auth/admin-login", { email, password });
       if (res.data.success) {
         const { user, accessToken } = res.data.data;
         setAccessToken(accessToken);
@@ -48,7 +48,6 @@ const Login: React.FC = () => {
         window.dispatchEvent(new Event("userUpdated"));
 
         if (user.role === "admin") navigate("/admin/dashboard");
-        else navigate("/");
       } else {
         setErrors({ general: res.data.message || "Đăng nhập thất bại" });
         setPassword("");
