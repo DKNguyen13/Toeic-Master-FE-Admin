@@ -2,10 +2,10 @@ import * as XLSX from 'xlsx';
 import FileSaver from 'file-saver';
 import api from "../../../config/axios";
 import React, { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import LoadingSkeleton from "../../../components/common/LoadingSpinner/LoadingSkeleton";
 import { Search, Users, Filter, Download, RefreshCw, CheckCircle, XCircle, MoreVertical } from "lucide-react";
+import { showToast } from '../../../utils/toast';
 
 interface User {
   id: number;
@@ -171,9 +171,7 @@ const UserManagementPage: React.FC = () => {
             : u
         )
       );
-      toast.success(
-        `User ${user.fullname} đã ${user.status === "Active" ? "vô hiệu hóa" : "kích hoạt"}!`
-      );
+      showToast(`User ${user.fullname} đã ${user.status === "Active" ? "vô hiệu hóa" : "kích hoạt"}!`, "success");
       setMenuOpenId(null);
     } catch (err) {
       console.error("Cập nhật trạng thái lỗi:", err);
@@ -347,19 +345,7 @@ const UserManagementPage: React.FC = () => {
             </button>
           </div>
         )}
-
       </div>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="light"
-      />
     </div>
   );
 };
