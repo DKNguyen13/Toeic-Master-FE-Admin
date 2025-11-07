@@ -172,7 +172,7 @@ const Header: React.FC = () => {
       window.dispatchEvent(new Event("userUpdated"));
       setAvatarUrl("/img/avatar/default_avatar.jpg");
       setOpenMenu(false);
-      navigate("/");
+      navigate("/login");
     }
   };
 
