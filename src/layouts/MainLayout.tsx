@@ -1,6 +1,6 @@
 // MainLayout.tsx
 import React, { useState } from "react";
-import Header from "./common/Header";
+import AdminHeader from "./common/Header";
 import Footer from "./common/Footer";
 import Chatbot from "../components/chatbot/Chatbot";
 const MainLayout = ({ children }) => {
@@ -8,7 +8,7 @@ const MainLayout = ({ children }) => {
 
 	return (
 		<>
-			<Header />
+			<AdminHeader />
 			<main className="min-h-screen">
 				{React.cloneElement(children, { setIsOpen })} {/* Truyền setIsOpen xuống component con */}
 			</main>
