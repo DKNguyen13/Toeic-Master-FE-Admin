@@ -1,11 +1,11 @@
 import * as XLSX from 'xlsx';
 import FileSaver from 'file-saver';
 import api from "../../../config/axios";
-import React, { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import React, { useEffect, useRef, useState } from "react";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import LoadingSkeleton from "../../../components/common/LoadingSpinner/LoadingSkeleton";
 import { Search, Users, Filter, Download, RefreshCw, CheckCircle, XCircle, MoreVertical } from "lucide-react";
+import { showToast } from '../../../utils/toast';
 
 interface User {
   id: number;
@@ -30,6 +30,12 @@ const UserManagementPage: React.FC = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"Tất cả" | "Active" | "Inactive">("Tất cả");
+  const [authTypeFilter, setAuthTypeFilter] = useState<"Tất cả" | "google" | "normal">("Tất cả");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement | null>(null);
+  const filterButtonRef = useRef<HTMLButtonElement | null>(null);
+  const actionMenuRef = useRef<HTMLDivElement | null>(null);
 
   const exportExcel = () => {
     if (!users || users.length === 0) return;
@@ -77,6 +83,16 @@ const UserManagementPage: React.FC = () => {
     FileSaver.saveAs(blob, "users.xlsx");
   };
 
+  const handleFilterChange = (type: "status" | "authType", value: string) => {
+    if (type === "status") setStatusFilter(value as "Tất cả" | "Active" | "Inactive");
+    if (type === "authType") setAuthTypeFilter(value as "Tất cả" | "google" | "normal");
+  };
+
+  const filteredUsers = users.filter(user => {
+    const statusMatch = statusFilter === "Tất cả" || user.status === statusFilter;
+    const authMatch = authTypeFilter === "Tất cả" || user.authType === authTypeFilter;
+    return statusMatch && authMatch;
+  });
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
@@ -109,6 +125,33 @@ const UserManagementPage: React.FC = () => {
   useEffect(() => {
     fetchUsers(currentPage);
   }, [currentPage]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (
+        filterOpen &&
+        filterRef.current &&
+        filterButtonRef.current &&
+        !filterRef.current.contains(target) &&
+        !filterButtonRef.current.contains(target)
+      ) {
+        setFilterOpen(false);
+      }
+
+      if (
+        menuOpenId &&
+        actionMenuRef.current &&
+        !actionMenuRef.current.contains(target)
+      ) {
+        setMenuOpenId(null);
+      }
+    };
+
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, [filterOpen, menuOpenId]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,12 +186,6 @@ const UserManagementPage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = () => setMenuOpenId(null);
-    window.addEventListener("click", handleClickOutside);
-    return () => window.removeEventListener("click", handleClickOutside);
-  }, []);
-
   const totalPages = Math.max(1, Math.ceil(totalUsers / pageSize));
 
   const toggleMenu = (userId: string, event: React.MouseEvent) => {
@@ -171,9 +208,7 @@ const UserManagementPage: React.FC = () => {
             : u
         )
       );
-      toast.success(
-        `User ${user.fullname} đã ${user.status === "Active" ? "vô hiệu hóa" : "kích hoạt"}!`
-      );
+      showToast(`User ${user.fullname} đã ${user.status === "Active" ? "vô hiệu hóa" : "kích hoạt"}!`, "success");
       setMenuOpenId(null);
     } catch (err) {
       console.error("Cập nhật trạng thái lỗi:", err);
@@ -257,9 +292,37 @@ const UserManagementPage: React.FC = () => {
               {isSearching ? "Đang tìm..." : "Tìm kiếm"}
             </button>
           </form>
-          <button className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition">
-            <Filter className="w-4 h-4" /> Bộ lọc
-          </button>
+          <div className="relative">
+            <button  ref={filterButtonRef} onClick={() => setFilterOpen(!filterOpen)} className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+              <Filter className="w-4 h-4" /> Bộ lọc
+            </button>
+
+            {filterOpen && (
+              <div ref={filterRef} className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow p-2 z-51">
+                <p className="font-semibold mb-1">Trạng thái</p>
+                {["Tất cả", "Active", "Inactive"].map(status => (
+                  <button
+                    key={status}
+                    className={`block w-full text-left px-2 py-1 rounded hover:bg-gray-100 ${statusFilter === status ? "font-bold" : ""}`}
+                    onClick={() => handleFilterChange("status", status)}
+                  >
+                    {status}
+                  </button>
+                ))}
+
+                <p className="font-semibold mt-2 mb-1">Loại tài khoản</p>
+                {["Tất cả", "google", "normal"].map(type => (
+                  <button
+                    key={type}
+                    className={`block w-full text-left px-2 py-1 rounded hover:bg-gray-100 ${authTypeFilter === type ? "font-bold" : ""}`}
+                    onClick={() => handleFilterChange("authType", type)}
+                  >
+                    {type === "normal" ? "Thường" : type === "google" ? "Google" : "Tất cả"}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* User Table */}
@@ -278,13 +341,18 @@ const UserManagementPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {users.length > 0 ? users.map((user) => (
+              {users.length > 0 ? filteredUsers.map((user) => (
                 <tr key={user._id} className="hover:bg-gray-50 transition">
                   <td className="px-4 py-4 text-center">{user.id}</td>
                   <td className="px-4 py-4">{user.fullname}</td>
                   <td className="px-4 py-4">{user.email}</td>
                   <td className="px-4 py-4">{user.phone}</td>
-                  <td className="px-4 py-4">{user.authType === "google" ? "Google" : "Thường"}</td>
+                  <td className="px-4 py-4"><span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                    user.authType === "google"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-blue-100 text-blue-700"}`}>
+                    {user.authType === "google" ? "Google" : "Thường"}
+                  </span></td>
                   <td className="px-4 py-4">{user.registerDate || "N/A"}</td>
                   <td className="px-4 py-4 text-center">
                     <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${
@@ -332,10 +400,7 @@ const UserManagementPage: React.FC = () => {
 
         {/* Action Menu */}
         {menuOpenId && menuPosition && (
-          <div
-            className="fixed bg-white border rounded-lg shadow p-2 z-50"
-            style={{ top: menuPosition.y, left: menuPosition.x }}
-          >
+          <div ref={actionMenuRef} className="fixed bg-white border rounded-lg shadow p-2 z-50" style={{ top: menuPosition.y, left: menuPosition.x }}>
             <button
               className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded"
               onClick={() => {
@@ -347,19 +412,7 @@ const UserManagementPage: React.FC = () => {
             </button>
           </div>
         )}
-
       </div>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="light"
-      />
     </div>
   );
 };
