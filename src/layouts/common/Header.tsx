@@ -30,10 +30,7 @@ const AdminHeader: React.FC = () => {
   const [avatarUrl, setAvatarUrl] = useState<string>("/img/avatar/default_avatar.jpg");
   const [openMenu, setOpenMenu] = useState(false);
   const [openNotifications, setOpenNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   const { unreadCount } = useSocket();
@@ -48,10 +45,11 @@ const AdminHeader: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) setOpenMenu(false);
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) setOpenNotifications(false);
+      if (mobileMenuOpen && !(event.target as HTMLElement).closest("#mobile-menu")) setMobileMenuOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [mobileMenuOpen]);
 
   const navLinks = [
     { to: "/admin/dashboard", label: "Dashboard", icon: <PieChart className="w-5 h-5" /> },
@@ -61,38 +59,58 @@ const AdminHeader: React.FC = () => {
     { to: "/admin/vipmanagement", label: "VIP/Premium", icon: <Crown className="w-5 h-5 text-yellow-500" />, premium: true },
   ];
 
-  const handleLogout = async () => {
-    try { await api.post("/auth/logout"); } catch {}
-    localStorage.clear();
-    setAccessToken(null);
-    navigate("/login");
-  };
-
   return (
-    <header className="bg-gray-800 text-white px-4 sm:px-8 py-4 flex items-center justify-between sticky top-0 z-50 shadow-md">
-      <Link to="/admin/dashboard" className="flex items-center">
+    <header className="bg-gray-800 text-white px-4 sm:px-8 py-4 flex flex-wrap sm:flex-nowrap items-center justify-between sticky top-0 z-50 shadow-md">
+      {/* Logo */}
+      <Link to="" className="flex items-center">
         <span className="text-yellow-400 font-extrabold text-xl tracking-wide">TOEIC MASTER</span>
       </Link>
 
-      <nav className="flex items-center space-x-6">
-        {navLinks.map((link) => (
-          <Link
-            key={link.to}
-            to={link.to}
-            className={`hidden sm:flex items-center gap-1 transition-colors duration-200 ${location.pathname === link.to ? "text-yellow-400 font-semibold" : "text-gray-300 hover:text-yellow-300"}`}
-          >
-            {link.icon} {link.label}
-          </Link>
-        ))}
+      {/* Desktop Nav */}
+      {fullname && (
+        <nav className="hidden sm:flex items-center space-x-6">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`flex items-center gap-1 transition-colors duration-200 ${location.pathname === link.to ? "text-yellow-400 font-semibold" : "text-gray-300 hover:text-yellow-300"}`}>
+              {link.icon} {link.label}
+            </Link>
+          ))}
+        </nav>
+      )}
 
-        {navLinks.map((link) => (
-          <Link key={link.to + "-mobile"} to={link.to} className="sm:hidden text-gray-300 hover:text-yellow-300">
-            {link.icon}
-          </Link>
-        ))}
-      </nav>
+      {/* Mobile Hamburger */}
+      {fullname && (
+        <button
+          className="sm:hidden p-2 rounded-md hover:bg-gray-700"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+          </svg>
+        </button>
+      )}
 
+      {/* Mobile Menu */}
+      {mobileMenuOpen && fullname && (
+        <div id="mobile-menu" className="sm:hidden absolute top-full left-0 w-full bg-gray-800 flex flex-col z-40">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="px-4 py-3 hover:bg-gray-700 transition text-gray-300 flex items-center gap-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {link.icon} {link.label}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Right Actions */}
       <div className="flex items-center gap-3">
+        {/* Notifications */}
         {fullname && (
           <div className="relative" ref={notificationRef}>
             <button
@@ -106,28 +124,24 @@ const AdminHeader: React.FC = () => {
                 </span>
               )}
             </button>
+
+            {openNotifications && (
+              <div className="absolute right-0 mt-2 w-80 max-h-80 overflow-y-auto bg-white text-gray-800 border border-gray-200 shadow-xl rounded-xl z-50">
+                {/* Notification list here */}
+                <div className="p-4 text-gray-500">Chưa có thông báo mới</div>
+              </div>
+            )}
           </div>
         )}
 
+        {/* User Dropdown / Login */}
         <div className="relative" ref={dropdownRef}>
           {fullname ? (
             <div className="relative">
-              <button
-                onClick={() => setOpenMenu(!openMenu)}
-                className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-700 transition"
-              >
+              <button onClick={() => setOpenMenu(!openMenu)} className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-700 transition">
                 <img src={avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
                 <span className="font-medium hidden sm:block">{fullname}</span>
               </button>
-
-              {openMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 border border-gray-200 shadow-xl rounded-xl overflow-hidden z-50">
-                  <Link to="/admin/users" onClick={() => setOpenMenu(false)} className="flex items-center px-4 py-3 gap-2 hover:bg-gray-100 transition font-medium"><Users className="w-4 h-4" /> Quản lý người dùng</Link>
-                  <Link to="/admin/tests" onClick={() => setOpenMenu(false)} className="flex items-center px-4 py-3 gap-2 hover:bg-gray-100 transition font-medium"><FileText className="w-4 h-4" /> Quản lý bài kiểm tra</Link>
-                  <Link to="/admin/resources" onClick={() => setOpenMenu(false)} className="flex items-center px-4 py-3 gap-2 hover:bg-gray-100 transition font-medium"><Search className="w-4 h-4" /> Quản lý tài nguyên</Link>
-                  <button onClick={handleLogout} className="flex items-center w-full px-4 py-3 gap-2 text-red-600 hover:bg-red-50 transition font-medium"><LogOut className="w-4 h-4" /> Đăng xuất</button>
-                </div>
-              )}
             </div>
           ) : (
             <Link to="/login" className="bg-yellow-400 text-gray-800 font-semibold px-4 py-2 rounded-full hover:bg-yellow-500 transition">Đăng nhập</Link>
