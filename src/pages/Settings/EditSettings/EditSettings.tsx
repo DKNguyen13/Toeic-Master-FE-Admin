@@ -1,11 +1,11 @@
 import api from "../../../config/axios";
 import React, { useState, useEffect, useRef } from "react";
-import LeftSidebarUser from "../../../components/LeftSidebarUser";
+import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { showToast } from "../../../utils/toast";
 
 const UpdateProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"basic" | "privacy" | "password">("basic");
@@ -71,7 +71,7 @@ const UpdateProfile: React.FC = () => {
         realAge -= 1;
       }
       if (realAge < 16) {
-        toast.error("Người dùng phải từ 16 tuổi trở lên để cập nhật thông tin.");
+        showToast("Người dùng phải từ 16 tuổi trở lên để cập nhật thông tin.", "error");
         setLoading(false);
         return;
       }
@@ -101,13 +101,13 @@ const UpdateProfile: React.FC = () => {
         if (fileInputRef.current) fileInputRef.current.value = "";
         if (user.avatarUrl) setAvatarPreview(user.avatarUrl);
         setAvatarPreview(user.avatarUrl || "");
-        toast.success("Cập nhật thông tin thành công!");
+        showToast("Cập nhật thông tin thành công!", "success");
       }
       else {
-        toast.error("Cập nhật thông tin thất bại!");
+        showToast("Cập nhật thông tin thất bại!", "error");
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Lỗi khi cập nhật thông tin");
+      showToast(err.response?.data?.message || "Lỗi khi cập nhật thông tin", "error");
       console.error(err);
     } finally {
       setLoading(false);
@@ -170,7 +170,7 @@ const UpdateProfile: React.FC = () => {
 
   return (
     <div className="min-h-screen flex bg-gray-50">
-      <LeftSidebarUser customHeight="h-auto w-64" />
+      <LeftSidebarAdmin customHeight="h-auto w-64" />
 
       <div className="flex-1 p-6">
         <h1 className="text-3xl font-semibold text-black mb-6 text-center">
@@ -341,7 +341,6 @@ const UpdateProfile: React.FC = () => {
             </div>
           </form>
         )}
-        <ToastContainer position="top-right" autoClose={1500} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       </div>
     </div>
   );
