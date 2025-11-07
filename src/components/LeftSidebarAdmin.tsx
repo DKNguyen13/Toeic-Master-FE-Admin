@@ -30,10 +30,10 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
     try {
       await api.post("/auth/logout");
       localStorage.clear();
-      showToast("Đăng xuất thành công!", "success");
+      showToast("Đăng xuất thành công!", "success", { autoClose: 1000 });
     } catch (err) {
       console.error("Logout server failed:", err);
-      showToast("Đăng xuất thất bại. Vui lòng thử lại.", "error");
+      showToast("Đăng xuất thất bại. Vui lòng thử lại.", "error", { autoClose: 1000 });
     } finally {
       setAccessToken(null);
       setFullname("Guest User");
