@@ -368,7 +368,7 @@ const LessonManagementPage: React.FC = () => {
                     <select id="accessLevel" name="accessLevel" required
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                       <option value="">-- Chọn cấp độ --</option>
-                      <option value="free">Free</option>
+                      <option value="free">Miễn phí</option>
                       <option value="basic">Basic</option>
                       <option value="advanced">Advanced</option>
                       <option value="premium">Premium</option>
@@ -456,7 +456,7 @@ const LessonManagementPage: React.FC = () => {
                         defaultValue={editingLesson.accessLevel}
                         required
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="free">Free</option>
+                        <option value="free">Miễn phí</option>
                         <option value="basic">Basic</option>
                         <option value="advanced">Advanced</option>
                         <option value="premium">Premium</option>

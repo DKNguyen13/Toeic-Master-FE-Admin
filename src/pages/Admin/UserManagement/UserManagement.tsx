@@ -334,7 +334,7 @@ const UserManagementPage: React.FC = () => {
                 <th className="px-4 py-4">Tên người dùng</th>
                 <th className="px-4 py-4">Email</th>
                 <th className="px-4 py-4">SĐT</th>
-                <th className="px-4 py-4">Loại TK</th>
+                <th className="px-4 py-4">Loại</th>
                 <th className="px-4 py-4">Ngày đăng ký</th>
                 <th className="px-4 py-4">Trạng thái</th>
                 <th className="px-4 py-4 text-center">Thao tác</th>
