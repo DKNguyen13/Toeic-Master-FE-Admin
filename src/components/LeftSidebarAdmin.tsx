@@ -1,4 +1,5 @@
 import React from "react";
+import { showToast } from "../utils/toast.js";
 import { Link, useNavigate } from "react-router-dom";
 import api, { setAccessToken } from "../config/axios.js";
 import { FaTachometerAlt, FaUsers, FaFileAlt, FaGift, FaSignOutAlt, FaBook, FaAdjust } from "react-icons/fa";
@@ -16,8 +17,10 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
     try {
       await api.post("/auth/logout");
       localStorage.clear();
+      showToast("Đăng xuất thành công!", "success");
     } catch (err) {
       console.error("Logout server failed:", err);
+      showToast("Đăng xuất thất bại. Vui lòng thử lại.", "error");
     } finally {
       setAccessToken(null);
       setFullname("Guest User");

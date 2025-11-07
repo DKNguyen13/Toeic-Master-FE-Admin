@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import api from "../../config/axios";
 import React, { useEffect, useState } from "react";
-import LeftSidebarUser from "../../components/LeftSidebarUser";
+import LeftSidebarAdmin from "../../components/LeftSidebarAdmin";
 
 interface VipInfo {
   isActive: boolean;
@@ -57,7 +57,7 @@ const Settings: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Left Sidebar */}
-      <LeftSidebarUser customHeight="h-auto w-64" />
+      <LeftSidebarAdmin customHeight="h-auto w-64" />
 
       {/* Form Cài đặt */}
       <div className="flex-1 flex justify-center items-start py-12 px-6">

@@ -1,8 +1,8 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import api from "../../../../config/axios";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
 import LoadingSkeleton from "../../../../components/common/LoadingSpinner/LoadingSkeleton";
+import { showToast } from "../../../../utils/toast";
 
 interface TestData {
   title: string;
@@ -55,11 +55,11 @@ const CreateTestPage: React.FC = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setSubmitting(true);
-      toast.success("Tạo đề thi thành công!");
+      showToast("Tạo đề thi thành công!", "success");
       setFormData({ title: "", testCode: "", audio: "" });
       setAudioFile(null);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Không thể tạo đề thi!");
+      showToast(err.response?.data?.message || "Không thể tạo đề thi!", "error");
     } finally {
       setSubmitting(false);
     }
@@ -165,16 +165,6 @@ const CreateTestPage: React.FC = () => {
           </form>
         </div>
       </div>
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="colored"
-      />
     </>
   );
 };

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../config/axios";
 import FlashcardItem from "./FlashcardItem";
-import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useLocation } from "react-router-dom";
 import { showToast } from "../../../utils/toast";
@@ -55,7 +54,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
 
   const handleAdd = async () => {
     if (!form.word || !form.meaning) {
-      toast.warn("Nhập đầy đủ từ và nghĩa!");
+      showToast("Nhập đầy đủ từ và nghĩa!", "warn");
       return;
     }
     if (!setId) return;

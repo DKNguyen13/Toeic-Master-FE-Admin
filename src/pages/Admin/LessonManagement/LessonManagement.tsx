@@ -1,10 +1,10 @@
 import { createPortal } from "react-dom";
 import api from "../../../config/axios";
 import "react-toastify/dist/ReactToastify.css";
-import { toast, ToastContainer } from "react-toastify";
 import React, { useEffect, useState, useCallback } from "react";
 import { FaEllipsisH, FaTimes, FaUpload } from "react-icons/fa";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
+import { showToast } from "../../../utils/toast";
 
 interface Lesson {
   _id: string;
@@ -39,7 +39,7 @@ const LessonManagementPage: React.FC = () => {
       setLessons(res.data.data);
     } catch (err) {
       console.error(err);
-      toast.error("Không thể tải danh sách bài học!");
+      showToast("Lấy danh sách bài học thất bại!", "error");
     }
   }, []);
 
@@ -52,12 +52,12 @@ const LessonManagementPage: React.FC = () => {
     try {
       await api.patch(`/lessons/${id}/delete`);
       setLessons((prev) => prev.filter((l) => l._id !== id));
-      toast.success("Xóa bài học thành công!");
+      showToast("Xóa bài học thành công!", "success");
       closeMenu();
       setDeleteConfirmId(null);
     } catch (err) {
       console.error(err);
-      toast.error("Xóa bài học thất bại!");
+      showToast("Xóa bài học thất bại!", "error");
     }
   };
 
@@ -92,7 +92,7 @@ const LessonManagementPage: React.FC = () => {
     if (file) {
       const ext = file.name.split(".").pop()?.toLowerCase();
       if (ext !== "docx") {
-        toast.error("Chỉ được chọn file Word (.docx)!");
+        showToast("Chỉ được chọn file Word (.docx)!", "error");
         e.target.value = ""; // reset input
         setSelectedFile(null);
         return;
@@ -108,7 +108,7 @@ const LessonManagementPage: React.FC = () => {
     if (file) {
       const ext = file.name.split(".").pop()?.toLowerCase();
       if (ext !== "docx") {
-        toast.error("Chỉ được chọn file Word (.docx)!");
+        showToast("Chỉ được chọn file Word (.docx)!", "error");
         e.target.value = "";
         setEditFile(null);
         return;
@@ -130,7 +130,7 @@ const LessonManagementPage: React.FC = () => {
     const accessLevel = form.accessLevel.value;
 
     if (!title || !type || !accessLevel) {
-      toast.error("Vui lòng điền đầy đủ thông tin!");
+      showToast("Vui lòng điền đầy đủ thông tin!", "error");
       return;
     }
 
@@ -163,7 +163,7 @@ const LessonManagementPage: React.FC = () => {
         });
       }
 
-      toast.success("Cập nhật thành công!");
+      showToast("Cập nhật bài học thành công!", "success");
       setLessons((prev) =>
         prev.map((l) => (l._id === editingLesson._id ? res.data.data : l))
       );
@@ -171,7 +171,7 @@ const LessonManagementPage: React.FC = () => {
       setEditFile(null);
       setEditingLesson(null);
     } catch (err) {
-      toast.error("Cập nhật thất bại!");
+      showToast("Cập nhật bài học thất bại!", "error");
     } finally {
       setIsUpdating(false);
     }
@@ -186,11 +186,11 @@ const LessonManagementPage: React.FC = () => {
     const accessLevel = form.accessLevel.value;
 
     if (!selectedFile) {
-      toast.error("Vui lòng chọn file .docx trước khi tạo!");
+      showToast("Vui lòng chọn file .docx trước khi tạo!", "error");
       return;
     }
     if (!title || !type || !accessLevel) {
-      toast.error("Vui lòng điền đầy đủ thông tin!");
+      showToast("Vui lòng điền đầy đủ thông tin!", "error");
       return;
     }
 
@@ -205,14 +205,14 @@ const LessonManagementPage: React.FC = () => {
       const res = await api.post("/lessons/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success(`Tải lên thành công: ${selectedFile.name}`);
+      showToast("Tạo bài học thành công!", "success");
       setLessons((prev) => [...prev, res.data.data]);
       setIsModalOpen(false);
       setSelectedFile(null);
       form.reset();
     } catch (err) {
       console.error(err);
-      toast.error("Tải lên thất bại!");
+      showToast("Tạo bài học thất bại!", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -517,8 +517,6 @@ const LessonManagementPage: React.FC = () => {
             </div>,
             document.body
           )}
-
-        <ToastContainer position="top-right" autoClose={1200} />
       </div>
     </div>
   );
