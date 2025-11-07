@@ -1,11 +1,10 @@
-import { FaSave } from "react-icons/fa";
 import api from "../../../config/axios";
 import React, { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import LoadingSkeleton from "../../../components/common/LoadingSpinner/LoadingSkeleton";
 import { Package, Save, BadgeDollarSign, Clock, Edit3 } from "lucide-react";
+import { showToast } from "../../../utils/toast";
 
 interface Package {
   _id: string;
@@ -33,7 +32,7 @@ const VipManagementPage: React.FC = () => {
         );
         setPackages(sorted);
       } catch (err: any) {
-        toast.error("Lỗi khi tải dữ liệu gói VIP");
+        showToast(err.response?.data?.message || "Lỗi khi tải dữ liệu gói VIP", "error");
         console.error("Lỗi lấy gói VIP:", err);
       } finally {
         setLoading(false);
@@ -69,19 +68,10 @@ const VipManagementPage: React.FC = () => {
         discountedPrice: pkg.discountedPrice,
         description: pkg.description,
       });
-      toast.success(
-        <div className="flex items-center gap-2">
-          <span>Lưu thành công gói {pkg.name}</span>
-        </div>
-      );
+      showToast(`Lưu thành công gói ${pkg.name}`, "success");
     } catch (err: any) {
       const message = err.response?.data?.message || "Lỗi khi cập nhật gói VIP";
-      toast.error(
-        <div className="flex items-center gap-2">
-          <Package className="w-5 h-5" />
-          <span>{message}</span>
-        </div>
-      );
+      showToast(message, "error");
     } finally {
       setSavingId(null);
     }
@@ -118,20 +108,6 @@ const VipManagementPage: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-gray-100">
       <LeftSidebarAdmin customHeight="h-auto w-64" />
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        toastClassName="rounded-xl shadow-lg"
-      />
-
       <div className="flex-1 p-6 lg:p-10">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
