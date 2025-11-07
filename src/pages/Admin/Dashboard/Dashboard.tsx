@@ -1,66 +1,69 @@
-import api from "../../../config/axios";
+import { motion } from "framer-motion";
 import { Line } from "react-chartjs-2";
+import api from "../../../config/axios";
 import React, { useEffect, useState } from "react";
-import { MdOutlineCloudDone } from "react-icons/md";
-import { FaUsers, FaFileAlt, FaChartLine } from "react-icons/fa";
-import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
-
-ChartJS.register(
+import { Users, FileText, LineChart, CheckCircle2 } from "lucide-react";
+import {
+  Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
   Title,
   Tooltip,
-  Legend
-);
+  Legend,
+} from "chart.js";
+import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
+
+ChartJS.register( CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const DashboardPage: React.FC = () => {
   const [revenueData, setRevenueData] = useState<any[]>([]);
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
   const [growth, setGrowth] = useState<number>(0);
-  const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
-  );
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [userStats, setUserStats] = useState<any>(null);
+  const [revenueStats, setRevenueStats] = useState<any>(null);
 
-  const fetchRevenue = async (year: number) => {
+  const fetchDashboard = async (year: number) => {
     try {
-      const res = await api.get(`/admin/revenue-stats?type=month&year=${year}`);
-      const data = res.data.data || [];
+      const res = await api.get(`/admin/dashboard?year=${year}`);
+      const data = res.data.data;
+      setUserStats(data.userStats || {});
+      setRevenueStats(data.revenueStats || {});
+    } catch (err) {
+      console.error("Lỗi khi load dashboard:", err);
+    }
+  };
 
-      setRevenueData(data);
+  const fetchRevenueChart = async (year: number) => {
+    try {
+      const chartRes = await api.get(`/admin/revenue-stats?type=month&year=${year}`);
+      const chartData = chartRes.data.data || [];
+      setRevenueData(chartData);
 
-      const total = data.reduce(
-        (sum: number, item: any) => sum + item.totalRevenue,
-        0
-      );
+      const total = chartData.reduce((sum: number, item: any) => sum + item.totalRevenue, 0);
       setTotalRevenue(total);
 
-      // Tính % tăng trưởng so với tháng trước
-      if (data.length > 1) {
-        const current = data[data.length - 1]?.totalRevenue || 0;
-        const prev = data[data.length - 2]?.totalRevenue || 0;
+      if (chartData.length > 1) {
+        const current = chartData[chartData.length - 1]?.totalRevenue || 0;
+        const prev = chartData[chartData.length - 2]?.totalRevenue || 0;
         const g = prev > 0 ? ((current - prev) / prev) * 100 : 0;
         setGrowth(g);
-      } else {
-        setGrowth(0);
-      }
+      } else setGrowth(0);
     } catch (err) {
       console.error("Lỗi khi load revenue:", err);
     }
   };
 
   useEffect(() => {
-    fetchRevenue(selectedYear);
+    fetchDashboard(selectedYear); 
+    fetchRevenueChart(selectedYear);
   }, [selectedYear]);
 
-  // Labels là các tháng
   const labels = Array.from({ length: 12 }, (_, i) => `Tháng ${i + 1}`);
-
-    const dataByMonth = labels.map((label, index) => {
-    const monthNumber = index + 1;
-    const monthData = revenueData.find((item) => item.month === monthNumber);
+  const dataByMonth = labels.map((_, i) => {
+    const monthData = revenueData.find((item) => item.month === i + 1);
     return monthData ? monthData.totalRevenue : 0;
   });
 
@@ -70,91 +73,97 @@ const DashboardPage: React.FC = () => {
       {
         label: `Doanh thu năm ${selectedYear} (VND)`,
         data: dataByMonth,
-        borderColor: "#4A90E2",
-        fill: false,
-        tension: 0.1,
+        borderColor: "#2563eb",
+        backgroundColor: "rgba(37,99,235,0.2)",
+        fill: true,
+        tension: 0.3,
       },
     ],
   };
 
   const options = {
     responsive: true,
-    plugins: {
-      legend: { display: true },
-    },
+    plugins: { legend: { display: true } },
     scales: {
-      x: {
-        title: { display: true, text: "Tháng" },
-      },
-      y: {
-        title: { display: true, text: "Doanh thu (VND)" },
-        beginAtZero: true,
-      },
+      x: { title: { display: true, text: "Tháng" } },
+      y: { title: { display: true, text: "Doanh thu (VND)" }, beginAtZero: true },
     },
   };
 
-  const years = [2023, 2024, 2025, 2026];
+  const years = [2024, 2025, 2026];
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Left Sidebar */}
+    <div className="min-h-screen flex bg-gray-100">
+      {/* Sidebar */}
       <LeftSidebarAdmin customHeight="h-auto w-64" />
 
-      {/* Main Content */}
+      {/* Main content */}
       <div className="flex-1 p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">
+          Dashboard Admin
+        </h1>
+
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {/* Card 1 */}
-          <div className="bg-white p-6 rounded-lg shadow flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-700">Tổng số người dùng</h2>
-              <p className="text-2xl font-bold text-gray-800">8</p>
-              <p className="text-green-600">+0% so với hôm qua</p>
-            </div>
-            <FaUsers className="text-blue-600 text-4xl" />
-          </div>
-
-          {/* Card 2 */}
-          <div className="bg-white p-6 rounded-lg shadow flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-700">
-                Tổng số bài thi đã làm
-              </h2>
-              <p className="text-2xl font-bold text-gray-800">10</p>
-              <p className="text-green-600">+1.3% so với tuần trước</p>
-            </div>
-            <FaFileAlt className="text-orange-600 text-4xl" />
-          </div>
-
-          {/* Card 3 - Doanh thu */}
-          <div className="bg-white p-6 rounded-lg shadow flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-700">Tổng doanh thu năm {selectedYear}</h2>
-            <p className="text-2xl font-bold text-gray-800">{totalRevenue.toLocaleString("vi-VN")} đ</p>
-            <p className="text-green-600">Doanh thu chi tiết theo tháng bên dưới</p>
-          </div>
-          <FaChartLine className="text-green-600 text-4xl" />
-          </div>
-
-          {/* Card 4 */}
-          <div className="bg-white p-6 rounded-lg shadow flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-700">Tỷ lệ hoàn thành bài</h2>
-              <p className="text-2xl font-bold text-gray-800">80%</p>
-              <p className="text-green-600">+1.8% so với hôm qua</p>
-            </div>
-            <MdOutlineCloudDone className="text-red-600 text-4xl" />
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          {[
+            {
+              title: "Tổng số người dùng",
+              value: userStats?.totalUsers?.toLocaleString("vi-VN") || "0",
+              change: `+${userStats?.growth ?? 0}% so với hôm qua`,
+              icon: Users,
+              color: "text-blue-600",
+            },
+            {
+              title: "Tổng số bài thi đã làm",
+              value: "10",
+              change: "+1.3% so với tuần trước",
+              icon: FileText,
+              color: "text-orange-500",
+            },
+            {
+              title: `Tổng doanh thu ${selectedYear}`,
+              value: `${(revenueStats?.totalRevenue || 0).toLocaleString("vi-VN")} đ`,
+              change: `${revenueStats?.growth?.toFixed(1) ?? 0}% tăng trưởng`,
+              icon: LineChart,
+              color: "text-green-600",
+            },
+            {
+              title: "Tỷ lệ hoàn thành bài",
+              value: "80%",
+              change: "+1.8% so với hôm qua",
+              icon: CheckCircle2,
+              color: "text-rose-500",
+            },
+          ].map((card, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.03 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl border border-gray-200 transition-all"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <h2 className="text-lg font-semibold text-gray-700">
+                  {card.title}
+                </h2>
+                <card.icon className={`${card.color} w-7 h-7`} />
+              </div>
+              <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+              <p className="text-sm text-green-600 mt-1">{card.change}</p>
+            </motion.div>
+          ))}
         </div>
 
-        {/* Biểu đồ doanh thu */}
-        <div className="bg-white p-6 rounded-lg shadow mb-8">
+        {/* Chart */}
+        <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Chi tiết doanh thu theo tháng</h2>
-            {/* Dropdown chọn năm */}
-            <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="border rounded px-3 py-2">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Doanh thu theo tháng
+            </h2>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500"
+            >
               {years.map((year) => (
                 <option key={year} value={year}>
                   {year}

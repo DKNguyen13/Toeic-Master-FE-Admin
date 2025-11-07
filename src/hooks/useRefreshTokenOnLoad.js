@@ -13,12 +13,11 @@ const useRefreshTokenOnLoad = () => {
         setAccessToken(newAccessToken);
       } catch (err) {
         console.error("Refresh token invalid:", err);
-        localStorage.clear();
+        sessionStorage.clear();
         setAccessToken(null);
         navigate("/login");
       }
     };
-
     refresh();
   }, [navigate]);
 };
