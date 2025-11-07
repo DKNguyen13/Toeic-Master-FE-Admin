@@ -2,13 +2,15 @@ import { FaSave } from "react-icons/fa";
 import api from "../../../config/axios";
 import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import LoadingSkeleton from "../../../components/common/LoadingSpinner/LoadingSkeleton";
+import { Package, Save, BadgeDollarSign, Clock, Edit3 } from "lucide-react";
 
 interface Package {
   _id: string;
   name: string;
-  type: "basic" | "pro" | "premium";
+  type: "basic" | "advanced" | "premium";
   durationMonths: number;
   originalPrice: number;
   discountedPrice: number;
@@ -18,6 +20,7 @@ interface Package {
 const VipManagementPage: React.FC = () => {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -30,6 +33,7 @@ const VipManagementPage: React.FC = () => {
         );
         setPackages(sorted);
       } catch (err: any) {
+        toast.error("Lỗi khi tải dữ liệu gói VIP");
         console.error("Lỗi lấy gói VIP:", err);
       } finally {
         setLoading(false);
@@ -44,9 +48,13 @@ const VipManagementPage: React.FC = () => {
     value: string | number
   ) => {
     const updated = [...packages];
-
     if (field === "originalPrice" || field === "discountedPrice") {
-      updated[index][field] = Number(value);
+      let numValue = Number(value) || 0;
+
+      if (field === "discountedPrice" && numValue > updated[index].originalPrice) numValue = updated[index].originalPrice;
+      if (field === "originalPrice" && numValue < updated[index].discountedPrice) updated[index].discountedPrice = numValue;
+
+      updated[index][field] = numValue;
     } else {
       updated[index][field] = value as string;
     }
@@ -54,99 +62,241 @@ const VipManagementPage: React.FC = () => {
   };
 
   const handleSave = async (pkg: Package) => {
+    setSavingId(pkg._id);
     try {
-      await api.put(`/vip/${pkg._id}`, { originalPrice: pkg.originalPrice, discountedPrice: pkg.discountedPrice, description: pkg.description });
-      toast.success(`Lưu thành công gói ${pkg.name}`);
+      await api.put(`/vip/${pkg._id}`, {
+        originalPrice: pkg.originalPrice,
+        discountedPrice: pkg.discountedPrice,
+        description: pkg.description,
+      });
+      toast.success(
+        <div className="flex items-center gap-2">
+          <span>Lưu thành công gói {pkg.name}</span>
+        </div>
+      );
     } catch (err: any) {
       const message = err.response?.data?.message || "Lỗi khi cập nhật gói VIP";
-      toast.error(`${message}`);
+      toast.error(
+        <div className="flex items-center gap-2">
+          <Package className="w-5 h-5" />
+          <span>{message}</span>
+        </div>
+      );
+    } finally {
+      setSavingId(null);
     }
   };
 
-  if (loading) return <LoadingSkeleton/>;
+  const getPackageStyle = (type: string) => {
+    switch (type) {
+      case "basic":
+        return "from-blue-500 to-blue-600 border-blue-200";
+      case "advanced":
+        return "from-purple-500 to-purple-600 border-purple-200";
+      case "premium":
+        return "from-amber-500 to-amber-600 border-amber-200";
+      default:
+        return "from-gray-500 to-gray-600 border-gray-200";
+    }
+  };
+
+  const getBadgeColor = (type: string) => {
+    switch (type) {
+      case "basic":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "advanced":
+        return "bg-purple-100 text-purple-700 border-purple-200";
+      case "premium":
+        return "bg-amber-100 text-amber-700 border-amber-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
+    }
+  };
+
+  if (loading) return <LoadingSkeleton />;
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar */}
+    <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-gray-100">
       <LeftSidebarAdmin customHeight="h-auto w-64" />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        toastClassName="rounded-xl shadow-lg"
+      />
 
-      <ToastContainer position="top-right" autoClose={1500} />
+      <div className="flex-1 p-6 lg:p-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Quản lý gói VIP
+            </h1>
+            <p className="text-gray-600">Chỉnh sửa giá và mô tả các gói thành viên</p>
+          </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-8">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Quản lý gói VIP</h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {packages.map((pkg, index) => (
-            <div key={pkg._id} className="bg-white p-5 rounded-lg shadow hover:shadow-lg transition">
-              <h3 className="text-xl font-semibold mb-2">{pkg.name}</h3>
-              <p className="mb-2">Thời hạn: {pkg.durationMonths} tháng</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {packages.map((pkg, index) => (
+              <div
+                key={pkg._id}
+                className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200"
+              >
+                {/* Gradient Header */}
+                <div
+                  className={`h-2 bg-gradient-to-r ${getPackageStyle(pkg.type)}`}
+                ></div>
 
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Mô tả:
-                </label>
-                <textarea value={pkg.description || ""}
-                  maxLength={300}
-                  onChange={(e) => handleFieldChange(index, "description", e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded px-2 py-1"
-                  rows={7}
-                />
-              </div>
+                <div className="p-6">
+                  {/* Package Name & Badge */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      {pkg.name}
+                    </h3>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold border ${getBadgeColor(
+                        pkg.type
+                      )}`}
+                    >
+                      {pkg.type.toUpperCase()}
+                    </span>
+                  </div>
 
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-700">Giá gốc:</label>
-                <div className="mt-1 relative">
-                  <input type="number" max={999999999}  
-                    value={pkg.originalPrice}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        index,
-                        "originalPrice",
-                        Number(e.target.value)
-                      )
-                    }
-                    className="mt-1 block w-full border border-gray-300 rounded px-2 py-1"
-                    onInput={(e) => {
-                      const target = e.target as HTMLInputElement;
-                      if (target.value.length > 9) {
-                        target.value = target.value.slice(0, 9);
+                  {/* Duration */}
+                  <div className="flex items-center gap-2 text-gray-600 mb-5">
+                    <Clock className="w-4 h-4" />
+                    <span className="text-sm">{pkg.durationMonths} tháng</span>
+                  </div>
+
+                  {/* Description */}
+                  <div className="mb-5">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                      <Edit3 className="w-4 h-4" />
+                      Mô tả gói
+                    </label>
+                    <textarea
+                      value={pkg.description || ""}
+                      maxLength={300}
+                      onChange={(e) =>
+                        handleFieldChange(index, "description", e.target.value)
                       }
-                    }}
-                  />
-                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">VNĐ</span>
+                      className="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                      rows={4}
+                      placeholder="Nhập mô tả gói VIP..."
+                    />
+                    <p className="text-xs text-gray-500 mt-1 text-right">
+                      {pkg.description?.length || 0}/300
+                    </p>
+                  </div>
+
+                 {/* Price Section - Enhanced */}
+                <div className="space-y-5 mb-6">
+                  {/* Discount Badge & Percentage */}
+                  <div className="flex items-center justify-between bg-red-50 p-3 rounded-xl border border-red-200">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                        -{Math.round(((pkg.originalPrice - pkg.discountedPrice) / pkg.originalPrice) * 100)}%
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600">Tiết kiệm</p>
+                        <p className="text-sm font-bold text-red-700">
+                          {(pkg.originalPrice - pkg.discountedPrice).toLocaleString("vi-VN")} VNĐ
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500 line-through">
+                        {pkg.originalPrice.toLocaleString("vi-VN")} VNĐ
+                      </p>
+                      <p className="text-lg font-bold text-red-700">
+                        {pkg.discountedPrice.toLocaleString("vi-VN")} VNĐ
+                      </p>
+                    </div>
+                  </div>
+                  {/* Original Price */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                      <BadgeDollarSign className="w-4 h-4" />
+                      Giá gốc
+                    </label>
+                    <div className="relative group">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={pkg.originalPrice.toLocaleString("vi-VN")}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          handleFieldChange(index, "originalPrice", raw ? Number(raw) : 0);
+                        }}
+                        className="w-full pl-5 pr-16 py-3.5 text-base font-medium text-gray-900 bg-gray-50 border border-gray-300 rounded-xl transition-all duration-200 placeholder-gray-400"
+                        placeholder="0"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
+                        <span className="text-sm font-medium text-gray-500">VNĐ</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Discounted Price */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                      <BadgeDollarSign className="w-4 h-4 text-gray-700" />
+                      Giá sau giảm
+                    </label>
+                    <div className="relative group">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={pkg.discountedPrice.toLocaleString("vi-VN")}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          handleFieldChange(index, "discountedPrice", raw ? Number(raw) : 0);
+                        }}
+                        className="w-full pl-5 pr-16 py-3.5 text-base font-medium text-gray-900 bg-gray-50 border border-gray-300 rounded-xl transition-all duration-200 placeholder-gray-400"
+                        placeholder="0"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
+                        <span className="text-sm font-medium text-gray-500">VNĐ</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                  {/* Save Button */}
+                  <button onClick={() => handleSave(pkg)}
+                    disabled={savingId === pkg._id}
+                    className={`
+                        w-full py-3 px-6 rounded-2xl font-semibold text-white flex items-center justify-center gap-3
+                        transition-all duration-300 transform
+                        ${
+                          savingId === pkg._id
+                            ? "bg-gray-500 cursor-not-allowed opacity-80"
+                            : "bg-gray-600 hover:bg-gray-700 shadow-md hover:shadow-lg hover:-translate-y-1"
+                        }
+                      `}
+                  >
+                    {savingId === pkg._id ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Đang lưu...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        Lưu thay đổi
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Giá giảm:</label>
-                <div className="mt-1 relative">
-                  <input max={999999999} type="number"
-                    value={pkg.discountedPrice}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        index,
-                        "discountedPrice",
-                        Number(e.target.value)
-                      )
-                    }
-                    className="mt-1 block w-full border border-gray-300 rounded px-2 py-1"
-                    onInput={(e) => {
-                      const target = e.target as HTMLInputElement;
-                      if (target.value.length > 9) {
-                        target.value = target.value.slice(0, 9);
-                      }
-                    }}
-                  />
-                  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">VNĐ</span>
-                </div>
-              </div>
-
-              <button onClick={() => handleSave(pkg)}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 flex items-center justify-center gap-2">
-                <FaSave /> Lưu
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
