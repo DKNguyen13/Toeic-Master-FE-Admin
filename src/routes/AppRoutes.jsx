@@ -8,8 +8,8 @@ import NotFound from "../pages/NotFound/NotFound";
 import MainLayout from "../layouts/MainLayout";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "../pages/ForgotPassword/ResetPassword";
-import Settings from "../pages/Settings/Settings";
-import EditSettings from "../pages/Settings/EditSettings/EditSettings";
+import Profile from "../pages/Profile/Profile";
+import UpdateProfile from "../pages/Profile/UpdateProfile/UpdateProfile";
 
 // Admin Pages
 import DashboardPage from "../pages/Admin/Dashboard/Dashboard";
@@ -20,6 +20,7 @@ import LessonManagementPage from "../pages/Admin/LessonManagement/LessonManageme
 import CreateTestPage from "../pages/Admin/TestManagement/CreateTestPage/CreateTestPage";
 import CreatePartPage from "../pages/Admin/TestManagement/CreatePartPage/CreatePartPage";
 import CreateQuestionPage from "../pages/Admin/TestManagement/CreateQuestionPage/CreateQuestionPage";
+
 
 // Cấu hình routes
 const routes = [
@@ -60,21 +61,21 @@ const routes = [
     ),
   },
   {
-    path: "/settings",
+    path: "/admin/profile",
     element: (
-      <ProtectedRoute allowedRoles={["admin", "user"]}>
+      <ProtectedRoute allowedRoles={["admin"]}>
         <MainLayout>
-          <Settings />
+          <Profile />
         </MainLayout>
       </ProtectedRoute>
     ),
   },
   {
-    path: "/settings/edit-info",
+    path: "/admin/profile/update-info",
     element: (
-      <ProtectedRoute allowedRoles={["admin", "user"]}>
+      <ProtectedRoute allowedRoles={["admin"]}>
         <MainLayout>
-          <EditSettings />
+          <UpdateProfile />
         </MainLayout>
       </ProtectedRoute>
     ),
