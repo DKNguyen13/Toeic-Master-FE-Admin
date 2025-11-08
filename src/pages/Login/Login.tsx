@@ -64,7 +64,7 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-white flex items-center justify-center p-4 relative overflow-hidden">
       {/* Decorative Elements */}
-      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600"></div>
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400"></div>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
@@ -169,7 +169,7 @@ const Login: React.FC = () => {
                   />
                   Duy trì đăng nhập
                 </label>
-                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-semibold transition">
+                <Link to="/forgot-password" className="text-sm text-gray-600 hover:text-gray-700 font-semibold transition">
                   Quên mật khẩu?
                 </Link>
               </div>
