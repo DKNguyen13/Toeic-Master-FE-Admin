@@ -109,6 +109,7 @@ const Login: React.FC = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    maxLength={40}
                     placeholder="example@email.com"
                     className={`w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:bg-white transition-all ${
                       errors.email ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-200"
@@ -135,6 +136,7 @@ const Login: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
+                    maxLength={50}
                     onKeyDown={(e) => e.key === "Enter" && handleLogin(e)}
                     className={`w-full pl-12 pr-14 py-3.5 bg-gray-50 border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:bg-white transition-all ${
                       errors.password ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-200"
