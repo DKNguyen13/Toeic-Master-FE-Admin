@@ -83,7 +83,7 @@ const Login: React.FC = () => {
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
           {/* Header */}
-          <div className="text-center bg-gradient-to-r from-blue-600 to-blue-700 px-8 pt-8 pb-6">
+          <div className="text-center bg-gray-900 px-8 pt-8 pb-6">
             <h1 className="text-3xl font-bold text-white mb-2">Đăng nhập</h1>
             <p className="text-blue-100 text-sm">Truy cập bảng điều khiển hệ thống</p>
           </div>
@@ -175,12 +175,7 @@ const Login: React.FC = () => {
               </div>
 
               {/* Login Button */}
-              <button type="submit"
-                disabled={isLoading}
-                className={`w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group mt-6 ${
-                  isLoading ? "opacity-70 cursor-not-allowed" : ""
-                }`}
-              >
+              <button type="submit" disabled={isLoading} className={`w-full py-4 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 group mt-6 ${isLoading ? "opacity-70 cursor-not-allowed" : ""}`}>
                 {isLoading ? (
                   <>
                     <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
