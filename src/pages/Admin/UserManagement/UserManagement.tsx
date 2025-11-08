@@ -236,8 +236,7 @@ const UserManagementPage: React.FC = () => {
           </div>
           <div className="flex gap-2">
             <button onClick={() => fetchUsers(currentPage)}
-              className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
-            >
+              className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition">
               <RefreshCw className="w-4 h-4 animate-spin-slow" />
               Làm mới
             </button>
@@ -294,7 +293,7 @@ const UserManagementPage: React.FC = () => {
           </form>
           <div className="relative">
             <button  ref={filterButtonRef} onClick={() => setFilterOpen(!filterOpen)} className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition">
-              <Filter className="w-4 h-4" /> Bộ lọc
+              <Filter className="ml-1 px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full" /> Bộ lọc
             </button>
 
             {filterOpen && (
