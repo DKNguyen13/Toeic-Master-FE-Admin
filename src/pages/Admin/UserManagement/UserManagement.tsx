@@ -280,6 +280,7 @@ const UserManagementPage: React.FC = () => {
               type="text"
               placeholder="Tìm kiếm theo tên, email, số điện thoại..."
               value={searchTerm}
+              maxLength={60}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full border border-gray-300 rounded-lg py-2 pl-10 pr-24 focus:ring-1 focus:ring-blue-300 outline-none transition"
             />
