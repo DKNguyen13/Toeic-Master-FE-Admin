@@ -100,7 +100,7 @@ const DashboardPage: React.FC = () => {
       {/* Main content */}
       <div className="flex-1 p-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">
-          Dashboard Admin
+          Dashboard
         </h1>
 
         {/* Cards */}
