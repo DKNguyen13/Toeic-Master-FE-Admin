@@ -2,16 +2,7 @@ import React from "react";
 import { showToast } from "../utils/toast.js";
 import { Link, useNavigate } from "react-router-dom";
 import api, { setAccessToken } from "../config/axios.js";
-import {
-  LayoutDashboard,
-  Users,
-  BookOpen,
-  FileText,
-  Sparkles,
-  Crown,
-  LogOut,
-  UserCircle,
-} from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, FileText, Sparkles, Crown, LogOut, UserCircle } from "lucide-react";
 
 interface LeftSidebarAdminProps {
   customHeight?: string;
@@ -43,7 +34,8 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
   };
 
   const menuItems = [
-    { to: "/admin/dashboard", icon: LayoutDashboard, label: "Thống kê" },
+    { to: "/admin/profile", icon: UserCircle, label: "Thông tin cá nhân" },
+    { to: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/admin/usermanagement", icon: Users, label: "Người dùng" },
     { to: "/admin/lessonmanagement", icon: BookOpen, label: "Bài học" },
     { to: "/admin/testmanagement", icon: FileText, label: "Đề thi" },
@@ -52,13 +44,12 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
   ];
 
   return (
-    <aside
-      className={`bg-white border-r border-gray-200 flex flex-col ${
+    <aside className={`bg-white border-r border-gray-200 flex flex-col ${
         customHeight || "h-screen"
       } w-64 min-w-[200px] transition-all duration-300`}
     >
       {/* Header - User Info */}
-      <div className="p-5 border-b border-gray-100">
+      <div className="p-5 border-b border-gray-300">
         <div className="flex items-center space-x-3">
           <div className="relative">
             <img
@@ -88,8 +79,7 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
             <Link
               key={item.to}
               to={item.to}
-              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-700 group"
-            >
+              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-700 group">
               <Icon className="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition-colors" />
               <span>{item.label}</span>
             </Link>
@@ -98,11 +88,9 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
       </nav>
 
       {/* Logout Button */}
-      <div className="p-4 border-t border-gray-400">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-medium text-red-600 rounded-lg transition-all duration-200 hover:bg-red-50 group"
-        >
+      <div className="p-4 border-t border-gray-300">
+        <button onClick={handleLogout}
+          className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-medium text-red-600 rounded-lg transition-all duration-200 hover:bg-red-50 group">
           <LogOut className="w-5 h-5 text-red-500 group-hover:text-red-600 transition-colors" />
           <span>Đăng xuất</span>
         </button>
