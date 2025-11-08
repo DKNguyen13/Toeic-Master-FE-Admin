@@ -344,7 +344,7 @@ const UserManagementPage: React.FC = () => {
               {users.length > 0 ? filteredUsers.map((user) => (
                 <tr key={user._id} className="hover:bg-gray-50 transition">
                   <td className="px-4 py-4 text-center">{user.id}</td>
-                  <td className="px-4 py-4">{user.fullname}</td>
+                  <td className="px-4 py-4 max-w-[200px] truncate" title={user.fullname}>{user.fullname}</td>
                   <td className="px-4 py-4">{user.email}</td>
                   <td className="px-4 py-4">{user.phone}</td>
                   <td className="px-4 py-4"><span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
