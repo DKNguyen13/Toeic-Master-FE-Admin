@@ -118,7 +118,7 @@ const Profile: React.FC = () => {
                   onError={(e) => { (e.target as HTMLImageElement).src = "/img/avatar/default_avatar.jpg"; }}
                 />
               </div>
-              <h2 className="text-xl font-bold text-gray-800">{user.fullname || "Chưa có tên"}</h2>
+              <h2 className="text-xl font-bold break-words text-gray-800">{user.fullname || "Chưa có tên"}</h2>
               <p className="text-gray-500 text-sm">{user.email || "Chưa có email"}</p>
             </div>
 
@@ -185,7 +185,7 @@ const Profile: React.FC = () => {
                       {field.icon}
                       {field.label}
                     </label>
-                    <div className="w-full p-3 min-h-[48px] bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="w-full p-3 min-h-[48px] bg-gray-50 rounded-lg border border-gray-200 break-words">
                       {field.value || "Chưa có dữ liệu"}
                     </div>
                   </div>
