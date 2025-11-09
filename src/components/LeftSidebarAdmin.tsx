@@ -60,7 +60,7 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
             <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-semibold text-gray-900 truncate">
+            <h2 className="text-sm font-semibold text-gray-900 break-words">
               {fullname}
             </h2>
             <div className="flex items-center mt-1 text-xs text-blue-600 font-medium">
