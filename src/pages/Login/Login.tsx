@@ -44,6 +44,7 @@ const Login: React.FC = () => {
         localStorage.setItem("avatarUrl", user.avatarUrl);
         localStorage.setItem("role", user.role);
         localStorage.setItem("userId", user.id);
+        localStorage.setItem("isLogin", "true");
         window.dispatchEvent(new Event("userUpdated"));
 
         if (user.role === "admin") navigate("/admin/dashboard");
@@ -110,7 +111,7 @@ const Login: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     maxLength={40}
-                    placeholder="example@email.com"
+                    placeholder="Nhập email của bạn"
                     className={`w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:bg-white transition-all ${
                       errors.email ? "border-red-500 focus:ring-red-500 focus:border-red-500" : "border-gray-200"
                     }`}
