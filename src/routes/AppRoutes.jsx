@@ -20,7 +20,8 @@ import LessonManagementPage from "../pages/Admin/LessonManagement/LessonManageme
 import CreateTestPage from "../pages/Admin/TestManagement/CreateTestPage/CreateTestPage";
 import CreatePartPage from "../pages/Admin/TestManagement/CreatePartPage/CreatePartPage";
 import CreateQuestionPage from "../pages/Admin/TestManagement/CreateQuestionPage/CreateQuestionPage";
-
+import FlashcardPage from "../pages/FlashCard/FlashcardPage";
+import FlashcardListPage from "../pages/FlashCard/FlashcardListPage";
 
 // Cấu hình routes
 const routes = [
@@ -98,6 +99,22 @@ const routes = [
           <UserManagementPage />
         </MainLayout>
       </ProtectedRoute>
+    ),
+  },
+    {
+    path: "/admin/flashcard",
+    element: (
+      <MainLayout>
+        <FlashcardPage />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/admin/flashcards/:setId",
+    element: (
+      <MainLayout>
+        <FlashcardListPage />
+      </MainLayout>
     ),
   },
   {
