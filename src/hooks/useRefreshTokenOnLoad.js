@@ -1,13 +1,11 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import api, { setAccessToken } from "../config/axios";
 
 const useRefreshTokenOnLoad = () => {
-  const navigate = useNavigate();
-
   useEffect(() => {
     const refresh = async () => {
       try {
+        localStorage.clear();
         const res = await api.post("/auth/refresh-token", {}, { withCredentials: true });
         const { newAccessToken } = res.data.data;
         setAccessToken(newAccessToken);
@@ -15,11 +13,11 @@ const useRefreshTokenOnLoad = () => {
         console.error("Refresh token invalid:", err);
         sessionStorage.clear();
         setAccessToken(null);
-        navigate("/login");
+        window.location.href = "/login";
       }
     };
     refresh();
-  }, [navigate]);
+  }, []);
 };
 
 export default useRefreshTokenOnLoad;

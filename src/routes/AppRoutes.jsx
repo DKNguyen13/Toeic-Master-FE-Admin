@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
-//import useRefreshTokenOnLoad from "../hooks/useRefreshTokenOnLoad";
+import useRefreshTokenOnLoad from "../hooks/useRefreshTokenOnLoad";
 
 // Layout
 import Login from "../pages/Login/Login";
@@ -163,6 +163,7 @@ const routes = [
 ];
 
 const AppRoutes = () => {
+  useRefreshTokenOnLoad();
   const router = createBrowserRouter(routes);
   return <RouterProvider router={router} />;
 };
