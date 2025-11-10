@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Flashcard } from "./FlashcardList";
+import { Trash, Music, Volume2 } from "lucide-react";
 
 interface FlashcardItemProps {
   flashcard: Flashcard;
@@ -36,10 +37,8 @@ const FlashcardItem: React.FC<FlashcardItemProps> = ({ flashcard, onDelete }) =>
         }}
       >
         {/* Mặt trước */}
-        <div
-          className="absolute inset-0 w-full h-full"
-          style={{ backfaceVisibility: "hidden" }}
-        >
+        <div className="absolute inset-0 w-full h-full"
+          style={{ backfaceVisibility: "hidden" }}>
           <div className="bg-white rounded-2xl shadow-md hover:shadow-xl p-6 h-full flex flex-col justify-center items-center border-2 border-gray-200 hover:border-blue-400 transition-all duration-300">
             <div className="text-center flex-1 flex flex-col justify-center">
               <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mb-4 mx-auto">
@@ -60,7 +59,7 @@ const FlashcardItem: React.FC<FlashcardItemProps> = ({ flashcard, onDelete }) =>
               }`}
             >
               <span className={`text-lg ${isPlaying ? 'animate-pulse' : ''}`}>
-                {isPlaying ? '🔊' : '🎵'}
+                {isPlaying ? <Volume2 className="text-lg" /> : <Music className="text-lg" />}
               </span>
               {isPlaying ? 'Đang phát...' : 'Phát âm'}
             </button>
@@ -113,10 +112,9 @@ const FlashcardItem: React.FC<FlashcardItemProps> = ({ flashcard, onDelete }) =>
                       onDelete(flashcard._id!);
                     }
                   }}
-                  className="px-4 py-2 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors duration-200 flex items-center gap-2"
-                >
-                  <span>🗑️</span>
-                  Xóa
+                  className="px-4 py-2 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors duration-200 flex items-center gap-2">
+                  <Trash className="text-white text-xl" />
+                  <span className="font-medium">Xóa</span>
                 </button>
               </div>
             )}

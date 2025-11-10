@@ -2,7 +2,7 @@ import React from "react";
 import { showToast } from "../utils/toast.js";
 import { Link, useNavigate } from "react-router-dom";
 import api, { setAccessToken } from "../config/axios.js";
-import { LayoutDashboard, Users, BookOpen, FileText, Sparkles, Crown, LogOut, UserCircle } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, FileText, Sparkles, Crown, LogOut, UserCircle, PieChart } from "lucide-react";
 
 interface LeftSidebarAdminProps {
   customHeight?: string;
@@ -36,7 +36,7 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
 
   const menuItems = [
     { to: "/admin/profile", icon: UserCircle, label: "Thông tin cá nhân" },
-    { to: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { to: "/admin/dashboard", icon: PieChart, label: "Dashboard" },
     { to: "/admin/usermanagement", icon: Users, label: "Người dùng" },
     { to: "/admin/lessonmanagement", icon: BookOpen, label: "Bài học" },
     { to: "/admin/testmanagement", icon: FileText, label: "Đề thi" },
