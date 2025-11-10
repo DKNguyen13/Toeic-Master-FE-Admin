@@ -5,6 +5,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { FaEllipsisH, FaTimes, FaUpload } from "react-icons/fa";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import { showToast } from "../../../utils/toast";
+import { FileText, Trash2, Upload, X } from "lucide-react";
 
 interface Lesson {
   _id: string;
@@ -223,11 +224,15 @@ const LessonManagementPage: React.FC = () => {
       <LeftSidebarAdmin customHeight="h-auto w-64" />
       <div className="flex-1 p-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Quản lý bài học</h1>
-          <button className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition"
+        <div className="flex justify-between items-center mb-8"> 
+          <div> 
+              <h1 className="text-3xl font-bold text-gray-900">Quản lý bài học</h1> 
+              <p className="text-gray-600 mt-1">Quản lý nội dung bài học của hệ thống</p> 
+          </div>
+          
+          <button className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition"
             onClick={() => setIsModalOpen(true)}>
-            + Thêm bài học
+            Thêm bài học
           </button>
         </div>
 
@@ -302,8 +307,8 @@ const LessonManagementPage: React.FC = () => {
                 width: 140,
                 zIndex: 1000,
               }}
-              className="bg-white border rounded shadow-lg">
-              <button className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+              className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 w-40">
+              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition"
                 onClick={() => {
                   const lesson = lessons.find((l) => l._id === menuState.lessonId);
                   if (lesson) {
@@ -315,7 +320,7 @@ const LessonManagementPage: React.FC = () => {
                 Sửa
               </button>
 
-              <button className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
                 onClick={() => setDeleteConfirmId(menuState.lessonId)}>
                 Xóa
               </button>
@@ -323,50 +328,53 @@ const LessonManagementPage: React.FC = () => {
             document.body
           )}
 
-        {/* Modal Thêm bài học */}
+        {/* Modal Thêm */}
         {isModalOpen &&
           createPortal(
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-              <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg relative">
-                <button className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    setSelectedFile(null);
-                  }}>
-                  <FaTimes size={20} />
-                </button>
-
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-                  Thêm bài học mới
-                </h2>
-
-                <form onSubmit={handleCreateLesson} className="space-y-5">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                <div className="flex justify-between items-center p-6 border-b border-gray-200">
+                  <h2 className="text-2xl font-bold text-gray-900">Thêm bài học mới</h2>
+                  <button
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setSelectedFile(null);
+                    }}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+                <form onSubmit={handleCreateLesson} className="p-6 space-y-5">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Tiêu đề</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Tiêu đề</label>
                     <input
-                      id="title"
                       name="title"
                       type="text"
                       required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
                       placeholder="Nhập tiêu đề bài học"
                     />
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium mb-1">Loại bài</label>
-                    <select id="type" name="type" required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Loại bài</label>
+                    <select
+                      name="type"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                    >
                       <option value="">-- Chọn loại bài --</option>
                       <option value="reading">Reading</option>
                       <option value="vocabulary">Vocabulary</option>
                     </select>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium mb-1">Cấp độ truy cập</label>
-                    <select id="accessLevel" name="accessLevel" required
-                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Cấp độ truy cập</label>
+                    <select
+                      name="accessLevel"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                    >
                       <option value="">-- Chọn cấp độ --</option>
                       <option value="free">Miễn phí</option>
                       <option value="basic">Basic</option>
@@ -374,31 +382,32 @@ const LessonManagementPage: React.FC = () => {
                       <option value="premium">Premium</option>
                     </select>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium mb-1">File Word (.docx)</label>
-                    <label htmlFor="file"
-                      className={`flex items-center justify-center gap-2 px-4 py-2 border rounded-lg cursor-pointer transition ${
-                        selectedFile ? "bg-green-50" : "bg-gray-50 hover:bg-gray-100"
-                      }`}>
-                      <FaUpload className="text-gray-600" />
-                      <span className={selectedFile ? "text-gray-700" : "text-red-500"}>
-                        {selectedFile ? selectedFile.name : "Chưa chọn file"}
-                      </span>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">File Word (.docx)</label>
+                    <label
+                      htmlFor="file"
+                      className={`flex items-center justify-center gap-3 px-4 py-10 border-2 border-dashed rounded-lg cursor-pointer transition ${
+                        selectedFile
+                          ? "border-green-500 bg-green-50"
+                          : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Upload size={24} className={selectedFile ? "text-green-600" : "text-gray-500"} />
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-gray-700">
+                          {selectedFile ? selectedFile.name : "Kéo thả hoặc click để chọn file"}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Chỉ chấp nhận .docx</p>
+                      </div>
                     </label>
-                    <input
-                      id="file"
-                      name="file"
-                      type="file"
-                      accept=".docx"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
+                    <input id="file" type="file" accept=".docx" className="hidden" onChange={handleFileChange} />
                   </div>
-
-                  <button type="submit" disabled={isSubmitting}
-                    className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400">
-                    {isSubmitting ? "Đang tải lên..." : "Tạo bài học"}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? <>Đang tải lên...</> : <><FileText size={18} /> Tạo bài học</>}
                   </button>
                 </form>
               </div>
@@ -406,110 +415,113 @@ const LessonManagementPage: React.FC = () => {
             document.body
           )}
 
-        {/* Modal Sửa bài học */}
-        {isEditModalOpen &&
+        {/* Modal Sửa */}
+        {isEditModalOpen && editingLesson &&
           createPortal(
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-              <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg relative">
-                <button
-                  className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
-                  onClick={() => {
-                    setIsEditModalOpen(false);
-                    setEditFile(null);
-                    setEditingLesson(null);
-                  }}>
-                  <FaTimes size={20} />
-                </button>
-
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-                  Cập nhật bài học
-                </h2>
-
-                {editingLesson && (
-                  <form onSubmit={handleUpdateLesson} className="space-y-5">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Tiêu đề</label>
-                      <input id="title"
-                        name="title"
-                        type="text"
-                        defaultValue={editingLesson.title}
-                        required
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Loại bài</label>
-                      <select id="type" name="type"
-                        defaultValue={editingLesson.type}
-                        required
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="reading">Reading</option>
-                        <option value="vocabulary">Vocabulary</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Cấp độ truy cập</label>
-                      <select id="accessLevel"
-                        name="accessLevel"
-                        defaultValue={editingLesson.accessLevel}
-                        required
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="free">Miễn phí</option>
-                        <option value="basic">Basic</option>
-                        <option value="advanced">Advanced</option>
-                        <option value="premium">Premium</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">File Word mới (tuỳ chọn)</label>
-                      <label htmlFor="editFile"
-                        className={`flex items-center justify-center gap-2 px-4 py-2 border rounded-lg cursor-pointer transition ${
-                          editFile ? "bg-green-50" : "bg-gray-50 hover:bg-gray-100"
-                        }`}>
-                        <FaUpload className="text-gray-600" />
-                        <span className={editFile ? "text-gray-700" : "text-gray-500"}>
-                          {editFile ? editFile.name : "Chưa chọn file mới"}
-                        </span>
-                      </label>
-                      <input
-                        id="editFile"
-                        name="file"
-                        type="file"
-                        accept=".docx"
-                        className="hidden"
-                        onChange={handleEditFileChange}
-                      />
-                    </div>
-
-                    <button type="submit"
-                      disabled={isUpdating}
-                      className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400">
-                      {isUpdating ? "Đang cập nhật..." : "Lưu thay đổi"}
-                    </button>
-                  </form>
-                )}
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                <div className="flex justify-between items-center p-6 border-b border-gray-200">
+                  <h2 className="text-2xl font-bold text-gray-900">Cập nhật bài học</h2>
+                  <button
+                    onClick={() => {
+                      setIsEditModalOpen(false);
+                      setEditingLesson(null);
+                      setEditFile(null);
+                    }}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+                <form onSubmit={handleUpdateLesson} className="p-6 space-y-5">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Tiêu đề</label>
+                    <input
+                      name="title"
+                      type="text"
+                      defaultValue={editingLesson.title}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Loại bài</label>
+                    <select
+                      name="type"
+                      defaultValue={editingLesson.type}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                      required
+                    >
+                      <option value="reading">Reading</option>
+                      <option value="vocabulary">Vocabulary</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Cấp độ truy cập</label>
+                    <select
+                      name="accessLevel"
+                      defaultValue={editingLesson.accessLevel}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                      required
+                    >
+                      <option value="free">Miễn phí</option>
+                      <option value="basic">Basic</option>
+                      <option value="advanced">Advanced</option>
+                      <option value="premium">Premium</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">File Word mới (tùy chọn)</label>
+                    <label
+                      htmlFor="editFile"
+                      className={`flex items-center justify-center gap-3 px-4 py-10 border-2 border-dashed rounded-lg cursor-pointer transition ${
+                        editFile ? "border-green-500 bg-green-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Upload size={24} className={editFile ? "text-green-600" : "text-gray-500"} />
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-gray-700">{editFile ? editFile.name : "Kéo thả hoặc click để chọn file"}</p>
+                        <p className="text-xs text-gray-500 mt-1">Chỉ chấp nhận .docx</p>
+                      </div>
+                    </label>
+                    <input id="editFile" type="file" accept=".docx" className="hidden" onChange={handleEditFileChange} />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isUpdating}
+                    className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center gap-2"
+                  >
+                    {isUpdating ? "Đang cập nhật..." : "Lưu thay đổi"}
+                  </button>
+                </form>
               </div>
             </div>,
             document.body
           )}
 
-        {/* Modal Xác nhận xóa */}
+        {/* Modal Xóa */}
         {deleteConfirmId &&
           createPortal(
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-              <div className="bg-white rounded-lg p-6 w-80 text-center shadow-lg">
-                <h2 className="text-lg font-semibold mb-4">Xác nhận xóa</h2>
-                <p className="mb-6 text-gray-700">Bạn có chắc muốn xóa bài học này?</p>
-                <div className="flex justify-center gap-4">
-                  <button onClick={() => handleDelete(deleteConfirmId)}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full">
+                <div className="text-center">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <Trash2 size={24} className="text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Xác nhận xóa</h3>
+                  <p className="mt-2 text-sm text-gray-600">Bạn có chắc chắn muốn xóa bài học này?<br></br> Hành động này không thể hoàn tác.</p>
+                </div>
+                <div className="mt-6 flex gap-3 justify-center">
+                  <button
+                    onClick={() => handleDelete(deleteConfirmId)}
+                    className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                  >
                     Xóa
                   </button>
-                  <button onClick={() => setDeleteConfirmId(null)}
-                    className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400">
+                  <button
+                    onClick={() => setDeleteConfirmId(null)}
+                    className="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                  >
                     Hủy
                   </button>
                 </div>
