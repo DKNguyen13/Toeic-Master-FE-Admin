@@ -405,6 +405,7 @@ const LessonManagementPage: React.FC = () => {
                     <input
                       name="title"
                       type="text"
+                      maxLength={50}
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
                       placeholder="Nhập tiêu đề bài học"
@@ -492,6 +493,7 @@ const LessonManagementPage: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Tiêu đề</label>
                     <input
                       name="title"
+                      maxLength={50}
                       type="text"
                       defaultValue={editingLesson.title}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
