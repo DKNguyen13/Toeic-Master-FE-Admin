@@ -40,8 +40,9 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
     { to: "/admin/usermanagement", icon: Users, label: "Người dùng" },
     { to: "/admin/lessonmanagement", icon: BookOpen, label: "Bài học" },
     { to: "/admin/testmanagement", icon: FileText, label: "Đề thi" },
-    { to: "/flashcard", icon: Sparkles, label: "Flashcard" },
+    //{ to: "/admin/flashcard", icon: Sparkles, label: "Flashcard" },
     { to: "/admin/vipmanagement", icon: Crown, label: "VIP/Premium" },
+    { to: "http://localhost:3000", icon: LayoutDashboard, label: "Truy cập User Portal", external: true },
   ];
 
   return (
@@ -76,6 +77,19 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
       <nav className="flex-1 p-4 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
+          if (item.external) {
+            return (
+              <a
+                key={item.to}
+                href={item.to}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg transition-all duration-200 hover:bg-blue-50 hover:text-blue-700 group">
+                <Icon className="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition-colors" />
+                <span>{item.label}</span>
+              </a>
+            );
+          }
           return (
             <Link
               key={item.to}

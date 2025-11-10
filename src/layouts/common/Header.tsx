@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "../../context/SocketContext.jsx";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Bell, Users, FileText, Search, Crown, LogOut, PieChart } from "lucide-react";
+import { Bell, Users, FileText, Search, Crown, LogOut, PieChart, Sparkles } from "lucide-react";
 
 interface Notification {
   _id: string;
@@ -52,7 +52,7 @@ const AdminHeader: React.FC = () => {
   const navLinks = [
     { to: "/admin/dashboard", label: "Dashboard", icon: <PieChart className="w-5 h-5" /> },
     { to: "/admin/usermanagement", label: "Người dùng", icon: <Users className="w-5 h-5" /> },
-    { to: "/admin/tests", label: "Bài kiểm tra", icon: <FileText className="w-5 h-5" /> },
+    { to: "/admin/flashcard", label: "Flashcard", icon: <Sparkles className="w-5 h-5" /> },
     { to: "/admin/resources", label: "Tài nguyên", icon: <Search className="w-5 h-5" /> },
     { to: "/admin/vipmanagement", label: "VIP/Premium", icon: <Crown className="w-5 h-5 text-yellow-500" />, premium: true },
   ];
