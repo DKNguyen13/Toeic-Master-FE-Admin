@@ -5,7 +5,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { FaEllipsisH, FaTimes, FaUpload } from "react-icons/fa";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import { showToast } from "../../../utils/toast";
-import { FileText, Trash2, Upload, X } from "lucide-react";
+import { BookOpen, Eye, FileText, Heart, Trash2, Upload, X } from "lucide-react";
 
 interface Lesson {
   _id: string;
@@ -230,10 +230,54 @@ const LessonManagementPage: React.FC = () => {
               <p className="text-gray-600 mt-1">Quản lý nội dung bài học của hệ thống</p> 
           </div>
           
-          <button className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition"
-            onClick={() => setIsModalOpen(true)}>
-            Thêm bài học
-          </button>
+          <button className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition"
+            onClick={() => setIsModalOpen(true)}>Thêm bài học</button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Tổng bài học */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Tổng bài học</p>
+                <p className="text-3xl font-bold text-gray-900">{lessons.length}</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <BookOpen className="text-white" size={24} />
+              </div>
+            </div>
+          </div>
+
+          {/* Tổng lượt xem */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Tổng lượt xem</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {lessons.reduce((sum, l) => sum + l.views, 0).toLocaleString()}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+                <Eye className="text-white" size={24} />
+              </div>
+            </div>
+          </div>
+
+          {/* Tổng lượt yêu thích */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Tổng yêu thích</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {lessons.reduce((sum, l) => sum + l.favoriteCount, 0).toLocaleString()}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl flex items-center justify-center">
+                <Heart className="text-white" size={24} />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Table */}
@@ -265,8 +309,18 @@ const LessonManagementPage: React.FC = () => {
                     </span>
                   </td>
                   <td className="py-4 px-4 capitalize">{lesson.accessLevel}</td>
-                  <td className="py-4 px-4 text-center">{lesson.views}</td>
-                  <td className="py-4 px-4 text-center">{lesson.favoriteCount}</td>
+                  <td className="py-4 px-4 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <Eye size={16} className="text-rose-400" />
+                      <span>{lesson.views}</span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-4 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <Heart size={16} className="text-rose-400" />
+                      <span>{lesson.favoriteCount}</span>
+                    </div>
+                  </td>
                   <td className="py-4 px-4 text-center">
                     {new Date(lesson.createdAt).toLocaleDateString("vi-VN")}
                   </td>

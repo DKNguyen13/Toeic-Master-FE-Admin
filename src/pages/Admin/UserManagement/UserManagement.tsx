@@ -248,27 +248,44 @@ const UserManagementPage: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-100 rounded-lg p-4 shadow hover:shadow-md transition">
-            <div className="flex justify-between items-center">
-              <p className="text-sm font-semibold text-blue-800">Tổng người dùng</p>
-              <Users className="w-6 h-6 text-blue-600" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Tổng người dùng */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Tổng người dùng</p>
+                <p className="text-3xl font-bold text-gray-900">{totalUsers}</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                <Users className="text-white" size={24} />
+              </div>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-800">{totalUsers}</p>
           </div>
-          <div className="bg-green-100 rounded-lg p-4 shadow hover:shadow-md transition">
-            <div className="flex justify-between items-center">
-              <p className="text-sm font-semibold text-green-800">Đang hoạt động</p>
-              <CheckCircle className="w-6 h-6 text-green-600" />
+
+          {/* Đang hoạt động */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Đang hoạt động</p>
+                <p className="text-3xl font-bold text-gray-900">{activeUsers}</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-xl flex items-center justify-center">
+                <CheckCircle className="text-white" size={24} />
+              </div>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-800">{activeUsers}</p>
           </div>
-          <div className="bg-gray-100 rounded-lg p-4 shadow hover:shadow-md transition">
-            <div className="flex justify-between items-center">
-              <p className="text-sm font-semibold text-gray-800">Không hoạt động</p>
-              <XCircle className="w-6 h-6 text-gray-600" />
+
+          {/* Không hoạt động */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Không hoạt động</p>
+                <p className="text-3xl font-bold text-gray-900">{inactiveUsers}</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-xl flex items-center justify-center">
+                <XCircle className="text-white" size={24} />
+              </div>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-800">{inactiveUsers}</p>
           </div>
         </div>
 
