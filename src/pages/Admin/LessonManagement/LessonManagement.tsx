@@ -248,7 +248,7 @@ const LessonManagementPage: React.FC = () => {
                 <th className="py-3 px-4 text-center">Views</th>
                 <th className="py-3 px-4 text-center">Thích</th>
                 <th className="py-3 px-4 text-center">Ngày tạo</th>
-                <th className="py-3 px-4 text-center">Hành động</th>
+                <th className="py-3 px-4 text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody className="text-gray-600 text-sm">
