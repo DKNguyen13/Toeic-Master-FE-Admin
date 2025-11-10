@@ -66,6 +66,7 @@ api.interceptors.response.use(
         processQueue(err, null);
         setAccessToken(null);
         sessionStorage.clear();
+        localStorage.clear();
         return Promise.reject({ ...err, redirectToLogin: true });
       } finally {
         isRefreshing = false;

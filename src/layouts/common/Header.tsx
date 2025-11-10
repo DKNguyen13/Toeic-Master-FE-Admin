@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import api, { setAccessToken } from "../../config/axios.js";
 import { useSocket } from "../../context/SocketContext.jsx";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Bell, Users, FileText, Search, Crown, LogOut, PieChart } from "lucide-react";
@@ -25,7 +24,6 @@ interface PaginationInfo {
 
 const AdminHeader: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [fullname, setFullname] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>("/img/avatar/default_avatar.jpg");
   const [openMenu, setOpenMenu] = useState(false);
@@ -82,10 +80,8 @@ const AdminHeader: React.FC = () => {
 
       {/* Mobile Hamburger */}
       {fullname && (
-        <button
-          className="sm:hidden p-2 rounded-md hover:bg-gray-700"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
+        <button className="sm:hidden p-2 rounded-md hover:bg-gray-700"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
           </svg>
@@ -113,8 +109,7 @@ const AdminHeader: React.FC = () => {
         {/* Notifications */}
         {fullname && (
           <div className="relative" ref={notificationRef}>
-            <button
-              onClick={() => setOpenNotifications(!openNotifications)}
+            <button onClick={() => setOpenNotifications(!openNotifications)}
               className="relative p-2 text-gray-300 hover:text-yellow-300 hover:bg-gray-700 rounded-full transition"
             >
               <Bell className="w-5 h-5" />
@@ -134,7 +129,7 @@ const AdminHeader: React.FC = () => {
           </div>
         )}
 
-        {/* User Dropdown / Login */}
+        {/* User Dropdown */}
         <div className="relative" ref={dropdownRef}>
           {fullname ? (
             <div className="relative">
