@@ -60,6 +60,7 @@
     "@types/react": "^18.3.18",
     "@types/react-bootstrap": "^0.32.37",
     "@types/react-dom": "^18.3.5",
+    "@types/react-google-recaptcha": "^2.1.9",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",
