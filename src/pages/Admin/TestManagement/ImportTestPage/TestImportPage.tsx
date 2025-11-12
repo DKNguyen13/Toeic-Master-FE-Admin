@@ -26,10 +26,6 @@ const TestImportPage: React.FC = () => {
       setUploadSuccess(true);
       setUploadedTestId(response.testId || "");
       showToast("Tạo đề thi thành công!", "success");
-      
-      setTimeout(() => {
-        navigate("/admin/testmanagement");
-      }, 2000);
     } catch (err: any) {
       const errorMessage = 
         err.response?.data?.message || 
@@ -77,7 +73,7 @@ const TestImportPage: React.FC = () => {
               Tạo đề thi thành công!
             </h2>
             <p className="text-gray-600 mb-6">
-              Đề thi đã được tạo và sẵn sàng sử dụng.
+              Đề thi đã được tạo. Bạn cần kích hoạt đề thi để sử dụng.
             </p>
             <div className="flex gap-4 justify-center">
               <button
