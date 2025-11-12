@@ -7,14 +7,12 @@ interface TestImportFormProps {
 
 interface FormData {
   title: string;
-  testCode: string;
   audio: string;
 }
 
 const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState<FormData>({
     title: "",
-    testCode: "",
     audio: "",
   });
 
@@ -68,11 +66,11 @@ const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) =
       newErrors.title = "Tên đề thi phải có ít nhất 3 ký tự";
     }
 
-    if (!formData.testCode.trim()) {
-      newErrors.testCode = "Mã đề thi không được để trống";
-    } else if (!/^[A-Z0-9]+$/i.test(formData.testCode)) {
-      newErrors.testCode = "Mã đề thi chỉ được chứa chữ cái và số";
-    }
+    // if (!formData.testCode.trim()) {
+    //   newErrors.testCode = "Mã đề thi không được để trống";
+    // } else if (!/^[A-Z0-9]+$/i.test(formData.testCode)) {
+    //   newErrors.testCode = "Mã đề thi chỉ được chứa chữ cái và số";
+    // }
 
     if (formData.audio && !isValidUrl(formData.audio)) {
       newErrors.audio = "URL không hợp lệ";
@@ -104,7 +102,6 @@ const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) =
 
     const submitFormData = new FormData();
     submitFormData.append("title", formData.title.trim());
-    submitFormData.append("testCode", formData.testCode.trim());
     
     if (formData.audio.trim()) {
       submitFormData.append("audio", formData.audio.trim());
@@ -128,7 +125,7 @@ const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) =
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Tên đề thi <span className="text-red-500">*</span>
@@ -157,40 +154,11 @@ const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) =
             </p>
           )}
         </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Mã đề thi <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="testCode"
-            value={formData.testCode}
-            onChange={handleChange}
-            placeholder="VD: ETS2024T01"
-            maxLength={50}
-            className={`w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-400 focus:outline-none transition ${
-              errors.testCode ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.testCode && (
-            <p className="text-red-500 text-xs mt-1 flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {errors.testCode}
-            </p>
-          )}
-        </div>
       </div>
 
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          URL Audio (tùy chọn)
+          URL Audio <span className="text-red-500">*</span>
         </label>
         <input
           type="url"
