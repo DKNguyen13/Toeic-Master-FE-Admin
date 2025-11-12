@@ -174,7 +174,7 @@ const TestManagementPage: React.FC<Test> = ({
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Quản lý Đề thi</h1>
           <button
-            onClick={() => handleNavigate("/admin/create-test")}
+            onClick={() => handleNavigate("/admin/import-test")}
             className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl 
                      hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 
                      font-semibold flex items-center gap-2"
