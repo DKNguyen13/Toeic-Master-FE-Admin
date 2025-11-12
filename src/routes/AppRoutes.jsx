@@ -17,9 +17,9 @@ import VipManagement from "../pages/Admin/VipManagement/VipManagement";
 import UserManagementPage from "../pages/Admin/UserManagement/UserManagement";
 import TestManagementPage from "../pages/Admin/TestManagement/TestManagement";
 import LessonManagementPage from "../pages/Admin/LessonManagement/LessonManagement";
-import CreateTestPage from "../pages/Admin/TestManagement/CreateTestPage/CreateTestPage";
 import CreatePartPage from "../pages/Admin/TestManagement/CreatePartPage/CreatePartPage";
 import CreateQuestionPage from "../pages/Admin/TestManagement/CreateQuestionPage/CreateQuestionPage";
+import TestImportPage from "../pages/Admin/TestManagement/ImportTestPage/TestImportPage";
 import FlashcardPage from "../pages/FlashCard/FlashcardPage";
 import FlashcardListPage from "../pages/FlashCard/FlashcardListPage";
 
@@ -148,11 +148,11 @@ const routes = [
     ),
   },
   {
-    path: "/admin/create-test",
+    path: "/admin/import-test",
     element: (
       <ProtectedRoute allowedRoles={["admin"]}>
         <MainLayout>
-          <CreateTestPage />
+          <TestImportPage />
         </MainLayout>
       </ProtectedRoute>
     ),
