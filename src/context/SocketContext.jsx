@@ -38,7 +38,7 @@ export const SocketProvider = ({ children }) => {
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       auth: {
-        token: localStorage.getItem('token') // Nếu cần auth
+        token: localStorage.getItem('token')
       }
     });
 
@@ -92,7 +92,7 @@ export const SocketProvider = ({ children }) => {
 
     // Lỗi kết nối
     newSocket.on('connect_error', (error) => {
-      console.error('❌ Connection error:', error);
+      console.error('Connection error:', error);
       setConnected(false);
     });
 
