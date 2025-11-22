@@ -4,7 +4,7 @@ interface PaginationProps {
   totalItems: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  itemsPerPage?: number;
+  itemsPerPage: number;
 }
 
 const Pagination: React.FC<PaginationProps> = ({
