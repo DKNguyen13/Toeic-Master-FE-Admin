@@ -6,6 +6,7 @@ import { FaEllipsisH, FaTimes, FaUpload } from "react-icons/fa";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import { showToast } from "../../../utils/toast";
 import { BookOpen, Eye, FileText, Heart, Trash2, Upload, X } from "lucide-react";
+import Pagination from "../../../components/common/Pagination/Pagination";
 
 interface Lesson {
   _id: string;
@@ -18,7 +19,7 @@ interface Lesson {
   createdAt: string;
 }
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 8;
 
 const LessonManagementPage: React.FC = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -338,16 +339,11 @@ const LessonManagementPage: React.FC = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center mt-4 space-x-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button key={page} onClick={() => goToPage(page)}
-                className={`px-3 py-1 rounded-md border ${
-                  currentPage === page ? "bg-blue-600 text-white" : "bg-white text-gray-700"
-                }`}>
-                {page}
-              </button>
-            ))}
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+          />
         )}
 
         {/* Menu via Portal */}
