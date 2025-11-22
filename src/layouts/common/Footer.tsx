@@ -31,7 +31,7 @@ const Footer = () => {
                 <Phone size={18} /> <a href="tel:+84123456780">+84 123456780</a>
               </li>
               <li className="flex items-center gap-2 hover:text-yellow-400 transition">
-                <Mail size={18} /> <a href="mailto:nbn18@gmail.com">nbn18@gmail.com</a>
+                <Mail size={18} /> <a href="mailto:support@toeicmaster.com">support@toeicmaster.com</a>
               </li>
               <li className="flex items-center gap-2 hover:text-yellow-400 transition">
                 <MapPin size={18} /> <span>Số 1 Võ Văn Ngân, TP. Hồ Chí Minh</span>

@@ -6,6 +6,7 @@ import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import LoadingSkeleton from "../../../components/common/LoadingSpinner/LoadingSkeleton";
 import { Search, Users, Filter, Download, RefreshCw, CheckCircle, XCircle, MoreVertical } from "lucide-react";
 import { showToast } from '../../../utils/toast';
+import Pagination from '../../../components/common/Pagination/Pagination';
 
 interface User {
   id: number;
@@ -24,7 +25,6 @@ const UserManagementPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -36,7 +36,9 @@ const UserManagementPage: React.FC = () => {
   const filterRef = useRef<HTMLDivElement | null>(null);
   const filterButtonRef = useRef<HTMLButtonElement | null>(null);
   const actionMenuRef = useRef<HTMLDivElement | null>(null);
-
+  
+  const pageSize = 8;
+  
   const exportExcel = () => {
     if (!users || users.length === 0) return;
 
@@ -113,8 +115,8 @@ const UserManagementPage: React.FC = () => {
           status: user.isActive ? "Active" : "Inactive",
         }))
       );
-      setTotalUsers(data.users.length);
-       setAllUsersCount(data.total); 
+      setTotalUsers(data.total);
+      setAllUsersCount(data.total); 
     } catch (err) {
       console.error("Lấy danh sách người dùng lỗi:", err);
     } finally {
@@ -397,22 +399,11 @@ const UserManagementPage: React.FC = () => {
 
         {/* Pagination */}
         {!searchTerm && users.length > 0 && (
-          <div className="flex justify-center items-center gap-2 mt-4">
-            <button disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
-              className="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ←
-            </button>
-            <span className="px-3 py-1 border rounded bg-gray-100">{currentPage} / {totalPages}</span>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
-              className="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              →
-            </button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         )}
 
         {/* Action Menu */}

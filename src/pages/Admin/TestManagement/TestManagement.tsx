@@ -1,11 +1,11 @@
 import React, { useRef, useState } from "react";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import { FaEllipsisH, FaTimes, FaUpload } from "react-icons/fa";
+import { FaTimes, FaUpload } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { getAllTest, getAllTestForAdmin, modifyTest } from "../../../service/testService";
 import Pagination from "../../../components/common/Pagination/Pagination";
-import { MoreHorizontal, Plus, HelpCircle, Edit2, Trash2, CheckCircle } from "lucide-react";
+import { MoreHorizontal, Plus, HelpCircle, Trash2, CheckCircle } from "lucide-react";
 
 interface Test {
   title: string;
@@ -22,6 +22,7 @@ interface Test {
   limit?: number; // Giới hạn số test mỗi trang
   showPagination?: boolean; // Ẩn/hiện phân trang
 }
+
 // Dropdown Component
 const ActionDropdown: React.FC<{
   test: Test;
@@ -143,7 +144,7 @@ const ActionDropdown: React.FC<{
   );
 };
 const TestManagementPage: React.FC<Test> = ({
-  limit = 10,
+  limit = 8,
   showPagination = true,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -151,6 +152,8 @@ const TestManagementPage: React.FC<Test> = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalTests, setTotalTests] = useState<number>(0);
   const [selectedTestCode, setSelectedTestCode] = useState<string | null>(null);
+
+  const totalPages = Math.ceil(totalTests / limit);
 
   const fetchTests = async () => {
     const response = await getAllTestForAdmin(currentPage, 10);
@@ -172,7 +175,7 @@ const TestManagementPage: React.FC<Test> = ({
       <LeftSidebarAdmin customHeight="h-auto w-64" />
       <div className="flex-1 p-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Quản lý Đề thi</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Quản lý đề thi</h1>
           <button
             onClick={() => handleNavigate("/admin/import-test")}
             className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl 
@@ -256,15 +259,14 @@ const TestManagementPage: React.FC<Test> = ({
               ))}
             </tbody>
           </table>
+        </div>
           {showPagination && totalTests > limit && (
             <Pagination
-              totalItems={totalTests}
               currentPage={currentPage}
+              totalPages={totalPages}
               onPageChange={setCurrentPage}
-              itemsPerPage={limit}
             />
           )}
-        </div>
       </div>
 
       {/* Modal Thêm Câu Hỏi */}
