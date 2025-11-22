@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { Line } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import api from "../../../config/axios";
 import React, { useEffect, useState } from "react";
-import { Users, FileText, LineChart, CheckCircle2 } from "lucide-react";
+import { Users, FileText, LineChart, CheckCircle2, BarChart } from "lucide-react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,6 +24,7 @@ const DashboardPage: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [userStats, setUserStats] = useState<any>(null);
   const [revenueStats, setRevenueStats] = useState<any>(null);
+  const [chartType, setChartType] = useState<"line" | "bar">("line");
 
   const fetchDashboard = async (year: number) => {
     try {
@@ -74,7 +75,7 @@ const DashboardPage: React.FC = () => {
         label: `Doanh thu năm ${selectedYear} (VND)`,
         data: dataByMonth,
         borderColor: "#2563eb",
-        backgroundColor: "rgba(37,99,235,0.2)",
+        backgroundColor: chartType === "bar" ? "rgba(37,99,235,0.5)" : "rgba(37,99,235,0.2)",
         fill: true,
         tension: 0.3,
       },
@@ -90,7 +91,7 @@ const DashboardPage: React.FC = () => {
     },
   };
 
-  const years = [2024, 2025, 2026];
+  const years = [2025, 2026];
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -159,19 +160,46 @@ const DashboardPage: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-800">
               Doanh thu theo tháng
             </h2>
-            <select
-              value={selectedYear}
+
+            {/* Year selector */}
+            <select value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500"
-            >
+              className="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500">
               {years.map((year) => (
                 <option key={year} value={year}>
                   {year}
                 </option>
               ))}
             </select>
+
+              {/* Chart type toggle */}
+              <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                <button
+                  className={`px-4 py-2 flex items-center gap-1 ${
+                    chartType === "line" ? "bg-blue-600 text-white" : "text-gray-700 bg-white"
+                  }`}
+                  onClick={() => setChartType("line")}
+                >
+                  <LineChart className="w-4 h-4" />
+                  Line
+                </button>
+                <button
+                  className={`px-4 py-2 flex items-center gap-1 ${
+                    chartType === "bar" ? "bg-blue-600 text-white" : "text-gray-700 bg-white"
+                  }`}
+                  onClick={() => setChartType("bar")}
+                >
+                  <BarChart className="w-4 h-4" />
+                  Bar
+                </button>
+              </div>
           </div>
-          <Line data={chartData} options={options} />
+          
+          {chartType === "line" ? (
+            <Line data={chartData} options={options} />
+          ) : (
+            <Bar data={chartData} options={options} />
+          )}
         </div>
       </div>
     </div>
