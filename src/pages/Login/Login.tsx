@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { setAccessToken } from "../../config/axios.js";
 import { Eye, EyeOff, Mail, Lock, Shield, AlertCircle } from "lucide-react";
@@ -12,15 +12,30 @@ type LoginErrors = {
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<LoginErrors>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberAccount");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRemember(true);
+    }
+  }, []);
+
   const handleLogin = async (e?: React.SyntheticEvent) => {
     e?.preventDefault();
     setIsLoading(true);
     setErrors({});
+
+    if (remember) {
+      localStorage.setItem("rememberAccount", email);
+    } else {
+      localStorage.removeItem("rememberAccount");
+    }
 
     const newErrors: LoginErrors = {};
     if (!email) newErrors.email = "Vui lòng nhập email";
@@ -165,11 +180,10 @@ const Login: React.FC = () => {
               {/* Remember & Forgot */}
               <div className="flex items-center justify-between pt-1">
                 <label className="flex items-center text-sm text-gray-600 cursor-pointer hover:text-gray-800 transition">
-                  <input
-                    type="checkbox"
+                  <input type="checkbox" checked={remember} onChange={() => setRemember(!remember)}
                     className="mr-2 w-4 h-4 accent-blue-600 rounded border-gray-300"
                   />
-                  Duy trì đăng nhập
+                  Ghi nhớ đăng nhập
                 </label>
                 <Link to="/forgot-password" className="text-sm text-gray-600 hover:text-gray-700 font-semibold transition">
                   Quên mật khẩu?
