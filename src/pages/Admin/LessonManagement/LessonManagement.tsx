@@ -4,10 +4,10 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { showToast } from "../../../utils/toast";
-import React, { useEffect, useState, useCallback, useMemo} from "react";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import { BookOpen, Download, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
+import React, { useEffect, useState, useCallback, useMemo} from "react";
 import Pagination from "../../../components/common/Pagination/Pagination";
+import { BookOpen, Download, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
 
 interface Lesson {
   _id: string;
@@ -211,8 +211,6 @@ const LessonManagementPage: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filterType, filterLevel]);
-
-  
 
   // Delete lesson
   const handleDelete = async (id: string) => {
@@ -789,7 +787,7 @@ const LessonManagementPage: React.FC = () => {
                       setPreviewData([]);
                     }
                   }}>
-                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-screen overflow-y-auto">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-screen overflow-y-auto">
                   <div className="flex justify-between items-center p-6 border-b border-gray-300 sticky top-0 bg-white z-10">
                     <h2 className="text-2xl font-bold text-gray-900">Thêm file nghe và điền từ</h2>
                     <button className="text-gray-500 hover:text-gray-700"
