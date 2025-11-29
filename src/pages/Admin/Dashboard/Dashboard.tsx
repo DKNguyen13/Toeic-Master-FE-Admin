@@ -197,8 +197,7 @@ const DashboardPage: React.FC = () => {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              >
+                className="px-4 py-2 border text-sm border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 {years.map((year) => (
                   <option key={year} value={year}>
                     {year}
@@ -207,7 +206,7 @@ const DashboardPage: React.FC = () => {
               </select>
 
               {/* Chart Type Toggle */}
-              <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+              <div className="flex border border-gray-400 text-sm rounded-lg overflow-hidden">
                 <button
                   onClick={() => setChartType("line")}
                   className={`px-4 py-2 flex items-center gap-2 transition-all ${
