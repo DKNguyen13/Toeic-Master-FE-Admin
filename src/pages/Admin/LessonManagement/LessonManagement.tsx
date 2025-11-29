@@ -300,7 +300,7 @@ const LessonManagementPage: React.FC = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Tổng bài học */}
+          {/* Total lessons */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
@@ -446,7 +446,7 @@ const LessonManagementPage: React.FC = () => {
             document.body
           )}
 
-        {/* Modal Thêm */}
+        {/* Modal add */}
         {isModalOpen &&
           createPortal(
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -528,7 +528,7 @@ const LessonManagementPage: React.FC = () => {
             document.body
           )}
 
-        {/* Modal Sửa */}
+        {/* Modal update */}
         {isEditModalOpen && editingLesson &&
           createPortal(
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -609,7 +609,7 @@ const LessonManagementPage: React.FC = () => {
             document.body
           )}
 
-        {/* Modal Xóa */}
+        {/* Modal delete */}
         {deleteConfirmId &&
           createPortal(
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
