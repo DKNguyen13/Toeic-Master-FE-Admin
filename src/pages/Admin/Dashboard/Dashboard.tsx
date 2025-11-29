@@ -133,7 +133,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Main content */}
       <div className="flex-1 p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">
+        <h1 className="text-4xl font-bold text-gray-900 mb-8 tracking-tight">
           Dashboard
         </h1>
 
@@ -173,8 +173,7 @@ const DashboardPage: React.FC = () => {
               key={i}
               whileHover={{ scale: 1.03 }}
               transition={{ type: "spring", stiffness: 300 }}
-              className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl border border-gray-200 transition-all"
-            >
+              className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl border border-gray-200 transition-all">
               <div className="flex justify-between items-start mb-3">
                 <h2 className="text-lg font-semibold text-gray-700">{card.title}</h2>
                 <card.icon className={`${card.color} w-7 h-7`} />
@@ -188,7 +187,7 @@ const DashboardPage: React.FC = () => {
         {/* Chart Section */}
         <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-2xl font-semibold text-gray-800">
               Doanh thu theo tháng
             </h2>
 
@@ -197,7 +196,7 @@ const DashboardPage: React.FC = () => {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="px-4 py-2 border text-sm border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                className="px-4 py-2 border text-sm border-gray-400 rounded-lg text-gray-700 focus:outline-none">
                 {years.map((year) => (
                   <option key={year} value={year}>
                     {year}
