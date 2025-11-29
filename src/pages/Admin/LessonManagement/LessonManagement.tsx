@@ -1,12 +1,13 @@
-import { createPortal } from "react-dom";
+import * as XLSX from "xlsx";
 import api from "../../../config/axios";
+import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
+import { showToast } from "../../../utils/toast";
 import React, { useEffect, useState, useCallback, useMemo} from "react";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import { showToast } from "../../../utils/toast";
-import { BookOpen, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
+import { BookOpen, Download, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
 import Pagination from "../../../components/common/Pagination/Pagination";
-import { useNavigate } from "react-router-dom";
 
 interface Lesson {
   _id: string;
@@ -33,6 +34,10 @@ const LessonManagementPage: React.FC = () => {
   const [editFile, setEditFile] = useState<File | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [menuState, setMenuState] = useState<{ lessonId: string; coords: DOMRect } | null>(null);
+  const [isFillBlankModalOpen, setIsFillBlankModalOpen] = useState(false);
+  const [excelFile, setExcelFile] = useState<File | null>(null);
+  const [previewData, setPreviewData] = useState<any[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"reading" | "vocabulary" | "">("");
@@ -54,6 +59,133 @@ const LessonManagementPage: React.FC = () => {
   useEffect(() => {
     fetchLessons();
   }, [fetchLessons]);
+
+  const handleExcelFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel"
+    ];
+
+    if (!validTypes.includes(file.type)) {
+      showToast("Chỉ chấp nhận file Excel (.xlsx, .xls)", "error");
+      return;
+    }
+
+    setExcelFile(file);
+    setPreviewData([]);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = new Uint8Array(event.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+        const processed = jsonData.map((row: any, index) => {
+          const sentence = String(
+            row["Câu hỏi"] || row["Cau hoi"] || row["sentence"] || row["Sentence"] || ""
+          ).trim();
+
+          if (!sentence) return null;
+
+          const blankMap = new Map<number, string>();
+
+          for (let i = 1; i <= 10; i++) { 
+            const value = row[`Blank ${i}`] || row[`blank ${i}`] || row[`Blank${i}`] || "";
+            if (!value) continue;
+
+            const text = String(value).trim();
+            if (!text) continue;
+
+            const match = text.match(/^(\d+):?\s*(.+)$/i);
+            let pos: number;
+            let answer: string;
+
+            if (match) {
+              pos = parseInt(match[1], 10) - 1;
+              answer = match[2].trim().toLowerCase();
+            } else {
+              pos = i - 1;
+              answer = text.trim().toLowerCase();
+            }
+
+            if (pos < 0) continue;
+            if (blankMap.has(pos)) {
+              console.warn(`Cảnh báo: Vị trí ${pos + 1} bị trùng ở câu ${index + 1}`);
+            }
+            blankMap.set(pos, answer);
+          }
+
+          const blanks = Array.from(blankMap.entries())
+            .sort(([a], [b]) => a - b)
+            .map(([position, answer]) => ({ position, answer }));
+
+          return {
+            no: index + 1,
+            sentence,
+            blanks,
+            blankCount: blanks.length,
+          };
+        }).filter(Boolean) as any[];
+
+        setPreviewData(processed);
+
+        if (processed.length === 0) {
+          showToast("Không tìm thấy dữ liệu hợp lệ nào!", "warn");
+        } else {
+          showToast(`Đã tải ${processed.length} câu hỏi thành công!`, "success");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Lỗi khi đọc file Excel!", "error");
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleImportListeningQuestions = async () => {
+    if (!excelFile || previewData.length === 0) {
+      showToast("Không có dữ liệu để nhập!", "error");
+      return;
+    }
+
+    setIsImporting(true);
+
+    try {
+      const questions = previewData.map(item => ({
+        sentence: item.sentence,
+        blanks: item.blanks,
+      }));
+
+      const res = await api.post("/practice/import", { questions });
+
+      if (res.data.errors && res.data.errors.length > 0) {
+        res.data.errors.forEach((err: string) => showToast(err, "warn"));
+      }
+      showToast(`Nhập thành công ${res.data.data?.importedCount || questions.length} câu hỏi!`, "success");
+
+      setIsFillBlankModalOpen(false);
+      setExcelFile(null);
+      setPreviewData([]);
+
+    } catch (err: any) {
+      console.error("Import error:", err);
+
+      const message =
+        err.response?.data?.message ||
+        err.response?.data?.errors?.[0] ||
+        "Nhập dữ liệu thất bại! Vui lòng kiểm tra lại file.";
+
+      showToast(message, "error");
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   const filteredLessons = useMemo(() => {
     return lessons.filter((lesson) => {
@@ -79,6 +211,8 @@ const LessonManagementPage: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filterType, filterLevel]);
+
+  
 
   // Delete lesson
   const handleDelete = async (id: string) => {
@@ -256,10 +390,18 @@ const LessonManagementPage: React.FC = () => {
               <h1 className="text-4xl font-bold text-gray-900">Quản lý bài học</h1>
               <p className="text-gray-600 mt-2 text-lg">Quản lý toàn bộ nội dung bài học trong hệ thống</p>
             </div>
-            <button onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-3 bg-indigo-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
-              Thêm mới
-            </button>
+            <div className="flex gap-4">
+              <button onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-3 bg-indigo-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
+                Tạo bài mới
+              </button>
+
+              <button
+                onClick={() => setIsFillBlankModalOpen(true)}
+                className="flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
+                Thêm bài điền khuyết
+              </button>
+            </div>
           </div>
 
           <div className="mt-10 grid grid-cols-1 md:grid-cols-12 gap-5">
@@ -635,6 +777,142 @@ const LessonManagementPage: React.FC = () => {
             </div>,
             document.body
           )}
+
+          {/* Modal Import Listening Fill-in-the-blank */}
+          {isFillBlankModalOpen &&
+            createPortal(
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      setIsFillBlankModalOpen(false);
+                      setExcelFile(null);
+                      setPreviewData([]);
+                    }
+                  }}>
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-screen overflow-y-auto">
+                  <div className="flex justify-between items-center p-6 border-b border-gray-300 sticky top-0 bg-white z-10">
+                    <h2 className="text-2xl font-bold text-gray-900">Thêm file nghe và điền từ</h2>
+                    <button className="text-gray-500 hover:text-gray-700"
+                      onClick={() => {
+                        setIsFillBlankModalOpen(false);
+                        setExcelFile(null);
+                        setPreviewData([]);
+                      }}>
+                      <X size={28} />
+                    </button>
+                  </div>
+
+                  <div className="p-6 space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        Chọn file Excel (.xlsx, .xls)
+                      </label>
+                      <label htmlFor="excel-upload"
+                        className={`flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
+                          excelFile ? "border-green-500 bg-green-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                        }`}>
+                        <Upload size={48} className={excelFile ? "text-green-600" : "text-gray-400"} />
+                        <p className="mt-4 text-lg font-medium text-gray-700">
+                          {excelFile ? excelFile.name : "Kéo thả file hoặc click để chọn"}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Cột bắt buộc: sentence, blank1, blank2, ...
+                        </p>
+                      </label>
+                      <input
+                        id="excel-upload"
+                        type="file"
+                        accept=".xlsx,.xls"
+                        className="hidden"
+                        onChange={handleExcelFileChange}
+                      />
+                      <div className="text-center mt-4">
+                        <a href="../../templates/listening-fillblank-template.xlsx"
+                          download
+                          className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium text-sm underline">
+                          <Download size={16} />
+                          Tải file Excel mẫu (.xlsx)
+                        </a>
+                        <p className="text-xs text-gray-600 mt-2">
+                          Định dạng: Ghi số thứ tự: đáp án (ví dụ: 1: train, 10: prepare)
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Preview Table */}
+                    {previewData.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold">Xem trước ({previewData.length} câu hỏi)</h3>
+                          <span className="text-sm text-green-600 font-medium">
+                            Sẵn sàng nhập
+                          </span>
+                        </div>
+
+                        <div className="max-h-96 overflow-x-auto border rounded-lg">
+                          <table className="w-full text-sm">
+                            <thead className="bg-gray-100 sticky top-0">
+                              <tr>
+                                <th className="px-4 py-3 text-left">STT</th>
+                                <th className="px-4 py-3 text-left">Câu hỏi</th>
+                                <th className="px-4 py-3 text-center">Số chỗ trống</th>
+                                <th className="px-4 py-3 text-left">Đáp án</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {previewData.map((item) => (
+                                <tr key={item.no} className="border-t hover:bg-gray-50">
+                                  <td className="px-4 py-3">{item.no}</td>
+                                  <td className="px-4 py-3 max-w-md truncate">{item.sentence}</td>
+                                  <td className="px-4 py-3 text-center font-medium text-indigo-600">
+                                    {item.blankCount}
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    <div className="flex flex-wrap gap-1">
+                                      {item.blanks.map((b: any, i: number) => (
+                                        <span key={i} className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs">
+                                          {i + 1}: {b.answer}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-end gap-4 pt-4 border-t">
+                      <button
+                        onClick={() => {
+                          setIsFillBlankModalOpen(false);
+                          setExcelFile(null);
+                          setPreviewData([]);
+                        }}
+                        className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
+                        Hủy
+                      </button>
+                      <button onClick={handleImportListeningQuestions}
+                        disabled={!excelFile || previewData.length === 0 || isImporting}
+                        className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                        {isImporting ? (
+                          <>Đang nhập...</>
+                        ) : (
+                          <>
+                            <Upload size={20} />
+                            Nhập {previewData.length} câu hỏi
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>,
+              document.body
+            )}
       </div>
     </div>
   );

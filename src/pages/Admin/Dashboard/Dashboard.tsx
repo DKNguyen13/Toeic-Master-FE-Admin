@@ -84,7 +84,7 @@ const DashboardPage: React.FC = () => {
           chartType === "bar"
             ? "rgba(37, 99, 235, 0.5)"
             : "rgba(37, 99, 235, 0.2)",
-        fill: chartType === "line",           // Chỉ fill khi là line chart
+        fill: chartType === "line",
         tension: chartType === "line" ? 0.3 : undefined,
         borderWidth: 2,
         pointBackgroundColor: "#2563eb",
