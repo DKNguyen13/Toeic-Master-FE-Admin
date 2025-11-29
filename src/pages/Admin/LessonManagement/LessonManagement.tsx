@@ -255,8 +255,7 @@ const LessonManagementPage: React.FC = () => {
               <p className="text-gray-600 mt-2 text-lg">Quản lý toàn bộ nội dung bài học trong hệ thống</p>
             </div>
             <button onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold px-7 py-4 rounded-2xl shadow-xl transition-all transform hover:scale-105">
-              <Upload size={22} />
+              className="flex items-center gap-3 bg-indigo-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
               Thêm bài học mới
             </button>
           </div>
@@ -452,8 +451,7 @@ const LessonManagementPage: React.FC = () => {
                       setIsModalOpen(false);
                       setSelectedFile(null);
                     }}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
+                    className="text-gray-500 hover:text-gray-700">
                     <X size={24} />
                   </button>
                 </div>
