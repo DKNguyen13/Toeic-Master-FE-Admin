@@ -6,6 +6,7 @@ import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import { showToast } from "../../../utils/toast";
 import { BookOpen, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
 import Pagination from "../../../components/common/Pagination/Pagination";
+import { useNavigate } from "react-router-dom";
 
 interface Lesson {
   _id: string;
@@ -36,6 +37,8 @@ const LessonManagementPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"reading" | "vocabulary" | "">("");
   const [filterLevel, setFilterLevel] = useState<"free" | "basic" | "advanced" | "premium" | "">("");
+
+  const navigate = useNavigate();
 
   // Fetch lessons
   const fetchLessons = useCallback(async () => {
@@ -170,7 +173,6 @@ const LessonManagementPage: React.FC = () => {
     try {
       let res;
       if (editFile) {
-        // Nếu có file mới, gọi API upload
         const formData = new FormData();
         formData.append("title", title);
         formData.append("type", type);
@@ -256,7 +258,7 @@ const LessonManagementPage: React.FC = () => {
             </div>
             <button onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-3 bg-indigo-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
-              Thêm bài học mới
+              Thêm mới
             </button>
           </div>
 
@@ -326,7 +328,7 @@ const LessonManagementPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Tổng lượt yêu thích */}
+          {/* Total favorite */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
@@ -412,13 +414,18 @@ const LessonManagementPage: React.FC = () => {
           createPortal(
             <div id={`menu-${menuState.lessonId}`}
               style={{
-                position: "fixed",
+                position: "absolute",
                 top: menuState.coords.bottom + 4,
                 left: menuState.coords.left,
                 width: 140,
                 zIndex: 1000,
               }}
               className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 w-40">
+              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition"
+              onClick={() => navigate(`/resource/${menuState.lessonId}`)}>
+                Xem chi tiết
+              </button>
+
               <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition"
                 onClick={() => {
                   const lesson = lessons.find((l) => l._id === menuState.lessonId);
@@ -428,7 +435,7 @@ const LessonManagementPage: React.FC = () => {
                   }
                   closeMenu();
                 }}>
-                Sửa
+                Cập nhật
               </button>
 
               <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
@@ -472,8 +479,7 @@ const LessonManagementPage: React.FC = () => {
                     <select
                       name="type"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-                    >
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
                       <option value="">-- Chọn loại bài --</option>
                       <option value="reading">Reading</option>
                       <option value="vocabulary">Vocabulary</option>
@@ -500,8 +506,7 @@ const LessonManagementPage: React.FC = () => {
                         selectedFile
                           ? "border-green-500 bg-green-50"
                           : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-                      }`}
-                    >
+                      }`}>
                       <Upload size={24} className={selectedFile ? "text-green-600" : "text-gray-500"} />
                       <div className="text-center">
                         <p className="text-sm font-medium text-gray-700">
@@ -512,11 +517,9 @@ const LessonManagementPage: React.FC = () => {
                     </label>
                     <input id="file" type="file" accept=".docx" className="hidden" onChange={handleFileChange} />
                   </div>
-                  <button
-                    type="submit"
+                  <button type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center gap-2"
-                  >
+                    className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center gap-2">
                     {isSubmitting ? <>Đang tải lên...</> : <>Tạo bài học</>}
                   </button>
                 </form>
@@ -583,12 +586,10 @@ const LessonManagementPage: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">File Word mới (tùy chọn)</label>
-                    <label
-                      htmlFor="editFile"
+                    <label htmlFor="editFile"
                       className={`flex items-center justify-center gap-3 px-4 py-10 border-2 border-dashed rounded-lg cursor-pointer transition ${
                         editFile ? "border-green-500 bg-green-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-                      }`}
-                    >
+                      }`}>
                       <Upload size={24} className={editFile ? "text-green-600" : "text-gray-500"} />
                       <div className="text-center">
                         <p className="text-sm font-medium text-gray-700">{editFile ? editFile.name : "Kéo thả hoặc click để chọn file"}</p>
@@ -597,11 +598,9 @@ const LessonManagementPage: React.FC = () => {
                     </label>
                     <input id="editFile" type="file" accept=".docx" className="hidden" onChange={handleEditFileChange} />
                   </div>
-                  <button
-                    type="submit"
+                  <button type="submit"
                     disabled={isUpdating}
-                    className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center gap-2"
-                  >
+                    className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center gap-2">
                     {isUpdating ? "Đang cập nhật..." : "Lưu thay đổi"}
                   </button>
                 </form>
@@ -623,16 +622,12 @@ const LessonManagementPage: React.FC = () => {
                   <p className="mt-2 text-sm text-gray-600">Bạn có chắc chắn muốn xóa bài học này?<br></br> Hành động này không thể hoàn tác.</p>
                 </div>
                 <div className="mt-6 flex gap-3 justify-center">
-                  <button
-                    onClick={() => handleDelete(deleteConfirmId)}
-                    className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                  >
+                  <button onClick={() => handleDelete(deleteConfirmId)}
+                    className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
                     Xóa
                   </button>
-                  <button
-                    onClick={() => setDeleteConfirmId(null)}
-                    className="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-                  >
+                  <button onClick={() => setDeleteConfirmId(null)}
+                    className="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
                     Hủy
                   </button>
                 </div>
