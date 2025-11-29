@@ -1,11 +1,10 @@
 import { createPortal } from "react-dom";
 import api from "../../../config/axios";
 import "react-toastify/dist/ReactToastify.css";
-import React, { useEffect, useState, useCallback } from "react";
-import { FaEllipsisH, FaTimes, FaUpload } from "react-icons/fa";
+import React, { useEffect, useState, useCallback, useMemo} from "react";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import { showToast } from "../../../utils/toast";
-import { BookOpen, Eye, FileText, Heart, Trash2, Upload, X } from "lucide-react";
+import { BookOpen, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
 import Pagination from "../../../components/common/Pagination/Pagination";
 
 interface Lesson {
@@ -34,6 +33,10 @@ const LessonManagementPage: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [menuState, setMenuState] = useState<{ lessonId: string; coords: DOMRect } | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState<"reading" | "vocabulary" | "">("");
+  const [filterLevel, setFilterLevel] = useState<"free" | "basic" | "advanced" | "premium" | "">("");
+
   // Fetch lessons
   const fetchLessons = useCallback(async () => {
     try {
@@ -48,6 +51,31 @@ const LessonManagementPage: React.FC = () => {
   useEffect(() => {
     fetchLessons();
   }, [fetchLessons]);
+
+  const filteredLessons = useMemo(() => {
+    return lessons.filter((lesson) => {
+      const matchesSearch = lesson.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesType = !filterType || lesson.type === filterType;
+      const matchesLevel = !filterLevel || lesson.accessLevel === filterLevel;
+      return matchesSearch && matchesType && matchesLevel;
+    });
+  }, [lessons, searchTerm, filterType, filterLevel]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredLessons.length / ITEMS_PER_PAGE);
+  const paginatedLessons = filteredLessons.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+  
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterType, filterLevel]);
 
   // Delete lesson
   const handleDelete = async (id: string) => {
@@ -83,11 +111,6 @@ const LessonManagementPage: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuState, closeMenu]);
 
-  // Pagination
-  const totalPages = Math.ceil(lessons.length / ITEMS_PER_PAGE);
-  const paginatedLessons = lessons.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-  const goToPage = (page: number) => setCurrentPage(page);
-
   // File selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,7 +118,7 @@ const LessonManagementPage: React.FC = () => {
       const ext = file.name.split(".").pop()?.toLowerCase();
       if (ext !== "docx") {
         showToast("Chỉ được chọn file Word (.docx)!", "error");
-        e.target.value = ""; // reset input
+        e.target.value = "";
         setSelectedFile(null);
         return;
       }
@@ -225,20 +248,59 @@ const LessonManagementPage: React.FC = () => {
       <LeftSidebarAdmin customHeight="h-auto w-64" />
       <div className="flex-1 p-8">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8"> 
-          <div> 
-              <h1 className="text-3xl font-bold text-gray-900">Quản lý bài học</h1> 
-              <p className="text-gray-600 mt-1">Quản lý nội dung bài học của hệ thống</p> 
+        <div className="mb-10">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900">Quản lý bài học</h1>
+              <p className="text-gray-600 mt-2 text-lg">Quản lý toàn bộ nội dung bài học trong hệ thống</p>
+            </div>
+            <button onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold px-7 py-4 rounded-2xl shadow-xl transition-all transform hover:scale-105">
+              <Upload size={22} />
+              Thêm bài học mới
+            </button>
           </div>
-          
-          <button className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition"
-            onClick={() => setIsModalOpen(true)}>Thêm bài học</button>
+
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-12 gap-5">
+            {/* Search */}
+            <div className="relative md:col-span-8">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm bài học theo tiêu đề..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-5 py-3 bg-white border border-gray-200 rounded-2xl outline-none transition-all text-gray-800 placeholder-gray-400 shadow-md text-base"
+              />
+            </div>
+
+            {/* Filter Type */}
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value as any)}
+              className="md:col-span-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl outline-none transition-all shadow-md">
+              <option value="">Tất cả loại bài</option>
+              <option value="reading">Reading</option>
+              <option value="vocabulary">Vocabulary</option>
+            </select>
+
+            {/* Filter Level */}
+            <select value={filterLevel}
+              onChange={(e) => setFilterLevel(e.target.value as any)}
+              className="md:col-span-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl outline-none transition-all shadow-md">
+              <option value="">Tất cả cấp độ</option>
+              <option value="free">Miễn phí</option>
+              <option value="basic">Basic</option>
+              <option value="advanced">Advanced</option>
+              <option value="premium">Premium</option>
+            </select>
+          </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Tổng bài học */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Tổng bài học</p>
@@ -251,7 +313,7 @@ const LessonManagementPage: React.FC = () => {
           </div>
 
           {/* Tổng lượt xem */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Tổng lượt xem</p>
@@ -266,7 +328,7 @@ const LessonManagementPage: React.FC = () => {
           </div>
 
           {/* Tổng lượt yêu thích */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Tổng yêu thích</p>
@@ -328,7 +390,7 @@ const LessonManagementPage: React.FC = () => {
                   <td className="py-4 px-4 text-center relative">
                     <button className="text-gray-500 hover:text-gray-700 transition"
                       onClick={(e) => openMenu(lesson._id, e)}>
-                      <FaEllipsisH size={18} />
+                      <MoreHorizontal size={18} />
                     </button>
                   </td>
                 </tr>
@@ -424,8 +486,7 @@ const LessonManagementPage: React.FC = () => {
                     <select
                       name="accessLevel"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-                    >
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
                       <option value="">-- Chọn cấp độ --</option>
                       <option value="free">Miễn phí</option>
                       <option value="basic">Basic</option>
@@ -458,7 +519,7 @@ const LessonManagementPage: React.FC = () => {
                     disabled={isSubmitting}
                     className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center gap-2"
                   >
-                    {isSubmitting ? <>Đang tải lên...</> : <><FileText size={18} /> Tạo bài học</>}
+                    {isSubmitting ? <>Đang tải lên...</> : <>Tạo bài học</>}
                   </button>
                 </form>
               </div>
