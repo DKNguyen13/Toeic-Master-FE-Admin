@@ -72,7 +72,7 @@ const UserManagementPage: React.FC = () => {
       if (!ws[cellAddress]) continue;
       ws[cellAddress].s = {
         font: { bold: true, color: { rgb: "FFFFFF" } },
-        fill: { fgColor: { rgb: "1E40AF" } }, // màu xanh đậm
+        fill: { fgColor: { rgb: "1E40AF" } },
         alignment: { horizontal: "center", vertical: "center" }
       };
     }
@@ -238,11 +238,11 @@ const UserManagementPage: React.FC = () => {
           </div>
           <div className="flex gap-2">
             <button onClick={() => fetchUsers(currentPage)}
-              className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition">
+              className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-gray-700 hover:bg-gray-200 transition">
               <RefreshCw className="w-4 h-4 animate-spin-slow" />
               Làm mới
             </button>
-            <button onClick={exportExcel} className="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <button onClick={exportExcel} className="flex items-center gap-1 px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition">
               <Download className="w-4 h-4" />
               Xuất Excel
             </button>
@@ -301,7 +301,7 @@ const UserManagementPage: React.FC = () => {
               value={searchTerm}
               maxLength={60}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg py-2 pl-10 pr-24 focus:ring-1 focus:ring-blue-300 outline-none transition"
+              className="w-full border border-gray-300 rounded-xl py-2 pl-10 pr-24 focus:ring-1 focus:ring-blue-300 outline-none transition"
             />
             <button
               type="submit"
@@ -313,7 +313,7 @@ const UserManagementPage: React.FC = () => {
           </form>
           <div className="relative">
             <button  ref={filterButtonRef} onClick={() => setFilterOpen(!filterOpen)} className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition">
-              <Filter className="ml-1 px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full" /> Bộ lọc
+              <Filter className="ml-1 px-1.5 py-0.5 text-xs rounded-full" /> Bộ lọc
             </button>
 
             {filterOpen && (

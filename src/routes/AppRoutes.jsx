@@ -10,6 +10,7 @@ import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "../pages/ForgotPassword/ResetPassword";
 import Profile from "../pages/Profile/Profile";
 import UpdateProfile from "../pages/Profile/UpdateProfile/UpdateProfile";
+import ResourceDetail from "../pages/Resource/ResourceDetail";
 
 // Admin Pages
 import DashboardPage from "../pages/Admin/Dashboard/Dashboard";
@@ -125,6 +126,14 @@ const routes = [
           <LessonManagementPage />
         </MainLayout>
       </ProtectedRoute>
+    ),
+  },
+    {
+    path: "/resource/:id",
+    element: (
+      <MainLayout>
+        <ResourceDetail />
+      </MainLayout>
     ),
   },
   {

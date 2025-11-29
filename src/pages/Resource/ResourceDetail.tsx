@@ -1,14 +1,17 @@
 import api, { isLoggedIn } from "../../config/axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaEye, FaHeart } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import LoginModal from "../../layouts/common/LoginModal";
+import { ArrowLeft } from "lucide-react";
+import EmptyState from "../../components/ui/EmptyState";
 
 const LessonDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [lesson, setLesson] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showLogin, setShowLoginModal] = useState(!isLoggedIn());
+  const navigate = useNavigate();
 
   // State favorite
   const [isFavorite, setIsFavorite] = useState(false);
@@ -22,8 +25,6 @@ const LessonDetailPage: React.FC = () => {
         const res = await api.get(endpoint);
         const data = res.data.data;
         setLesson(data);
-
-        // Set favorite từ API
         setIsFavorite(data.isFavorite || false);
         setFavoriteCount(data.favoriteCount || 0);
       } catch (err : any) {
@@ -47,6 +48,14 @@ const LessonDetailPage: React.FC = () => {
     fetchLesson();
   }, [id]);
 
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1); 
+    } else {
+      navigate("/admin/lessonmanagement");
+    }
+  };
+
   // Toggle favorite
   const handleToggleFavorite = async () => {
     if (!lesson) return;
@@ -64,10 +73,15 @@ const LessonDetailPage: React.FC = () => {
   };
 
   if (loading) return <p className="p-4">Đang tải dữ liệu...</p>;
-  if (!lesson) return <p className="p-4">Không tìm thấy bài học</p>;
+  if (!lesson) return <EmptyState message="Dữ liệu bài học đang được cập nhật. Vui lòng thử lại sau!"/>
 
   return (
-    <div className="max-w-4xl mx-auto mt-8 bg-white p-6 rounded-lg shadow-lg">
+    <div className="max-w-4xl mx-auto mt-8 bg-white p-6 rounded-lg shadow-xl mb-8">
+      <button onClick={handleGoBack}
+          className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-2 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
+        <ArrowLeft size={18} />
+        <span>Quay lại</span>
+      </button>
       <h1 className="text-3xl font-bold mb-10 text-center">{lesson.title}</h1>
 
       <div className="flex items-center gap-6 text-gray-600 mb-6">
@@ -90,22 +104,27 @@ const LessonDetailPage: React.FC = () => {
         </span>
       </div>
 
-      {/* Render nội dung bài học */}
-      <div
-        className="article-content prose"
-        dangerouslySetInnerHTML={{ __html: lesson.content }}
-      />
+      {/* Render content */}
+      <div className="article-content prose"
+        dangerouslySetInnerHTML={{ __html: lesson.content }}/>
+      <div className="mt-12 text-center">
+        <button onClick={handleGoBack} className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-6 py-3 rounded-xl transition">
+          <ArrowLeft />
+          Quay lại
+        </button>
+      </div>
+      
       {showLogin && (
-      <LoginModal
-        isOpen={showLogin}
-        onClose={() => {
-          setShowLoginModal(false)
-          setTimeout(() => setShowLoginModal(true), 100);
-        }}
-        onSuccess={() => {
-          setShowLoginModal(false);        }}
-      />
-    )}
+        <LoginModal
+          isOpen={showLogin}
+          onClose={() => {
+            setShowLoginModal(false)
+            setTimeout(() => setShowLoginModal(true), 100);
+          }}
+          onSuccess={() => {
+            setShowLoginModal(false);        }}
+        />
+      )}
     </div>
   );
 };
