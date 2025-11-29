@@ -1,21 +1,22 @@
 import { motion } from "framer-motion";
-import { Bar, Line } from "react-chartjs-2";
+import { Chart } from "react-chartjs-2";
 import api from "../../../config/axios";
 import React, { useEffect, useState } from "react";
-import { Users, FileText, LineChart, CheckCircle2, BarChart } from "lucide-react";
+import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
+import { Users, FileText, LineChart, CheckCircle2, BarChart as BarChartIcon } from "lucide-react";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
-import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 
-ChartJS.register( CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
 const DashboardPage: React.FC = () => {
   const [revenueData, setRevenueData] = useState<any[]>([]);
@@ -51,23 +52,27 @@ const DashboardPage: React.FC = () => {
         const prev = chartData[chartData.length - 2]?.totalRevenue || 0;
         const g = prev > 0 ? ((current - prev) / prev) * 100 : 0;
         setGrowth(g);
-      } else setGrowth(0);
+      } else {
+        setGrowth(0);
+      }
     } catch (err) {
       console.error("Lỗi khi load revenue:", err);
     }
   };
 
   useEffect(() => {
-    fetchDashboard(selectedYear); 
+    fetchDashboard(selectedYear);
     fetchRevenueChart(selectedYear);
   }, [selectedYear]);
 
+  // Tạo nhãn 12 tháng
   const labels = Array.from({ length: 12 }, (_, i) => `Tháng ${i + 1}`);
   const dataByMonth = labels.map((_, i) => {
     const monthData = revenueData.find((item) => item.month === i + 1);
     return monthData ? monthData.totalRevenue : 0;
   });
 
+  // Cấu hình dữ liệu chart - tối ưu cho cả line và bar
   const chartData = {
     labels,
     datasets: [
@@ -75,23 +80,51 @@ const DashboardPage: React.FC = () => {
         label: `Doanh thu năm ${selectedYear} (VND)`,
         data: dataByMonth,
         borderColor: "#2563eb",
-        backgroundColor: chartType === "bar" ? "rgba(37,99,235,0.5)" : "rgba(37,99,235,0.2)",
-        fill: true,
-        tension: 0.3,
+        backgroundColor:
+          chartType === "bar"
+            ? "rgba(37, 99, 235, 0.5)"
+            : "rgba(37, 99, 235, 0.2)",
+        fill: chartType === "line",           // Chỉ fill khi là line chart
+        tension: chartType === "line" ? 0.3 : undefined,
+        borderWidth: 2,
+        pointBackgroundColor: "#2563eb",
+        pointRadius: chartType === "line" ? 4 : 0,
       },
     ],
   };
 
   const options = {
     responsive: true,
-    plugins: { legend: { display: true } },
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: "top" as const },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const value = context.parsed.y;
+            return `Doanh thu: ${value.toLocaleString("vi-VN")} ₫`;
+          },
+        },
+      },
+    },
     scales: {
-      x: { title: { display: true, text: "Tháng" } },
-      y: { title: { display: true, text: "Doanh thu (VND)" }, beginAtZero: true },
+      x: {
+        title: { display: true, text: "Tháng" },
+        grid: { display: false },
+      },
+      y: {
+        title: { display: true, text: "Doanh thu (VND)" },
+        beginAtZero: true,
+        ticks: {
+          callback: (value: any) => {
+            return value.toLocaleString("vi-VN") + " ₫";
+          },
+        },
+      },
     },
   };
 
-  const years = [2025, 2026];
+  const years = [2025, 2026, 2027];
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -123,7 +156,7 @@ const DashboardPage: React.FC = () => {
             },
             {
               title: `Tổng doanh thu ${selectedYear}`,
-              value: `${(revenueStats?.totalRevenue || 0).toLocaleString("vi-VN")} đ`,
+              value: `${(revenueStats?.totalRevenue || 0).toLocaleString("vi-VN")} ₫`,
               change: `${revenueStats?.growth?.toFixed(1) ?? 0}% tăng trưởng`,
               icon: LineChart,
               color: "text-green-600",
@@ -143,9 +176,7 @@ const DashboardPage: React.FC = () => {
               className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl border border-gray-200 transition-all"
             >
               <div className="flex justify-between items-start mb-3">
-                <h2 className="text-lg font-semibold text-gray-700">
-                  {card.title}
-                </h2>
+                <h2 className="text-lg font-semibold text-gray-700">{card.title}</h2>
                 <card.icon className={`${card.color} w-7 h-7`} />
               </div>
               <p className="text-3xl font-bold text-gray-900">{card.value}</p>
@@ -154,52 +185,61 @@ const DashboardPage: React.FC = () => {
           ))}
         </div>
 
-        {/* Chart */}
+        {/* Chart Section */}
         <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h2 className="text-xl font-semibold text-gray-800">
               Doanh thu theo tháng
             </h2>
 
-            {/* Year selector */}
-            <select value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500">
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-4">
+              {/* Year Selector */}
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
 
-              {/* Chart type toggle */}
+              {/* Chart Type Toggle */}
               <div className="flex border border-gray-300 rounded-lg overflow-hidden">
                 <button
-                  className={`px-4 py-2 flex items-center gap-1 ${
-                    chartType === "line" ? "bg-blue-600 text-white" : "text-gray-700 bg-white"
-                  }`}
                   onClick={() => setChartType("line")}
-                >
+                  className={`px-4 py-2 flex items-center gap-2 transition-all ${
+                    chartType === "line"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-700 bg-white hover:bg-gray-50"
+                  }`}>
                   <LineChart className="w-4 h-4" />
-                  Line
+                  Đường
                 </button>
                 <button
-                  className={`px-4 py-2 flex items-center gap-1 ${
-                    chartType === "bar" ? "bg-blue-600 text-white" : "text-gray-700 bg-white"
-                  }`}
                   onClick={() => setChartType("bar")}
-                >
-                  <BarChart className="w-4 h-4" />
-                  Bar
+                  className={`px-4 py-2 flex items-center gap-2 transition-all ${
+                    chartType === "bar"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-700 bg-white hover:bg-gray-50"
+                  }`}>
+                  <BarChartIcon className="w-4 h-4" />
+                  Cột
                 </button>
               </div>
+            </div>
           </div>
-          
-          {chartType === "line" ? (
-            <Line data={chartData} options={options} />
-          ) : (
-            <Bar data={chartData} options={options} />
-          )}
+
+          {/* Chart - DÙNG MỘT CHART DUY NHẤT */}
+          <div className="h-96">
+            <Chart
+              type={chartType}
+              data={chartData}
+              options={options}
+            />
+          </div>
         </div>
       </div>
     </div>
