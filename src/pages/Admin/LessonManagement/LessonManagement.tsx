@@ -390,7 +390,7 @@ const LessonManagementPage: React.FC = () => {
             </div>
             <div className="flex gap-4">
               <button onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-3 bg-indigo-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
+                className="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
                 Tạo bài mới
               </button>
 
