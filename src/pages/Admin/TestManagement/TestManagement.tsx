@@ -30,13 +30,17 @@ const ActionDropdown: React.FC<{
   onDeleteSuccess: () => void;
 }> = ({ test, onNavigate, onDeleteSuccess }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
       }
@@ -49,6 +53,16 @@ const ActionDropdown: React.FC<{
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 8,
+        left: rect.right + window.scrollX - 224, // 224px = w-56
+      });
+    }
   }, [isOpen]);
 
   const handleAction = async (action: string) => {
@@ -80,17 +94,32 @@ const ActionDropdown: React.FC<{
     }
   };
 
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-gray-500 hover:text-blue-600 transition p-2 rounded-lg hover:bg-gray-100"
-      >
-        <MoreHorizontal size={18} />
-      </button>
+    <>
+      <div className="relative inline-block">
+        <button
+          ref={buttonRef}
+          onClick={toggleDropdown}
+          className="text-gray-500 hover:text-blue-600 transition p-2 rounded-lg hover:bg-gray-100"
+        >
+          <MoreHorizontal size={18} />
+        </button>
+      </div>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 animate-fadeIn">
+        <div 
+          ref={dropdownRef}
+          className="fixed w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 animate-fadeIn"
+          style={{
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
+            zIndex: 9999,
+          }}
+        >
           <button
             onClick={() => handleAction("add-part")}
             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition text-left text-gray-700 hover:text-blue-600"
@@ -107,8 +136,6 @@ const ActionDropdown: React.FC<{
             <span className="font-medium">Thêm câu hỏi</span>
           </button>
 
-          <div className="border-t border-gray-200 my-2"></div>
-
           {/* <button
             onClick={() => handleAction("edit")}
             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-yellow-50 transition text-left text-gray-700 hover:text-yellow-600"
@@ -116,6 +143,8 @@ const ActionDropdown: React.FC<{
             <Edit2 className="text-yellow-600" size={16} />
             <span className="font-medium">Chỉnh sửa</span>
           </button> */}
+
+          <div className="border-t border-gray-200 my-2"></div>
 
           <button
             onClick={() => handleAction("toggle-status")}
@@ -140,9 +169,10 @@ const ActionDropdown: React.FC<{
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 };
+
 const TestManagementPage: React.FC<Test> = ({
   limit = 8,
   showPagination = true,
@@ -151,7 +181,6 @@ const TestManagementPage: React.FC<Test> = ({
   const [tests, setTests] = useState<Test[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalTests, setTotalTests] = useState<number>(0);
-  const [selectedTestCode, setSelectedTestCode] = useState<string | null>(null);
 
   const totalPages = Math.ceil(totalTests / limit);
 
