@@ -7,7 +7,6 @@ import Login from "../pages/Login/Login";
 import NotFound from "../pages/NotFound/NotFound";
 import MainLayout from "../layouts/MainLayout";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
-import ResetPassword from "../pages/ForgotPassword/ResetPassword";
 import Profile from "../pages/Profile/Profile";
 import UpdateProfile from "../pages/Profile/UpdateProfile/UpdateProfile";
 import ResourceDetail from "../pages/Resource/ResourceDetail";
@@ -51,14 +50,6 @@ const routes = [
     element: (
       <MainLayout>
         <NotFound />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/reset-password",
-    element: (
-      <MainLayout>
-        <ResetPassword />
       </MainLayout>
     ),
   },
