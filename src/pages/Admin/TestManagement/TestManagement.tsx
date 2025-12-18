@@ -69,12 +69,12 @@ const ActionDropdown: React.FC<{
     setIsOpen(false);
 
     switch (action) {
-      case "add-part":
-        onNavigate(`/admin/create-part?slug=${test.slug}`);
-        break;
-      case "add-questions":
-        onNavigate(`/admin/create-questions?slug=${test.slug}`);
-        break;
+      // case "add-part":
+      //   onNavigate(`/admin/create-part?slug=${test.slug}`);
+      //   break;
+      // case "add-questions":
+      //   onNavigate(`/admin/create-questions?slug=${test.slug}`);
+      //   break;
       case "edit":
         onNavigate(`/admin/edit-test/${test.slug}`);
         break;
@@ -120,7 +120,7 @@ const ActionDropdown: React.FC<{
             zIndex: 9999,
           }}
         >
-          <button
+          {/* <button
             onClick={() => handleAction("add-part")}
             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition text-left text-gray-700 hover:text-blue-600"
           >
@@ -134,7 +134,7 @@ const ActionDropdown: React.FC<{
           >
             <HelpCircle className="text-green-600" size={16} />
             <span className="font-medium">Thêm câu hỏi</span>
-          </button>
+          </button> */}
 
           {/* <button
             onClick={() => handleAction("edit")}
@@ -144,7 +144,7 @@ const ActionDropdown: React.FC<{
             <span className="font-medium">Chỉnh sửa</span>
           </button> */}
 
-          <div className="border-t border-gray-200 my-2"></div>
+          {/* <div className="border-t border-gray-200 my-2"></div> */}
 
           <button
             onClick={() => handleAction("toggle-status")}
