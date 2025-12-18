@@ -28,7 +28,7 @@ export const SocketProvider = ({ children }) => {
     }
 
     // Khởi tạo socket connection
-    const SOCKET_URL = 'http://localhost:8081';
+    const SOCKET_URL = 'https://toeic-master-be.onrender.com';
     
     console.log('Connecting to socket server:', SOCKET_URL);
     

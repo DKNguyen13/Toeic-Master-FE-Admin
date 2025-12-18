@@ -42,7 +42,7 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
     { to: "/admin/testmanagement", icon: FileText, label: "Đề thi" },
     //{ to: "/admin/flashcard", icon: Sparkles, label: "Flashcard" },
     { to: "/admin/vipmanagement", icon: Crown, label: "VIP/Premium" },
-    { to: "http://localhost:3000", icon: LayoutDashboard, label: "Truy cập User Portal", external: true },
+    { to: "https://toeic-master.onrender.com", icon: LayoutDashboard, label: "Truy cập User Portal", external: true },
   ];
 
   return (
