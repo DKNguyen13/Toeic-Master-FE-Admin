@@ -53,7 +53,7 @@ const AdminHeader: React.FC = () => {
     { to: "/admin/dashboard", label: "Dashboard", icon: <PieChart className="w-5 h-5" /> },
     { to: "/admin/usermanagement", label: "Người dùng", icon: <Users className="w-5 h-5" /> },
     { to: "/admin/flashcard", label: "Flashcard", icon: <Sparkles className="w-5 h-5" /> },
-    { to: "/admin/resources", label: "Tài nguyên", icon: <Search className="w-5 h-5" /> },
+    { to: "/admin/lessonmanagement", label: "Tài nguyên", icon: <Search className="w-5 h-5" /> },
     { to: "/admin/vipmanagement", label: "VIP/Premium", icon: <Crown className="w-5 h-5 text-yellow-500" />, premium: true },
   ];
 
