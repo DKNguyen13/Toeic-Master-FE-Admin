@@ -14,9 +14,11 @@ import {
   Title,
   Tooltip,
   Legend,
+  LineController,
+  BarController,
 } from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, LineController, BarController, BarElement, Title, Tooltip, Legend);
 
 const DashboardPage: React.FC = () => {
   const [revenueData, setRevenueData] = useState<any[]>([]);
