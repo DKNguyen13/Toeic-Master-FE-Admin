@@ -390,13 +390,13 @@ const LessonManagementPage: React.FC = () => {
             </div>
             <div className="flex gap-4">
               <button onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
+                className="flex items-center gap-3 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
                 Tạo bài mới
               </button>
 
               <button
                 onClick={() => setIsFillBlankModalOpen(true)}
-                className="flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
+                className="flex items-center gap-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105">
                 Thêm bài điền khuyết
               </button>
             </div>
@@ -447,7 +447,7 @@ const LessonManagementPage: React.FC = () => {
                 <p className="text-sm text-gray-500 mb-1">Tổng bài học</p>
                 <p className="text-3xl font-bold text-gray-900">{lessons.length}</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
                 <BookOpen className="text-white" size={24} />
               </div>
             </div>
@@ -659,7 +659,7 @@ const LessonManagementPage: React.FC = () => {
                   </div>
                   <button type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center gap-2">
+                    className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:opacity-70 flex items-center justify-center gap-2">
                     {isSubmitting ? <>Đang tải lên...</> : <>Tạo bài học</>}
                   </button>
                 </form>
