@@ -22,6 +22,8 @@ import CreateQuestionPage from "../pages/Admin/TestManagement/CreateQuestionPage
 import TestImportPage from "../pages/Admin/TestManagement/ImportTestPage/TestImportPage";
 import FlashcardPage from "../pages/FlashCard/FlashcardPage";
 import FlashcardListPage from "../pages/FlashCard/FlashcardListPage";
+import AdminPrivacy from "../pages/Info/Privacy";
+import AdminTerms from "../pages/Info/Terms";
 
 // Cấu hình routes
 const routes = [
@@ -42,6 +44,22 @@ const routes = [
     element: (
       <MainLayout>
         <ForgotPassword />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/terms",
+    element: (
+      <MainLayout>
+        <AdminTerms />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/privacy",
+    element: (
+      <MainLayout>
+        <AdminPrivacy />
       </MainLayout>
     ),
   },
