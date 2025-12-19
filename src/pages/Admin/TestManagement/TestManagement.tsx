@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { getAllTest, getAllTestForAdmin, modifyTest } from "../../../service/testService";
 import Pagination from "../../../components/common/Pagination/Pagination";
-import { MoreHorizontal, Plus, HelpCircle, Trash2, CheckCircle } from "lucide-react";
+import { MoreHorizontal, Plus, HelpCircle, Trash2, CheckCircle, Edit2 } from "lucide-react";
 
 interface Test {
   title: string;
@@ -136,15 +136,15 @@ const ActionDropdown: React.FC<{
             <span className="font-medium">Thêm câu hỏi</span>
           </button> */}
 
-          {/* <button
+          <button
             onClick={() => handleAction("edit")}
             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-yellow-50 transition text-left text-gray-700 hover:text-yellow-600"
           >
             <Edit2 className="text-yellow-600" size={16} />
             <span className="font-medium">Chỉnh sửa</span>
-          </button> */}
+          </button>
 
-          {/* <div className="border-t border-gray-200 my-2"></div> */}
+          <div className="border-t border-gray-200 my-2"></div>
 
           <button
             onClick={() => handleAction("toggle-status")}

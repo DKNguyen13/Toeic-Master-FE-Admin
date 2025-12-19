@@ -23,6 +23,7 @@ import CreateQuestionPage from "../pages/Admin/TestManagement/CreateQuestionPage
 import TestImportPage from "../pages/Admin/TestManagement/ImportTestPage/TestImportPage";
 import FlashcardPage from "../pages/FlashCard/FlashcardPage";
 import FlashcardListPage from "../pages/FlashCard/FlashcardListPage";
+import EditTestPage from "../pages/Admin/TestManagement/EditTestPage/EditTestPage";
 
 // Cấu hình routes
 const routes = [
@@ -162,6 +163,16 @@ const routes = [
       <ProtectedRoute allowedRoles={["admin"]}>
         <MainLayout>
           <TestImportPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/edit-test/:slug",
+    element: (
+      <ProtectedRoute allowedRoles={["admin"]}>
+        <MainLayout>
+          <EditTestPage />
         </MainLayout>
       </ProtectedRoute>
     ),
