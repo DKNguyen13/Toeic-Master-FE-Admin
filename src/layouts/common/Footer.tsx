@@ -1,5 +1,10 @@
 import { Facebook, Instagram, Youtube, Phone, Mail, MapPin } from "lucide-react";
 
+const quickLinks = [
+  { text: "Điều Khoản & Điều Kiện", href: "/terms" },
+  { text: "Chính Sách Bảo Mật", href: "/privacy" },
+];
+
 const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-12">
@@ -41,14 +46,15 @@ const Footer = () => {
           {/* Quick Links */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold">Liên kết nhanh</h3>
-            <ul className="space-y-3 text-sm text-gray-300">
-              {["Điều Khoản & Điều Kiện", "Chính Sách Bảo Mật", "Hỗ Trợ"].map(
-                (text, i) => (
-                  <li key={i}>
-                    <a href="#" className="hover:text-yellow-400 transition">{text}</a>
-                  </li>
-                )
-              )}
+            <ul className="space-y-3 text-sm text-gray-200">
+              {quickLinks.map((link, i) => (
+                <li key={i}>
+                  <a href={link.href}
+                    className="hover:underline hover:text-white transition-colors duration-300">
+                    {link.text}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

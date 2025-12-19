@@ -7,7 +7,6 @@ import Login from "../pages/Login/Login";
 import NotFound from "../pages/NotFound/NotFound";
 import MainLayout from "../layouts/MainLayout";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
-import ResetPassword from "../pages/ForgotPassword/ResetPassword";
 import Profile from "../pages/Profile/Profile";
 import UpdateProfile from "../pages/Profile/UpdateProfile/UpdateProfile";
 import ResourceDetail from "../pages/Resource/ResourceDetail";
@@ -24,6 +23,8 @@ import TestImportPage from "../pages/Admin/TestManagement/ImportTestPage/TestImp
 import FlashcardPage from "../pages/FlashCard/FlashcardPage";
 import FlashcardListPage from "../pages/FlashCard/FlashcardListPage";
 import EditTestPage from "../pages/Admin/TestManagement/EditTestPage/EditTestPage";
+import AdminPrivacy from "../pages/Info/Privacy";
+import AdminTerms from "../pages/Info/Terms";
 
 // Cấu hình routes
 const routes = [
@@ -48,18 +49,26 @@ const routes = [
     ),
   },
   {
-    path: "*", // Trang 404
+    path: "/terms",
     element: (
       <MainLayout>
-        <NotFound />
+        <AdminTerms />
       </MainLayout>
     ),
   },
   {
-    path: "/reset-password",
+    path: "/privacy",
     element: (
       <MainLayout>
-        <ResetPassword />
+        <AdminPrivacy />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "*", // Trang 404
+    element: (
+      <MainLayout>
+        <NotFound />
       </MainLayout>
     ),
   },
