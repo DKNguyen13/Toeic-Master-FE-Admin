@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
+import { config } from '../config/env.config';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 
 const SocketContext = createContext(null);
 
@@ -28,7 +29,7 @@ export const SocketProvider = ({ children }) => {
     }
 
     // Khởi tạo socket connection
-    const SOCKET_URL = 'https://toeic-master-be.onrender.com';
+    const SOCKET_URL = `${config.apiBaseUrl}`;
     
     console.log('Connecting to socket server:', SOCKET_URL);
     

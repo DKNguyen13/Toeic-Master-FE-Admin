@@ -1,7 +1,8 @@
 import axios from "axios";
+import { config } from "./env.config";
 
 const api = axios.create({
-  baseURL: "https://toeic-master-be.onrender.com/api",
+  baseURL: `${config.apiBaseUrl}/api`,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
