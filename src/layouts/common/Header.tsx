@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "../../context/SocketContext.jsx";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Bell, Users, FileText, Search, Crown, LogOut, PieChart, Sparkles } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Bell, Users, Search, Crown, LogOut, PieChart, Sparkles } from "lucide-react";
 
 interface Notification {
   _id: string;
