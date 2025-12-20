@@ -1,8 +1,10 @@
 import React from "react";
 import { showToast } from "../utils/toast.js";
+import { config } from "../config/env.config.js";
 import { Link, useNavigate } from "react-router-dom";
 import api, { setAccessToken } from "../config/axios.js";
-import { LayoutDashboard, Users, BookOpen, FileText, Sparkles, Crown, LogOut, UserCircle, PieChart, Search } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Crown, LogOut, UserCircle, PieChart, Search } from "lucide-react";
+
 
 interface LeftSidebarAdminProps {
   customHeight?: string;
@@ -42,7 +44,7 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
     { to: "/admin/testmanagement", icon: FileText, label: "Đề thi" },
     //{ to: "/admin/flashcard", icon: Sparkles, label: "Flashcard" },
     { to: "/admin/vipmanagement", icon: Crown, label: "VIP/Premium" },
-    { to: "http://localhost:3000", icon: LayoutDashboard, label: "Truy cập User Portal", external: true },
+    { to: `${config.userPortalUrl}`, icon: LayoutDashboard, label: "Truy cập User Portal", external: true },
   ];
 
   return (

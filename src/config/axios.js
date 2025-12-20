@@ -1,12 +1,13 @@
 import axios from "axios";
+import { config } from "./env.config";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: `${config.apiBaseUrl}/api`,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 
-let accessToken = sessionStorage.getItem("accessToken") || null;
+let accessToken = sessionStorage.getItem("adminAccessToken") || null;
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -21,9 +22,9 @@ const processQueue = (error, token = null) => {
 export const setAccessToken = (token) => {
   accessToken = token;
   if (token) {
-    sessionStorage.setItem("accessToken", token);
+    sessionStorage.setItem("adminAccessToken", token);
   } else {
-    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("adminAccessToken");
   }
 };
 
@@ -79,4 +80,4 @@ api.interceptors.response.use(
 
 export default api;
 
-export const isLoggedIn = () => !!sessionStorage.getItem("accessToken");
+export const isLoggedIn = () => !!sessionStorage.getItem("adminAccessToken");
