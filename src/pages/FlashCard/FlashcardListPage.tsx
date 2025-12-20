@@ -10,7 +10,7 @@ const FlashcardListPage: React.FC = () => {
     <div className="p-6 max-w-6xl mx-auto">
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 px-3 py-1 border rounded hover:bg-gray-100">
+        className="mb-4 px-3 py-1 rounded-lg border rounded hover:bg-gray-100">
         ← Quay lại
       </button>
       <FlashcardList setId={setId} />

@@ -1,60 +1,36 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
-import useRefreshTokenOnLoad from "../hooks/useRefreshTokenOnLoad";
-
-// Các trang (các phần này sẽ thêm sau)
-import HomePage from "../pages/Home/Home";
-import Login from "../pages/Login/Login";
-import NotFound from "../pages/NotFound/NotFound";
+//import useRefreshTokenOnLoad from "../hooks/useRefreshTokenOnLoad";
 
 // Layout
+import Login from "../pages/Login/Login";
+import NotFound from "../pages/NotFound/NotFound";
 import MainLayout from "../layouts/MainLayout";
-import Register from "../pages/Register/Register";
-import { Test } from "../pages/MockTest/Test";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
-import ResetPassword from "../pages/ForgotPassword/ResetPassword";
-import Leaderboard from "../pages/Leaderboard/Leaderboard";
-import Settings from "../pages/Settings/Settings";
-import EditSettings from "../pages/Settings/EditSettings/EditSettings";
-import Payment from "../pages/Payment/Payment";
-import PurchaseHistory from "../pages/Payment/PurchaseHistory";
-import PaymentForm from "../pages/Payment/PaymentForm/PaymentForm";
-import Resource from "../pages/Resource/Resource";
-import History from "../pages/History/History";
+import Profile from "../pages/Profile/Profile";
+import UpdateProfile from "../pages/Profile/UpdateProfile/UpdateProfile";
 import ResourceDetail from "../pages/Resource/ResourceDetail";
+
+// Admin Pages
 import DashboardPage from "../pages/Admin/Dashboard/Dashboard";
+import VipManagement from "../pages/Admin/VipManagement/VipManagement";
 import UserManagementPage from "../pages/Admin/UserManagement/UserManagement";
 import TestManagementPage from "../pages/Admin/TestManagement/TestManagement";
 import LessonManagementPage from "../pages/Admin/LessonManagement/LessonManagement";
-import DetailTestPage from "../pages/Detail/DetailTestPage";
-import { Wishlist } from "../pages/Wishlist/Wishlist";
-import VipManagement from "../pages/Admin/VipManagement/VipManagement";
-import PaymentFail from "../pages/Payment/PaymentFail";
-import PaymentSuccess from "../pages/Payment/PaymentSuccess";
-import ResultPage from "../pages/MockTest/result/ResultPage";
-import FlashcardPage from "../pages/FlashCard/FlashcardPage";
-import FlashcardListPage from "../pages/FlashCard/FlashcardListPage";
-import TestList from "../pages/MockTest/TestList";
-import CreateTestPage from "../pages/Admin/TestManagement/CreateTestPage/CreateTestPage";
 import CreatePartPage from "../pages/Admin/TestManagement/CreatePartPage/CreatePartPage";
 import CreateQuestionPage from "../pages/Admin/TestManagement/CreateQuestionPage/CreateQuestionPage";
-
-const RefreshTokenLoader = () => {
-  useRefreshTokenOnLoad();
-  return null;
-};
+import TestImportPage from "../pages/Admin/TestManagement/ImportTestPage/TestImportPage";
+import FlashcardPage from "../pages/FlashCard/FlashcardPage";
+import FlashcardListPage from "../pages/FlashCard/FlashcardListPage";
+import EditTestPage from "../pages/Admin/TestManagement/EditTestPage/EditTestPage";
+import AdminPrivacy from "../pages/Info/Privacy";
+import AdminTerms from "../pages/Info/Terms";
 
 // Cấu hình routes
 const routes = [
   {
-    path: "/", // Trang Home, cho mọi user
-    element: (
-      <>
-        <MainLayout>
-          <HomePage />
-        </MainLayout>
-      </>
-    ),
+    path: "/",
+    element: <Navigate to="/login" replace />,
   },
   {
     path: "/login", // Trang dành cho Guest (Guest-only)
@@ -73,6 +49,22 @@ const routes = [
     ),
   },
   {
+    path: "/terms",
+    element: (
+      <MainLayout>
+        <AdminTerms />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/privacy",
+    element: (
+      <MainLayout>
+        <AdminPrivacy />
+      </MainLayout>
+    ),
+  },
+  {
     path: "*", // Trang 404
     element: (
       <MainLayout>
@@ -81,179 +73,23 @@ const routes = [
     ),
   },
   {
-    path: "/reset-password",
+    path: "/admin/profile",
     element: (
-      <MainLayout>
-        <ResetPassword />
-      </MainLayout>
-    ),
-  },
-
-  {
-    path: "/register",
-    element: (
-      <MainLayout>
-        <Register />
-      </MainLayout>
-    ),
-  },
-
-  {
-    path: "/tests",
-    element: (
-      <MainLayout>
-        <TestList limit={9} showPagination={true} />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/session/:id",
-    element: (
-      <MainLayout>
-        <Test isView={false} />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/session/view/:id",
-    element: (
-      <MainLayout>
-        <Test isView={true} />
-      </MainLayout>
-    ),
-  },
-
-  {
-    path: "/leaderboard",
-    element: (
-      <MainLayout>
-        <Leaderboard />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/session/:id/results",
-    element: (
-      <MainLayout>
-        <ResultPage />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/test/:slug",
-    element: (
-      <MainLayout>
-        <DetailTestPage />
-      </MainLayout>
-    ),
-  },
-
-  {
-    path: "/settings",
-    element: (
-      <ProtectedRoute allowedRoles={["admin", "user"]}>
+      <ProtectedRoute allowedRoles={["admin"]}>
         <MainLayout>
-          <Settings />
+          <Profile />
         </MainLayout>
       </ProtectedRoute>
     ),
   },
   {
-    path: "/settings/edit-info",
+    path: "/admin/profile/update-info",
     element: (
-      <ProtectedRoute allowedRoles={["admin", "user"]}>
+      <ProtectedRoute allowedRoles={["admin"]}>
         <MainLayout>
-          <EditSettings />
+          <UpdateProfile />
         </MainLayout>
       </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/payment",
-    element: (
-      <MainLayout>
-        <Payment />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/payment/paymentform",
-    element: (
-      <MainLayout>
-        <PaymentForm />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/payment/success",
-    element: (
-    <ProtectedRoute allowedRoles={["admin", "user"]}>
-      <MainLayout>
-        <PaymentSuccess />
-      </MainLayout>
-    </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/payment/fail",
-    element: (
-      <ProtectedRoute allowedRoles={["admin", "user"]}>
-        <MainLayout>
-          <PaymentFail />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/resource",
-    element: (
-      <MainLayout>
-        <Resource />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/resource/:id",
-    element: (
-      <MainLayout>
-        <ResourceDetail />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/history",
-    element: (
-      <ProtectedRoute allowedRoles={["admin", "user"]}>
-        <MainLayout>
-          <History />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/purchase-history",
-    element: (
-      <ProtectedRoute allowedRoles={["admin", "user"]}>
-        <MainLayout>
-          <PurchaseHistory />
-        </MainLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/flashcard",
-    element: (
-      <MainLayout>
-        <FlashcardPage />
-      </MainLayout>
-    ),
-  },
-  {
-    path: "/flashcards/:setId",
-    element: (
-      <MainLayout>
-        <FlashcardListPage />
-      </MainLayout>
     ),
   },
   {
@@ -276,6 +112,22 @@ const routes = [
       </ProtectedRoute>
     ),
   },
+    {
+    path: "/admin/flashcard",
+    element: (
+      <MainLayout>
+        <FlashcardPage />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/admin/flashcards/:setId",
+    element: (
+      <MainLayout>
+        <FlashcardListPage />
+      </MainLayout>
+    ),
+  },
   {
     path: "/admin/lessonmanagement",
     element: (
@@ -284,6 +136,14 @@ const routes = [
           <LessonManagementPage />
         </MainLayout>
       </ProtectedRoute>
+    ),
+  },
+    {
+    path: "/resource/:id",
+    element: (
+      <MainLayout>
+        <ResourceDetail />
+      </MainLayout>
     ),
   },
   {
@@ -307,11 +167,21 @@ const routes = [
     ),
   },
   {
-    path: "/admin/create-test",
+    path: "/admin/import-test",
     element: (
       <ProtectedRoute allowedRoles={["admin"]}>
         <MainLayout>
-          <CreateTestPage />
+          <TestImportPage />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/edit-test/:slug",
+    element: (
+      <ProtectedRoute allowedRoles={["admin"]}>
+        <MainLayout>
+          <EditTestPage />
         </MainLayout>
       </ProtectedRoute>
     ),
@@ -334,14 +204,6 @@ const routes = [
           <CreateQuestionPage />
         </MainLayout>
       </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/wishlist",
-    element: (
-      <MainLayout>
-        <Wishlist />
-      </MainLayout>
     ),
   },
 ];

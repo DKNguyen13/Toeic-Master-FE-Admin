@@ -2,8 +2,8 @@ import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../../../../config/axios";
 import { getTestDetail } from "../../../../service/testService";
-import { toast, ToastContainer } from "react-toastify";
 import LoadingSkeleton from "../../../../components/common/LoadingSpinner/LoadingSkeleton";
+import { showToast } from "../../../../utils/toast";
 
 interface Test {
   slug: string;
@@ -104,7 +104,7 @@ const CreatePartPage: React.FC = () => {
         partData: partDataWithSlug,
       });
       setSubmitting(true);
-      toast.success("Tạo Part thành công!");
+      showToast("Tạo Part thành công!", "success");
       setFormData({
         partNumber: 1,
         totalQuestions: questionLimits[1],
@@ -114,7 +114,7 @@ const CreatePartPage: React.FC = () => {
         tags: [],
       });
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Đã xảy ra lỗi khi tạo Part");
+      showToast(err.response?.data?.message || "Đã xảy ra lỗi khi tạo Part", "error");
     } finally {
       setSubmitting(false);
     }
@@ -259,16 +259,6 @@ const CreatePartPage: React.FC = () => {
           </form>
         </div>
       </div>
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="colored"
-      />
     </>
   );
 };

@@ -33,3 +33,23 @@ export const modifyTest = async(slug) => {
   const response =  await api.patch(`/test/${slug}`);
   console.log('delete test',response);
 }
+
+// Import test from Excel
+export const importTest = async (formData) => {
+  const response = await api.post('/admin/tests/import', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data.data;
+}
+
+// Get Test info for editing
+export const getTestInfo = async (slug) => {
+  const response = await api.get(`/test/${slug}/edit`);
+  return response.data.data;
+}
+
+// Update Test
+export const updateTest = async (slug, testData) => {
+  const response = await api.put(`/test/${slug}`, testData);
+  return response.data.data;
+}

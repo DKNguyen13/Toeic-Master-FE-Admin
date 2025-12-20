@@ -4,7 +4,7 @@ import { getAllParts } from "../../../../service/partService";
 import LoadingSkeleton from "../../../../components/common/LoadingSpinner/LoadingSkeleton.js";
 import { getTestDetail } from "../../../../service/testService.js";
 import { useSearchParams } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { showToast } from "../../../../utils/toast.js";
 
 interface Test {
   slug: string;
@@ -62,7 +62,7 @@ export default function CreateQuestionPage() {
         const res = await getTestDetail(slug);
         setTestDetail(res?.data?.test);
       } catch (err: any) {
-        toast.error(`Lỗi tải đề thi: ${err.message}`);
+        showToast(`Lỗi tải đề thi: ${err.message}`, "error");
       }
     };
     fetchTest();
@@ -76,7 +76,7 @@ export default function CreateQuestionPage() {
           const data = await getAllParts(slug);
           setParts(data?.partWithCounts || []);
         } catch (err: any) {
-          toast.error(`Lỗi tải danh sách part: ${err.message}`);
+          showToast(`Lỗi tải danh sách part: ${err.message}`, "error");
         }
       };
       fetchParts();
@@ -102,7 +102,7 @@ export default function CreateQuestionPage() {
     setSelectedPartId(partId);
     const selectedPart = parts.find((p) => p._id === partId);
     if (!selectedPart) {
-      toast.error("Vui lòng chọn part để tạo câu hỏi");
+      showToast("Vui lòng chọn part để tạo câu hỏi", "error");
       return;
     }
     setGroups([]);
@@ -193,14 +193,12 @@ export default function CreateQuestionPage() {
     e.preventDefault();
     const selectedPart = parts.find((p) => p._id === selectedPartId);
     if (!selectedPart) {
-      toast.warn("Vui lòng chọn part!");
+      showToast("Vui lòng chọn part!", "warn");
       return;
     }
 
     if (questions.length === 0) {
-      toast.error(
-        "Bạn chưa thêm câu hỏi nào! Vui lòng thêm ít nhất 1 câu hỏi."
-      );
+      showToast("Bạn chưa thêm câu hỏi nào! Vui lòng thêm ít nhất 1 câu hỏi.", "error");
       return;
     }
 
@@ -208,14 +206,14 @@ export default function CreateQuestionPage() {
     for (const q of questions) {
       const emptyChoice = q.choices.some((choice) => !choice.text.trim());
       if (emptyChoice) {
-        toast.error("Vui lòng điền đầy đủ nội dung tất cả đáp án!");
+        showToast("Vui lòng điền đầy đủ nội dung tất cả đáp án!", "error");
         return;
       }
 
       // Kiểm tra phải có đáp án đúng (phòng trường hợp bug radio)
       const correctExists = q.choices.some((c) => c.label === q.correctAnswer);
       if (!correctExists) {
-        toast.error("Vui lòng chọn đáp án đúng cho tất cả câu hỏi!");
+        showToast("Vui lòng chọn đáp án đúng cho tất cả câu hỏi!", "error");
         return;
       }
 
@@ -223,7 +221,7 @@ export default function CreateQuestionPage() {
       const requiresQuestionText = ![1, 6].includes(q.partNumber);
 
       if (requiresQuestionText && !q.question.trim()) {
-        toast.error("Vui lòng nhập nội dung câu hỏi!");
+        showToast("Vui lòng nhập nội dung câu hỏi!", "error");
         return;
       }
     }
@@ -248,9 +246,7 @@ export default function CreateQuestionPage() {
       );
 
       if (hasEmptyGroup) {
-        toast.error(
-          "Nhóm đang trống! Vui lòng thêm ít nhất 1 câu hỏi cho mỗi nhóm."
-        );
+        showToast("Nhóm đang trống! Vui lòng thêm ít nhất 1 câu hỏi cho mỗi nhóm.", "error");
         return;
       }
       groups.forEach((g) => {
@@ -365,9 +361,9 @@ export default function CreateQuestionPage() {
       await api.post(`/question`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success("Tạo câu hỏi thành công!");
+      showToast("Tạo câu hỏi thành công!", "success");
     } catch (error: any) {
-      toast.error(`Lỗi: ${error.response?.data?.message || error.message}`);
+      showToast(`Lỗi: ${error.response?.data?.message || error.message}`, "error");
     } finally {
       setQuestions([]);
       setGroups([]);
@@ -675,16 +671,6 @@ export default function CreateQuestionPage() {
           <LoadingSkeleton />
         </div>
       )}
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="colored"
-      />
     </>
   );
 }

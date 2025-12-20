@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
+import { config } from '../config/env.config';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 
 const SocketContext = createContext(null);
 
@@ -28,7 +29,7 @@ export const SocketProvider = ({ children }) => {
     }
 
     // Khởi tạo socket connection
-    const SOCKET_URL = 'http://localhost:8081';
+    const SOCKET_URL = `${config.apiBaseUrl}`;
     
     console.log('Connecting to socket server:', SOCKET_URL);
     
@@ -38,7 +39,7 @@ export const SocketProvider = ({ children }) => {
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       auth: {
-        token: localStorage.getItem('token') // Nếu cần auth
+        token: localStorage.getItem('token')
       }
     });
 
@@ -92,7 +93,7 @@ export const SocketProvider = ({ children }) => {
 
     // Lỗi kết nối
     newSocket.on('connect_error', (error) => {
-      console.error('❌ Connection error:', error);
+      console.error('Connection error:', error);
       setConnected(false);
     });
 
