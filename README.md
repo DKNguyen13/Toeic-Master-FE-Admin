@@ -80,3 +80,38 @@ Dự án được xây dựng phục vụ mục đích học tập và báo cáo
 - Đăng nhập dành cho Admin
 - Bảo mật và phân quyền truy cập
 - Kết nối realtime với hệ thống thông qua Socket.IO
+
+---
+
+## 🔐 Biến môi trường (.env)
+
+Tạo file `.env` trong thư mục gốc và cấu hình các biến môi trường sau:
+```env
+VITE_GOOGLE_CLIENT_ID=
+
+# Local Development
+VITE_API_BASE_URL=http://localhost:8080
+VITE_USER_PORTAL_URL=http://localhost:3000
+```
+---
+
+## 🚀 Cách chạy Frontend Admin (Local)
+
+### 1️⃣ Clone project
+```bash
+git clone https://github.com/DKNguyen13/Toeic-Master-FE-Admin
+cd Toeic-Master-FE-Admin
+```
+### 2️⃣ Cài đặt dependencies
+```bash
+npm install
+```
+### 3️⃣ Tạo file `.env`
+Tạo file `.env` trong thư mục gốc và cấu hình các biến môi trường theo mẫu bên dưới.
+
+### 4️⃣ Chạy server
+```bash
+npm run dev
+```
+Sau khi chạy thành công, truy cập:
+👉 http://localhost:4000
