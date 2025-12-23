@@ -99,7 +99,7 @@ VITE_USER_PORTAL_URL=http://localhost:3000
 
 ### 1️⃣ Clone project
 ```bash
-git clone https://github.com/DKNguyen13/Toeic-Master-FE-Admin
+git clone https://github.com/DKNguyen13/Toeic-Master-FE-Admin.git
 cd Toeic-Master-FE-Admin
 ```
 ### 2️⃣ Cài đặt dependencies
