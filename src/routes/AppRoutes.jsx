@@ -7,7 +7,7 @@ import Login from "../pages/Login/Login";
 import NotFound from "../pages/NotFound/NotFound";
 import MainLayout from "../layouts/MainLayout";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
-import Profile from "../pages/Profile/Profile";
+import ResetPassword from "../pages/ResetPassword/ResetPassword";
 import UpdateProfile from "../pages/Profile/UpdateProfile/UpdateProfile";
 import ResourceDetail from "../pages/Resource/ResourceDetail";
 
@@ -25,6 +25,7 @@ import FlashcardListPage from "../pages/FlashCard/FlashcardListPage";
 import EditTestPage from "../pages/Admin/TestManagement/EditTestPage/EditTestPage";
 import AdminPrivacy from "../pages/Info/Privacy";
 import AdminTerms from "../pages/Info/Terms";
+import Profile from "../pages/Profile/Profile";
 
 // Cấu hình routes
 const routes = [
@@ -45,6 +46,14 @@ const routes = [
     element: (
       <MainLayout>
         <ForgotPassword />
+      </MainLayout>
+    ),
+  },
+  {
+    path: "/reset-password",
+    element: (
+      <MainLayout>
+        <ResetPassword />
       </MainLayout>
     ),
   },
