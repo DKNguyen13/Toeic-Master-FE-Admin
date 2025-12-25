@@ -28,6 +28,7 @@ const DashboardPage: React.FC = () => {
   const [userStats, setUserStats] = useState<any>(null);
   const [revenueStats, setRevenueStats] = useState<any>(null);
   const [chartType, setChartType] = useState<"line" | "bar">("line");
+  const [testStats, setTestStats] = useState<any>(null);
 
   const fetchDashboard = async (year: number) => {
     try {
@@ -35,6 +36,7 @@ const DashboardPage: React.FC = () => {
       const data = res.data.data;
       setUserStats(data.userStats || {});
       setRevenueStats(data.revenueStats || {});
+      setTestStats(data.testStats || {});
     } catch (err) {
       console.error("Lỗi khi load dashboard:", err);
     }
@@ -73,6 +75,7 @@ const DashboardPage: React.FC = () => {
     const monthData = revenueData.find((item) => item.month === i + 1);
     return monthData ? monthData.totalRevenue : 0;
   });
+  const completionRate = testStats?.totalAttempts > 0 ? Math.round((testStats.completedAttempts / testStats.totalAttempts) * 100) : 0;
 
   // Cấu hình dữ liệu chart - tối ưu cho cả line và bar
   const chartData = {
@@ -151,22 +154,22 @@ const DashboardPage: React.FC = () => {
             },
             {
               title: "Tổng số bài thi đã làm",
-              value: "10",
-              change: "+1.3% so với tuần trước",
+              value: testStats?.totalAttempts?.toLocaleString("vi-VN") || "0",
+              change: "Dữ liệu tổng hợp đến hiện tại",
               icon: FileText,
               color: "text-orange-500",
             },
             {
               title: `Tổng doanh thu ${selectedYear}`,
               value: `${(revenueStats?.totalRevenue || 0).toLocaleString("vi-VN")} ₫`,
-              change: `${revenueStats?.growth?.toFixed(1) ?? 0}% tăng trưởng`,
+              change: `${revenueStats?.growth?.toFixed(1) ?? 0}% so với năm trước`,
               icon: LineChart,
               color: "text-green-600",
             },
             {
               title: "Tỷ lệ hoàn thành bài",
-              value: "80%",
-              change: "+1.8% so với hôm qua",
+              value: `${completionRate}%`,
+              change: "Hoàn thành / Tham gia (%)",
               icon: CheckCircle2,
               color: "text-rose-500",
             },
