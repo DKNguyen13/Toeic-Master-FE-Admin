@@ -8,7 +8,7 @@ const useRefreshTokenOnLoad = () => {
   useEffect(() => {
     const refresh = async () => {
       try {
-        const res = await api.post("/auth/refresh-token", {}, { withCredentials: true });
+        const res = await api.post("/auth/refresh-token/admin", {}, { withCredentials: true });
         const { newAccessToken } = res.data.data;
         setAccessToken(newAccessToken);
       } catch (err) {
