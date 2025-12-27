@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import LeftSidebarAdmin from "../../components/LeftSidebarAdmin";
 import { User, Mail, Phone, Calendar, Crown, Edit, CheckCircle, XCircle } from "lucide-react";
+import LoadingSkeleton from "../../components/common/LoadingSpinner/LoadingSkeleton";
 
 interface VipInfo {
   isActive: boolean;
@@ -55,28 +56,44 @@ const Profile: React.FC = () => {
     fetchUserInfo();
   }, []);
 
-  const getVipConfig = (type: string | null) => {
+const getVipConfig = (type: string | null) => {
     switch (type) {
       case "basic":
-        return { bg: "bg-gradient-to-r from-gray-300 to-gray-400", icon: "★", label: "BASIC" };
+        return { 
+          bg: "bg-gradient-to-br from-slate-400 via-slate-500 to-slate-600", 
+          icon: "", 
+          label: "BASIC",
+          glow: "shadow-lg shadow-slate-500/50"
+        };
       case "advanced":
-        return { bg: "bg-gradient-to-r from-blue-400 to-blue-500", icon: "★★", label: "ADVANCED" };
+        return { 
+          bg: "bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600", 
+          icon: "", 
+          label: "ADVANCED",
+          glow: "shadow-lg shadow-blue-500/50"
+        };
       case "premium":
-        return { bg: "bg-gradient-to-r from-yellow-400 to-yellow-500", icon: "★★★", label: "PREMIUM", textColor: "text-gray-900" };
+        return { 
+          bg: "bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500", 
+          icon: "", 
+          label: "PREMIUM", 
+          textColor: "text-white",
+          glow: "shadow-lg shadow-yellow-500/50"
+        };
       default:
         return null;
     }
   };
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex justify-center items-center bg-gray-50">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Đang tải...</p>
-        </div>
-      </div>
-    );
+  if (loading) return <LoadingSkeleton/>
+    // return (
+    //   <div className="min-h-screen flex justify-center items-center bg-gray-50">
+    //     <div className="text-center">
+    //       <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+    //       <p className="text-gray-600 font-medium">Đang tải...</p>
+    //     </div>
+    //   </div>
+    // );
 
   if (error)
     return (
@@ -101,7 +118,7 @@ const Profile: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-md p-8 mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-blue-100 opacity-20 rounded-full -mr-24 -mt-24"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-100 opacity-20 rounded-full -ml-24 -mb-24"></div>
-          <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">Thông tin tài khoản</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">Thông tin tài khoản</h1>
           <p className="text-gray-500">Quản lý thông tin cá nhân của bạn</p>
         </div>
 
@@ -118,12 +135,21 @@ const Profile: React.FC = () => {
                   onError={(e) => { (e.target as HTMLImageElement).src = "/img/avatar/default_avatar.jpg"; }}
                 />
               </div>
-              <h2 className="text-xl font-bold break-words text-gray-800">{user.fullname || "Chưa có tên"}</h2>
-              <p className="text-gray-500 text-sm">{user.email || "Chưa có email"}</p>
+                <h2 className="text-xl font-bold text-gray-800 break-words w-full text-center" title={user.fullname || "Chưa có tên"}>{user.fullname || "Chưa có tên"}</h2>
+                <p className="text-gray-500 text-sm truncate w-full text-center" title={user.email || "Chưa có email"}>{user.email || "Chưa có email"}</p>
             </div>
 
             {/* VIP Card */}
-            <div className="bg-white rounded-2xl shadow-md p-6">
+            <div
+              className={`bg-white rounded-2xl shadow-md p-6 ${
+                !user.vip.isActive ? "cursor-pointer hover:shadow-lg transition" : ""
+              }`}
+              onClick={() => {
+                if (!user.vip.isActive) {
+                  window.location.href = "/payment";
+                }
+              }}
+            >
               <div className="flex items-center mb-4">
                 <Crown className="w-5 h-5 text-yellow-500 mr-2" />
                 <h3 className="font-semibold text-gray-800">Trạng thái tài khoản</h3>
@@ -164,16 +190,14 @@ const Profile: React.FC = () => {
             <div className="bg-white rounded-2xl shadow-md p-8">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Thông tin chi tiết</h2>
-                <Link
-                  to="/admin/profile/update-info"
-                  className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-transform duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                >
+                <Link to="/profile/update-info"
+                  className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-transform duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                   <Edit className="w-4 h-4 mr-2" /> Chỉnh sửa
                 </Link>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/** Common function for field box */}
+                {/* Common function for field box */}
                 {[
                   { label: "Họ và tên", value: user.fullname, icon: <User className="w-4 h-4 mr-2 text-blue-600" /> },
                   { label: "Email", value: user.email, icon: <Mail className="w-4 h-4 mr-2 text-blue-600" /> },

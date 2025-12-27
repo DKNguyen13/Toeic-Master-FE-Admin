@@ -92,6 +92,16 @@ const routes = [
     ),
   },
   {
+    path: "/profile/update-info",
+    element: (
+      <ProtectedRoute allowedRoles={["admin", "user"]}>
+        <MainLayout>
+          <UpdateProfile />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: "/admin/profile/update-info",
     element: (
       <ProtectedRoute allowedRoles={["admin"]}>
