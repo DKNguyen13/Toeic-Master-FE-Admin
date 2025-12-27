@@ -153,18 +153,18 @@ const DashboardPage: React.FC = () => {
               color: "text-blue-600",
             },
             {
-              title: "Tổng số bài thi đã làm",
-              value: testStats?.totalAttempts?.toLocaleString("vi-VN") || "0",
-              change: "Dữ liệu tổng hợp đến hiện tại",
-              icon: FileText,
-              color: "text-orange-500",
-            },
-            {
               title: `Tổng doanh thu ${selectedYear}`,
               value: `${(revenueStats?.totalRevenue || 0).toLocaleString("vi-VN")} ₫`,
               change: `${revenueStats?.growth?.toFixed(1) ?? 0}% so với năm trước`,
               icon: LineChart,
               color: "text-green-600",
+            },
+            {
+              title: "Tổng lượt tham gia thi TOEIC",
+              value: testStats?.totalAttempts?.toLocaleString("vi-VN") || "0",
+              change: "Dữ liệu tổng hợp đến hiện tại",
+              icon: FileText,
+              color: "text-orange-500",
             },
             {
               title: "Tỷ lệ hoàn thành bài",
