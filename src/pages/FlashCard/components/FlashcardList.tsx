@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
 import api from "../../../config/axios";
 import FlashcardItem from "./FlashcardItem";
 import "react-toastify/dist/ReactToastify.css";
 import { useLocation } from "react-router-dom";
 import { showToast } from "../../../utils/toast";
+import React, { useEffect, useState } from "react";
 import { Book } from "lucide-react";
 
 export interface Flashcard {
@@ -35,6 +35,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
   const [canQuiz, setCanQuiz] = useState(true);
   const [correctCard, setCorrectCard] = useState<Flashcard | null>(null);
   const [error, setError] = useState("");
+  const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
 
   const type = propType || location.state?.type || "myList";
   const editable = type === "myList";
@@ -52,7 +53,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
       const res = await api.get(url, { params: { set: setId } });
       setFlashcards(res.data.data || []);
     } catch (err: any) {
-      showToast(err.response?.data?.message || "Không thể tải flashcard!", "error");
+      showToast(err.response?.data?.message || "Không thể tải flashcard!", "error", { autoClose: 1000 });
     } finally {
       setLoading(false);
     }
@@ -70,21 +71,23 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
       setFlashcards((prev) => [...prev, res.data.data]);
       setShowModal(false);
       setForm({ word: "", meaning: "", example: "", note: "" });
-      showToast("Thêm flashcard thành công!", "success", {autoClose: 1500});
+      showToast("Thêm flashcard thành công!", "success", {autoClose: 1000});
       setError("");
     } catch (err: any) {
       setError(err.response?.data?.message || "Lỗi khi tạo flashcard!");
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const confirmDeleteCard = async () => {
+    if (!deleteCardId) return;
     try {
-      await api.delete(`/flashcard/${id}`);
-      setFlashcards((prev) => prev.filter((f) => f._id !== id));
-      showToast("Đã xóa flashcard thành công!", "success");
-      if (randomIndex >= flashcards.length - 1) setRandomIndex(0);
+      await api.delete(`/flashcard/${deleteCardId}`);
+      setFlashcards(prev => prev.filter(f => f._id !== deleteCardId));
+      showToast("Xóa flashcard thành công!", "success", { autoClose: 1000 });
     } catch (err: any) {
-      showToast(err.response?.data?.message || "Không thể xóa flashcard!", "error");
+      showToast(err.response?.data?.message || "Không thể xóa flashcard!", "error", { autoClose: 1000 });
+    } finally {
+      setDeleteCardId(null);
     }
   };
 
@@ -202,6 +205,29 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
             )}
           </div>
         </div>
+        
+        {/* Modal cofirm delete flashcard */}
+        {deleteCardId && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-fadeIn">
+              <h2 className="text-2xl font-semibold text-center text-gray-800 mb-2">Xác nhận xóa</h2>
+              <p className="text-gray-600 mb-6">
+                Bạn có chắc muốn xóa flashcard?
+                Hành động này không thể hoàn tác.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setDeleteCardId(null)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                  Hủy
+                </button>
+                <button onClick={confirmDeleteCard}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                  Xóa
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Content Area */}
         {mode === "Trắc nghiệm" ? (
@@ -274,7 +300,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
             <div className="w-full max-w-md mb-6">
               <FlashcardItem
                 flashcard={flashcards[randomIndex]}
-                onDelete={editable ? () => handleDelete(flashcards[randomIndex]._id!) : undefined}
+                onDelete={editable ? () => setDeleteCardId(flashcards[randomIndex]._id!) : undefined}
               />
             </div>
             
@@ -282,7 +308,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
               <button 
                 onClick={prevCard} 
                 disabled={flashcards.length <= 1} 
-                className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-200 ${
+                className={`px-5 py-2 rounded-3xl font-semibold transition-all duration-200 ${
                   flashcards.length > 1 
                     ? 'bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 shadow-md hover:shadow-lg transform hover:scale-105' 
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-100'
@@ -299,7 +325,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
               <button 
                 onClick={nextCard} 
                 disabled={flashcards.length <= 1} 
-                className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-200 ${
+                className={`px-5 py-2 rounded-3xl font-semibold transition-all duration-200 ${
                   flashcards.length > 1 
                     ? 'bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 shadow-md hover:shadow-lg transform hover:scale-105' 
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-100'
@@ -328,7 +354,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
                 <FlashcardItem
                   key={card._id}
                   flashcard={card}
-                  onDelete={editable ? handleDelete : undefined}
+                  onDelete={editable ? (id: string) => setDeleteCardId(id) : undefined}
                 />
               ))
             ) : (
@@ -357,6 +383,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Tạo Flashcard Mới</h2>
                 <p className="text-gray-500 mt-2">Thêm vào các từ mới vào bộ từng vựng của bạn</p>
+                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
               </div>
 
               <div className="space-y-4">
@@ -367,9 +394,14 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
                     placeholder="Nhập từ vựng..." 
                     value={form.word}
                     onChange={(e) => setForm({ ...form, word: e.target.value })}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 transition-all duration-200" 
+                    maxLength={100}
+                    className={`w-full border-2 rounded-xl px-4 py-3 transition-all duration-200 ${
+                      error.includes("Từ") ? "border-red-500" : "border-gray-200"
+                    }`} 
                   />
-                  {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                  <span className="text-xs text-gray-500">
+                    {form.word.length}/100 ký tự
+                  </span>
                 </div>
                 
                 <div>
@@ -378,10 +410,15 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
                     name="meaning" 
                     placeholder="Nhập nghĩa..." 
                     value={form.meaning}
+                    maxLength={100}
                     onChange={(e) => setForm({ ...form, meaning: e.target.value })}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 transition-all duration-200" 
+                    className={`w-full border-2 rounded-xl px-4 py-3 transition-all duration-200 ${
+                      error.includes("nghĩa") ? "border-red-500" : "border-gray-200"
+                    }`} 
                   />
-                  {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                  <span className="text-xs text-gray-500">
+                    {form.meaning.length}/100 ký tự
+                  </span>
                 </div>
                 
                 <div>
@@ -390,9 +427,13 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
                     name="example" 
                     placeholder="Nhập ví dụ..." 
                     value={form.example}
+                    maxLength={200}
                     onChange={(e) => setForm({ ...form, example: e.target.value })}
                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 transition-all duration-200" 
                   />
+                  <span className="text-xs text-gray-500">
+                    {form.example.length}/200 ký tự
+                  </span>
                 </div>
                 
                 <div>
@@ -401,11 +442,16 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
                     name="note" 
                     placeholder="Nhập ghi chú..." 
                     value={form.note}
+                    maxLength={200}
                     onChange={(e) => setForm({ ...form, note: e.target.value })}
                     className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 transition-all duration-200" 
                   />
+                  <span className="text-xs text-gray-500">
+                    {form.note.length}/200 ký tự
+                  </span>
                 </div>
               </div>
+              
               <div className="flex gap-4 mt-8">
                 <button onClick={handleAdd}
                   className="flex-1 px-6 py-3 text-base font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200">
