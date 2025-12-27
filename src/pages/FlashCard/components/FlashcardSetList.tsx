@@ -2,6 +2,7 @@ import api from "../../../config/axios";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../../../utils/toast";
 import React, { useEffect, useRef, useState } from "react";
+import LoginModal from "../../../layouts/common/LoginModal";
 import { Book, Inbox, Library, Search, Star, Trash } from "lucide-react";
 
 export interface FlashcardSet {
@@ -26,6 +27,7 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", description: "" });
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [deleteSetId, setDeleteSetId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -50,6 +52,19 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
     }
   };
 
+  const confirmDelete = async () => {
+    if (!deleteSetId) return;
+    try {
+      await api.delete(`/flashcard-set/${deleteSetId}`);
+      setSets(prev => prev.filter(s => s._id !== deleteSetId));
+      showToast("Xóa bộ flashcard thành công!", "success", { autoClose: 1500 });
+    } catch (err: any) {
+      showToast(err.response?.data?.message || "Không thể xóa bộ flashcard!", "error", { autoClose: 1500 });
+    } finally {
+      setDeleteSetId(null);
+    }
+  };
+
   const handleAdd = async () => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
@@ -70,18 +85,6 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
       setError("");
     } catch (err: any) {
       setError(err.response?.data?.message || "Lỗi khi tạo bộ từ vựng!");
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Bạn có chắc muốn xóa bộ flashcard này?')) return;
-    
-    try {
-      await api.delete(`/flashcard-set/${id}`);
-      setSets((prev) => prev.filter((s) => s._id !== id));
-      showToast("Xóa bộ flashcard thành công!", "success", { autoClose: 1500 });
-    } catch (err: any) {
-      showToast(err.response?.data?.message || "Không thể xóa bộ flashcard!", "error", { autoClose: 1500 });
     }
   };
 
@@ -151,6 +154,28 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
             </div>
             )}
 
+            {/* Modal xác nhận xóa */}
+            {deleteSetId && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-fadeIn">
+                  <h2 className="text-2xl font-semibold text-center text-gray-800 mb-2">Xác nhận xóa</h2>
+                  <p className="text-gray-600 mb-6">
+                    Bạn có chắc muốn xóa bộ {sets.find(s => s._id === deleteSetId)?.name || ""} này?<br></br> Hành động này không thể hoàn tác.
+                  </p>
+                  <div className="flex justify-end gap-3">
+                    <button onClick={() => setDeleteSetId(null)}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                      Hủy
+                    </button>
+                    <button onClick={confirmDelete}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                      Xóa
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Flashcard Sets */}
             {sets.length > 0 ? (
               sets.map((set) => (
@@ -159,47 +184,46 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
                   className="group relative bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 h-56 flex flex-col justify-between cursor-pointer transform hover:scale-105 border border-gray-100 hover:border-blue-300 overflow-hidden">
                   {/* Gradient Background Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <div className="relative z-10">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Book className="text-white text-2xl" />
+                    <div className="relative z-10">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Book className="text-white text-2xl" />
+                        </div>
+                        {type === "myList" && isLoggedIn && (
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteSetId(set._id!);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2 rounded-lg hover:bg-red-50">
+                            <Trash className="text-red-500 text-lg" />
+                          </button>
+                        )}
                       </div>
-                      {type === "myList" && isLoggedIn && (
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(set._id!);
-                          }}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2 rounded-lg hover:bg-red-50">
-                          <Trash className="text-red-500 text-lg" />
-                        </button>
-                      )}
+                      
+                      <h2 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                        {set.name}
+                      </h2>
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                        {set.description || "Không có mô tả"}
+                      </p>
                     </div>
-                    
-                    <h2 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      {set.name}
-                    </h2>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                      {set.description || "Không có mô tả"}
-                    </p>
-                  </div>
                   
-                  <div className="relative z-10 flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-bold text-blue-600">{set.count || 0}</span>
+                    <div className="relative z-10 flex items-center justify-between pt-3 border-t border-gray-100">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-blue-600">{set.count || 0}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 font-medium">flashcards</p>
                       </div>
-                      <p className="text-xs text-gray-500 font-medium">flashcards</p>
+                      <div className="flex items-center text-blue-500 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span>Học ngay</span>
+                        <span className="ml-1">→</span>
+                      </div>
                     </div>
-                    <div className="flex items-center text-blue-500 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span>Học ngay</span>
-                      <span className="ml-1">→</span>
-                    </div>
-                  </div>
                 </div>
-              ))
-            ) : (
+                ))
+              ) : (
               <div className="col-span-full flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-gray-200">
                 <div className="p-4 bg-blue-50 rounded-full mb-4">
                   {type === "myList" ? (
@@ -231,10 +255,7 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
           <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl transform transition-all duration-300 scale-100"
             onClick={(e) => e.stopPropagation()}>
             <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full mb-4 shadow-md">
-                <Library className="w-8 h-8" />
-              </div>
-              <h2 className="text-3xl font-bold text-gray-800">Tạo bộ từ vựng mới</h2>
+              <h2 className="text-2xl font-bold text-gray-800">Tạo bộ từ vựng mới</h2>
               <p className="text-gray-500 mt-2">Bắt đầu xây dựng bộ từ vựng của riêng bạn</p>
             </div>
             
@@ -251,7 +272,22 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 />
-                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                <span className="text-xs text-gray-500">
+                  {form.name.length}/25 ký tự
+                </span>
+                <p className="text-red-500 text-sm mt-2">
+                  {error.includes("Nâng cấp VIP") ? (
+                    <>
+                      Bạn đã đạt giới hạn bộ flashcard.{" "}
+                      <a href="/payment" className="text-blue-500">
+                        Nâng cấp VIP
+                      </a>{" "}
+                      để tạo thêm!
+                    </>
+                  ) : (
+                    error
+                  )}
+                </p>
               </div>
               
               <div>
@@ -267,8 +303,11 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
                     setForm({ ...form, description: e.target.value })
                   }
                   className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
-                  rows={3}
+                  rows={2}
                 />
+                <span className="text-xs text-gray-500">
+                  {form.description.length}/25 ký tự
+                </span>
               </div>
             </div>
             <div className="flex gap-4 mt-8">
@@ -284,6 +323,13 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
           </div>
         </div>
       )}
+
+      {/* Modal login */}
+      <LoginModal 
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={() => window.location.reload()}
+      />
     </div>
   );
 };
