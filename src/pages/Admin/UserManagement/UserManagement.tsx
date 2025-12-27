@@ -16,6 +16,7 @@ import {
   Check,
   Sparkles,
   X,
+  CaseUpper,
 } from "lucide-react";
 import { showToast } from "../../../utils/toast";
 import Pagination from "../../../components/common/Pagination/Pagination";
@@ -260,6 +261,10 @@ const UserManagementPage: React.FC = () => {
   const activeUsers = users.filter((u) => u.status === "Active").length;
   const inactiveUsers = users.filter((u) => u.status === "Inactive").length;
 
+  const filterActive = statusFilter !== "Tất cả" || authTypeFilter !== "Tất cả";
+  const activeFilterCount =
+    (statusFilter !== "Tất cả" ? 1 : 0) + (authTypeFilter !== "Tất cả" ? 1 : 0);
+
   return (
     <div className="min-h-screen flex bg-gray-50">
       <LeftSidebarAdmin customHeight="h-auto w-64" />
@@ -342,19 +347,17 @@ const UserManagementPage: React.FC = () => {
         </div>
 
         {/* Search & Filter */}
-        <div className="flex flex-col md:flex-row gap-3 mb-6">
+        {/* Search & Filter */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
           {/* Search Box */}
-          <div className="relative flex-1 group">
-            {/* Gradient border effect */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 rounded-2xl opacity-0 group-hover:opacity-20 group-focus-within:opacity-30 blur transition duration-300"></div>
-
-            <div className="relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="relative flex-1">
+            <div className="relative bg-white rounded-2xl shadow-sm border border-gray-200 hover:border-gray-300 focus-within:border-blue-500 focus-within:shadow-md transition-all duration-300">
               <div className="flex items-center">
                 {/* Search Icon */}
-                <div className="absolute left-4 flex items-center pointer-events-none">
+                <div className="absolute left-4 pointer-events-none">
                   <Search
-                    className={`w-5 h-5 transition-all duration-300 ${
-                      searchTerm ? "text-blue-600 scale-110" : "text-gray-400"
+                    className={`w-5 h-5 transition-colors duration-200 ${
+                      searchTerm ? "text-blue-600" : "text-gray-400"
                     }`}
                   />
                 </div>
@@ -371,7 +374,7 @@ const UserManagementPage: React.FC = () => {
                       handleSearch(e);
                     }
                   }}
-                  className="w-full py-3.5 pl-12 pr-32 text-gray-800 placeholder-gray-400 bg-transparent rounded-2xl outline-none transition-all"
+                  className="w-full py-4 pl-12 pr-32 bg-transparent outline-none text-gray-800 placeholder-gray-500"
                 />
 
                 {/* Clear button */}
@@ -379,18 +382,17 @@ const UserManagementPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSearchTerm("")}
-                    className="absolute right-28 p-1.5 rounded-full bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-500 transition-all duration-300 transform hover:scale-110 hover:rotate-90"
+                    className="absolute right-36 p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 )}
 
-                {/* Submit button */}
+                {/* Search button */}
                 <button
-                  type="button"
                   onClick={handleSearch}
                   disabled={isSearching}
-                  className="absolute right-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="absolute right-3 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-xl transition-colors duration-200 disabled:cursor-not-allowed"
                 >
                   {isSearching ? (
                     <span className="flex items-center gap-2">
@@ -405,8 +407,8 @@ const UserManagementPage: React.FC = () => {
 
               {/* Character count */}
               {searchTerm && (
-                <div className="px-4 pb-2 pt-1 flex items-center gap-2 border-t border-gray-100">
-                  <Sparkles className="w-3 h-3 text-blue-500" />
+                <div className="px-4 pb-3 pt-1 border-t border-gray-100">
+                  <CaseUpper className="w-4 h-4 text-blue-500 inline-block mr-2" />
                   <span className="text-xs text-gray-500">
                     {searchTerm.length}/60 ký tự
                   </span>
@@ -420,68 +422,43 @@ const UserManagementPage: React.FC = () => {
             <button
               ref={filterButtonRef}
               onClick={() => setFilterOpen(!filterOpen)}
-              className="relative group h-full min-w-[140px]"
+              className="flex items-center justify-center gap-3 px-6 py-4 bg-white rounded-2xl shadow-sm border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 min-w-[160px]"
             >
-              {/* Gradient border */}
-              <div
-                className={`absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-300 ${
-                  filterOpen ? "opacity-30" : ""
+              <Filter
+                className={`w-5 h-5 transition-colors ${
+                  filterActive ? "text-blue-600" : "text-gray-500"
                 }`}
-              ></div>
+              />
+              <span className="font-medium text-gray-700">Bộ lọc</span>
 
-              <div
-                className={`relative flex items-center justify-center gap-2 px-5 py-3.5 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-                  filterOpen ? "ring-2 ring-purple-500 ring-opacity-50" : ""
-                }`}
-              >
-                <Filter
-                  className={`w-5 h-5 transition-all duration-300 ${
-                    (statusFilter !== "Tất cả" ? 1 : 0) +
-                      (authTypeFilter !== "Tất cả" ? 1 : 0) >
-                    0
-                      ? "text-purple-600"
-                      : "text-gray-600"
-                  }`}
-                />
-                <span className="font-medium text-gray-700">Bộ lọc</span>
-
-                {/* Active filters badge */}
-                {(statusFilter !== "Tất cả" ? 1 : 0) +
-                  (authTypeFilter !== "Tất cả" ? 1 : 0) >
-                  0 && (
-                  <span className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                    {(statusFilter !== "Tất cả" ? 1 : 0) +
-                      (authTypeFilter !== "Tất cả" ? 1 : 0)}
-                  </span>
-                )}
-              </div>
+              {/* Badge số lượng filter đang active */}
+              {filterActive && (
+                <span className="absolute -top-2 -right-2 w-7 h-7 bg-blue-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-md">
+                  {activeFilterCount}
+                </span>
+              )}
             </button>
 
             {/* Filter Dropdown */}
             {filterOpen && (
               <div
                 ref={filterRef}
-                className="absolute right-0 mt-3 w-64 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden"
-                style={{
-                  animation: "slideDown 0.2s ease-out",
-                }}
+                className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-xl border border-gray-200 z-50 overflow-hidden"
               >
                 {/* Header */}
-                <div className="px-4 py-3 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                <div className="px-5 py-4 border-b border-gray-200 bg-gray-50">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                      <Filter className="w-4 h-4 text-purple-600" />
-                      Bộ lọc
+                      <Filter className="w-5 h-5 text-blue-600" />
+                      Bộ lọc nâng cao
                     </h3>
-                    {(statusFilter !== "Tất cả" ? 1 : 0) +
-                      (authTypeFilter !== "Tất cả" ? 1 : 0) >
-                      0 && (
+                    {filterActive && (
                       <button
                         onClick={() => {
                           setStatusFilter("Tất cả");
                           setAuthTypeFilter("Tất cả");
                         }}
-                        className="text-xs text-purple-600 hover:text-purple-700 font-medium underline"
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                       >
                         Xóa tất cả
                       </button>
@@ -489,27 +466,32 @@ const UserManagementPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-4 max-h-96 overflow-y-auto">
+                <div className="p-5 space-y-6">
                   {/* Status Filter */}
-                  <div className="mb-4">
-                    <p className="font-semibold text-sm text-gray-700 mb-2 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">
                       Trạng thái
                     </p>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {["Tất cả", "Active", "Inactive"].map((status) => (
                         <button
                           key={status}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all duration-200 ${
+                          onClick={() => handleFilterChange("status", status)}
+                          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-left transition-all ${
                             statusFilter === status
-                              ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md transform scale-[1.02]"
+                              ? "bg-blue-50 border border-blue-300 text-blue-700 font-medium"
                               : "hover:bg-gray-50 text-gray-700"
                           }`}
-                          onClick={() => handleFilterChange("status", status)}
                         >
-                          <span className="font-medium text-sm">{status}</span>
+                          <span>
+                            {status === "Active"
+                              ? "Đang hoạt động"
+                              : status === "Inactive"
+                              ? "Không hoạt động"
+                              : "Tất cả"}
+                          </span>
                           {statusFilter === status && (
-                            <Check className="w-4 h-4" />
+                            <Check className="w-5 h-5 text-blue-600" />
                           )}
                         </button>
                       ))}
@@ -518,11 +500,10 @@ const UserManagementPage: React.FC = () => {
 
                   {/* Auth Type Filter */}
                   <div>
-                    <p className="font-semibold text-sm text-gray-700 mb-2 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">
                       Loại tài khoản
                     </p>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {[
                         { key: "Tất cả", label: "Tất cả" },
                         { key: "google", label: "Google" },
@@ -530,20 +511,18 @@ const UserManagementPage: React.FC = () => {
                       ].map((type) => (
                         <button
                           key={type.key}
-                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all duration-200 ${
-                            authTypeFilter === type.key
-                              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md transform scale-[1.02]"
-                              : "hover:bg-gray-50 text-gray-700"
-                          }`}
                           onClick={() =>
                             handleFilterChange("authType", type.key)
                           }
+                          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-left transition-all ${
+                            authTypeFilter === type.key
+                              ? "bg-blue-50 border border-blue-300 text-purple-700 font-medium"
+                              : "hover:bg-gray-50 text-gray-700"
+                          }`}
                         >
-                          <span className="font-medium text-sm">
-                            {type.label}
-                          </span>
+                          <span>{type.label}</span>
                           {authTypeFilter === type.key && (
-                            <Check className="w-4 h-4" />
+                            <Check className="w-5 h-5 text-blue-600" />
                           )}
                         </button>
                       ))}
@@ -555,8 +534,41 @@ const UserManagementPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Active Filters Chips */}
+        {filterActive && (
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <span className="text-sm text-gray-600">Đang áp dụng:</span>
+            {statusFilter !== "Tất cả" && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-200">
+                Trạng thái:{" "}
+                {statusFilter === "Active"
+                  ? "Đang hoạt động"
+                  : "Không hoạt động"}
+                <button
+                  onClick={() => setStatusFilter("Tất cả")}
+                  className="ml-1 hover:bg-blue-200 rounded-full p-1 transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+            {authTypeFilter !== "Tất cả" && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-purple-700 rounded-full text-sm font-medium border border-blue-200">
+                Loại tài khoản:{" "}
+                {authTypeFilter === "google" ? "Google" : "Thường"}
+                <button
+                  onClick={() => setAuthTypeFilter("Tất cả")}
+                  className="ml-1 hover:bg-blue-200 rounded-full p-1 transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Active Filters Display */}
-        {(statusFilter !== "Tất cả" ? 1 : 0) +
+        {/* {(statusFilter !== "Tất cả" ? 1 : 0) +
           (authTypeFilter !== "Tất cả" ? 1 : 0) >
           0 && (
           <div
@@ -592,7 +604,7 @@ const UserManagementPage: React.FC = () => {
               </span>
             )}
           </div>
-        )}
+        )} */}
 
         <style>{`
   @keyframes slideDown {
