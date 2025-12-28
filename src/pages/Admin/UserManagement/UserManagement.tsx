@@ -195,7 +195,7 @@ const UserManagementPage: React.FC = () => {
       setUsers(
         data.map((user: any, index: number) => ({
           id: index + 1,
-          _id: user.id,
+          _id: user._id,
           fullname: user.fullname,
           email: user.email,
           phone: user.phone,
