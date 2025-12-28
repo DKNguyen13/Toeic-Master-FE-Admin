@@ -24,154 +24,7 @@ interface Test {
 }
 
 // Dropdown Component
-const ActionDropdown: React.FC<{
-  test: Test;
-  onNavigate: (path: string) => void;
-  onDeleteSuccess: () => void;
-}> = ({ test, onNavigate, onDeleteSuccess }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY + 8,
-        left: rect.right + window.scrollX - 224, // 224px = w-56
-      });
-    }
-  }, [isOpen]);
-
-  const handleAction = async (action: string) => {
-    setIsOpen(false);
-
-    switch (action) {
-      // case "add-part":
-      //   onNavigate(`/admin/create-part?slug=${test.slug}`);
-      //   break;
-      // case "add-questions":
-      //   onNavigate(`/admin/create-questions?slug=${test.slug}`);
-      //   break;
-      case "edit":
-        onNavigate(`/admin/edit-test/${test.slug}`);
-        break;
-      case "toggle-status":
-        if (
-          confirm(
-            `Bạn có chắc muốn ${
-              test.isActive ? "vô hiệu hóa" : "kích hoạt"
-            } đề thi "${test.title}"?`
-          )
-        ) {
-          console.log("Delete test:", test.slug);
-          await modifyTest(test.slug);
-          onDeleteSuccess();
-        }
-        break;
-    }
-  };
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
-  return (
-    <>
-      <div className="relative inline-block">
-        <button
-          ref={buttonRef}
-          onClick={toggleDropdown}
-          className="text-gray-500 hover:text-blue-600 transition p-2 rounded-lg hover:bg-gray-100"
-        >
-          <MoreHorizontal size={18} />
-        </button>
-      </div>
-
-      {isOpen && (
-        <div 
-          ref={dropdownRef}
-          className="fixed w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 animate-fadeIn"
-          style={{
-            top: `${dropdownPosition.top}px`,
-            left: `${dropdownPosition.left}px`,
-            zIndex: 9999,
-          }}
-        >
-          {/* <button
-            onClick={() => handleAction("add-part")}
-            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition text-left text-gray-700 hover:text-blue-600"
-          >
-            <Plus className="text-blue-600" size={16} />
-            <span className="font-medium">Thêm Part mới</span>
-          </button>
-
-          <button
-            onClick={() => handleAction("add-questions")}
-            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-green-50 transition text-left text-gray-700 hover:text-green-600"
-          >
-            <HelpCircle className="text-green-600" size={16} />
-            <span className="font-medium">Thêm câu hỏi</span>
-          </button> */}
-
-          <button
-            onClick={() => handleAction("edit")}
-            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-yellow-50 transition text-left text-gray-700 hover:text-yellow-600"
-          >
-            <Edit2 className="text-yellow-600" size={16} />
-            <span className="font-medium">Chỉnh sửa</span>
-          </button>
-
-          <div className="border-t border-gray-200 my-2"></div>
-
-          <button
-            onClick={() => handleAction("toggle-status")}
-            className={`w-full flex items-center gap-3 px-4 py-3 transition text-left font-medium
-            ${
-              test.isActive
-                ? "hover:bg-red-50 text-gray-700 hover:text-red-600"
-                : "hover:bg-green-50 text-gray-700 hover:text-green-600"
-            }`}
-          >
-            {test.isActive ? (
-              <>
-                <Trash2 className="text-red-600" size={16} />
-                <span>Vô hiệu hóa</span>
-              </>
-            ) : (
-              <>
-                <CheckCircle className="text-green-600" size={16} />
-                <span>Kích hoạt</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
-    </>
-  );
-};
 
 const TestManagementPage: React.FC<Test> = ({
   limit = 8,
@@ -181,7 +34,8 @@ const TestManagementPage: React.FC<Test> = ({
   const [tests, setTests] = useState<Test[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalTests, setTotalTests] = useState<number>(0);
-
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const totalPages = Math.ceil(totalTests / limit);
 
   const fetchTests = async () => {
@@ -193,6 +47,21 @@ const TestManagementPage: React.FC<Test> = ({
   useEffect(() => {
     fetchTests();
   }, [currentPage]);
+
+  const toggleMenu = (testCode: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setMenuOpenId(menuOpenId === testCode ? null : testCode);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuOpenId && menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpenId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpenId]);
 
   const navigate = useNavigate();
   const handleNavigate = (path: string) => {
@@ -278,11 +147,52 @@ const TestManagementPage: React.FC<Test> = ({
                     </span>
                   </td>
                   <td className="py-4 px-4 text-center relative">
-                    <ActionDropdown
-                      test={test}
-                      onNavigate={handleNavigate}
-                      onDeleteSuccess={fetchTests}
-                    />
+                    <button onClick={(e) => toggleMenu(test.testCode, e)} className="text-gray-500 hover:text-blue-600 transition p-1.5 rounded-lg hover:bg-gray-100">
+                      <MoreHorizontal size={20} />
+                    </button>
+
+                    {/* Dropdown menu */}
+                    {menuOpenId === test.testCode && (
+                      <div
+                        ref={menuRef}
+                        className={`absolute right-4 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden ${
+                          [tests.length - 1, tests.length - 2, tests.length - 3]
+                            .includes(tests.findIndex(t => t.testCode === test.testCode))
+                            ? "bottom-full mb-2"
+                            : "top-full mt-2"
+                        }`}
+                        onClick={(e) => e.stopPropagation()}>
+                        <button onClick={() => {
+                            handleNavigate(`/admin/edit-test/${test.slug}`);
+                            setMenuOpenId(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-yellow-50 text-gray-700 hover:text-yellow-600 transition">
+                          <Edit2 className="w-5 h-5 text-yellow-600" />
+                          <span className="font-medium">Chỉnh sửa đề thi</span>
+                        </button>
+
+                        <button onClick={async () => {
+                            if (confirm(`Bạn có chắc muốn ${test.isActive ? "vô hiệu hóa" : "kích hoạt"} đề thi "${test.title}"?`)) {
+                              await modifyTest(test.slug);
+                              fetchTests();
+                              setMenuOpenId(null);
+                            }
+                          }}
+                          className={`w-full flex items-center gap-3 px-5 py-4 transition font-medium ${test.isActive ? "text-red-600 hover:bg-red-50" : "text-green-600 hover:bg-green-50"}`}>
+                          {test.isActive ? (
+                            <>
+                              <Trash2 className="w-5 h-5" />
+                              <span>Vô hiệu hóa</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-5 h-5" />
+                              <span>Kích hoạt</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -298,14 +208,12 @@ const TestManagementPage: React.FC<Test> = ({
           )}
       </div>
 
-      {/* Modal Thêm Câu Hỏi */}
+      {/* Modal add question */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
-            <button
-              className="absolute top-3 right-3 text-red-600 text-xl"
-              onClick={() => setIsModalOpen(false)}
-            >
+            <button className="absolute top-3 right-3 text-red-600 text-xl"
+              onClick={() => setIsModalOpen(false)}>
               <FaTimes />
             </button>
 

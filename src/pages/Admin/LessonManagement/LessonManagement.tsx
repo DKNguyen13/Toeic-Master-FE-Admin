@@ -5,9 +5,12 @@ import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { showToast } from "../../../utils/toast";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import React, { useEffect, useState, useCallback, useMemo} from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef} from "react";
 import Pagination from "../../../components/common/Pagination/Pagination";
 import { BookOpen, Download, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
+import CreateLessonModal from "./Modals/CreateLessonModal";
+import DeleteLessonModal from "./Modals/DeleteLessonModal";
+import EditLessonModal from "./Modals/UpdateLessonModal";
 
 interface Lesson {
   _id: string;
@@ -33,12 +36,13 @@ const LessonManagementPage: React.FC = () => {
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [editFile, setEditFile] = useState<File | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [menuState, setMenuState] = useState<{ lessonId: string; coords: DOMRect } | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [isFillBlankModalOpen, setIsFillBlankModalOpen] = useState(false);
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [isImporting, setIsImporting] = useState(false);
-
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"reading" | "vocabulary" | "">("");
   const [filterLevel, setFilterLevel] = useState<"free" | "basic" | "advanced" | "premium" | "">("");
@@ -187,6 +191,22 @@ const LessonManagementPage: React.FC = () => {
     }
   };
 
+  const toggleMenu = (lessonId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setMenuOpenId(menuOpenId === lessonId ? null : lessonId);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuOpenId && menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpenId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpenId]);
+
   const filteredLessons = useMemo(() => {
     return lessons.filter((lesson) => {
       const matchesSearch = lesson.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -218,33 +238,12 @@ const LessonManagementPage: React.FC = () => {
       await api.patch(`/lessons/${id}/delete`);
       setLessons((prev) => prev.filter((l) => l._id !== id));
       showToast("Xóa bài học thành công!", "success");
-      closeMenu();
       setDeleteConfirmId(null);
     } catch (err) {
       console.error(err);
       showToast("Xóa bài học thất bại!", "error");
     }
   };
-
-  // Menu control
-  const openMenu = (lessonId: string, e: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMenuState({ lessonId, coords: rect });
-  };
-
-  const closeMenu = useCallback(() => setMenuState(null), []);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!menuState) return;
-      const target = e.target as HTMLElement;
-      if (!document.getElementById(`menu-${menuState.lessonId}`)?.contains(target)) {
-        closeMenu();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [menuState, closeMenu]);
 
   // File selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -528,11 +527,53 @@ const LessonManagementPage: React.FC = () => {
                   <td className="py-4 px-4 text-center">
                     {new Date(lesson.createdAt).toLocaleDateString("vi-VN")}
                   </td>
-                  <td className="py-4 px-4 text-center relative">
-                    <button className="text-gray-500 hover:text-gray-700 transition"
-                      onClick={(e) => openMenu(lesson._id, e)}>
-                      <MoreHorizontal size={18} />
+                                    <td className="py-4 px-4 text-center relative">
+                    <button
+                      onClick={(e) => toggleMenu(lesson._id, e)}
+                      className="text-gray-500 hover:text-blue-600 transition"
+                    >
+                      <MoreHorizontal size={20} />
                     </button>
+
+                    {/* Dropdown menu */}
+                    {menuOpenId === lesson._id && (
+                      <div ref={menuRef}
+                        className={`absolute right-4 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden ${
+                          [paginatedLessons.length - 1, paginatedLessons.length - 2, paginatedLessons.length - 3]
+                            .includes(paginatedLessons.findIndex(l => l._id === lesson._id))
+                            ? "bottom-full mb-2"
+                            : "top-full mt-2"
+                        }`}
+                        onClick={(e) => e.stopPropagation()}>
+                        <button onClick={() => {
+                            navigate(`/resource/${lesson._id}`);
+                            setMenuOpenId(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 text-gray-700 transition">
+                          <Eye className="w-5 h-5" />
+                          Xem chi tiết
+                        </button>
+
+                        <button onClick={() => {
+                            setEditingLesson(lesson);
+                            setIsEditModalOpen(true);
+                            setMenuOpenId(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 text-gray-700 transition">
+                          <Upload className="w-5 h-5" />
+                          Cập nhật bài học
+                        </button>
+
+                        <button onClick={() => {
+                            setDeleteConfirmId(lesson._id);
+                            setMenuOpenId(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-red-50 text-red-600 transition">
+                          <Trash2 className="w-5 h-5" />
+                          Xóa bài học
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -549,232 +590,46 @@ const LessonManagementPage: React.FC = () => {
           />
         )}
 
-        {/* Menu via Portal */}
-        {menuState &&
-          createPortal(
-            <div id={`menu-${menuState.lessonId}`}
-              style={{
-                position: "absolute",
-                top: menuState.coords.bottom + 4,
-                left: menuState.coords.left,
-                width: 140,
-                zIndex: 1000,
-              }}
-              className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 w-40">
-              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition"
-              onClick={() => navigate(`/resource/${menuState.lessonId}`)}>
-                Xem chi tiết
-              </button>
-
-              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition"
-                onClick={() => {
-                  const lesson = lessons.find((l) => l._id === menuState.lessonId);
-                  if (lesson) {
-                    setEditingLesson(lesson);
-                    setIsEditModalOpen(true);
-                  }
-                  closeMenu();
-                }}>
-                Cập nhật
-              </button>
-
-              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
-                onClick={() => setDeleteConfirmId(menuState.lessonId)}>
-                Xóa
-              </button>
-            </div>,
-            document.body
-          )}
-
         {/* Modal add */}
-        {isModalOpen &&
-          createPortal(
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-                <div className="flex justify-between items-center p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900">Thêm bài học mới</h2>
-                  <button
-                    onClick={() => {
-                      setIsModalOpen(false);
-                      setSelectedFile(null);
-                    }}
-                    className="text-gray-500 hover:text-gray-700">
-                    <X size={24} />
-                  </button>
-                </div>
-                <form onSubmit={handleCreateLesson} className="p-6 space-y-5">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Tiêu đề</label>
-                    <input
-                      name="title"
-                      type="text"
-                      maxLength={50}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-                      placeholder="Nhập tiêu đề bài học"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Loại bài</label>
-                    <select
-                      name="type"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
-                      <option value="">-- Chọn loại bài --</option>
-                      <option value="reading">Reading</option>
-                      <option value="vocabulary">Vocabulary</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Cấp độ truy cập</label>
-                    <select
-                      name="accessLevel"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
-                      <option value="">-- Chọn cấp độ --</option>
-                      <option value="free">Miễn phí</option>
-                      <option value="basic">Basic</option>
-                      <option value="advanced">Advanced</option>
-                      <option value="premium">Premium</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">File Word (.docx)</label>
-                    <label
-                      htmlFor="file"
-                      className={`flex items-center justify-center gap-3 px-4 py-10 border-2 border-dashed rounded-lg cursor-pointer transition ${
-                        selectedFile
-                          ? "border-green-500 bg-green-50"
-                          : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-                      }`}>
-                      <Upload size={24} className={selectedFile ? "text-green-600" : "text-gray-500"} />
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-gray-700">
-                          {selectedFile ? selectedFile.name : "Kéo thả hoặc click để chọn file"}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">Chỉ chấp nhận .docx</p>
-                      </div>
-                    </label>
-                    <input id="file" type="file" accept=".docx" className="hidden" onChange={handleFileChange} />
-                  </div>
-                  <button type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:opacity-70 flex items-center justify-center gap-2">
-                    {isSubmitting ? <>Đang tải lên...</> : <>Tạo bài học</>}
-                  </button>
-                </form>
-              </div>
-            </div>,
-            document.body
-          )}
+        {isModalOpen && (
+          <CreateLessonModal
+            isOpen={isModalOpen}
+            isSubmitting={isSubmitting}
+            selectedFile={selectedFile}
+            onFileChange={handleFileChange}
+            onSubmit={handleCreateLesson}
+            onClose={() => {
+              setIsModalOpen(false);
+              setSelectedFile(null);
+            }}
+          />
+        )}
 
         {/* Modal update */}
-        {isEditModalOpen && editingLesson &&
-          createPortal(
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-                <div className="flex justify-between items-center p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900">Cập nhật bài học</h2>
-                  <button
-                    onClick={() => {
-                      setIsEditModalOpen(false);
-                      setEditingLesson(null);
-                      setEditFile(null);
-                    }}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <X size={24} />
-                  </button>
-                </div>
-                <form onSubmit={handleUpdateLesson} className="p-6 space-y-5">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Tiêu đề</label>
-                    <input
-                      name="title"
-                      maxLength={50}
-                      type="text"
-                      defaultValue={editingLesson.title}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Loại bài</label>
-                    <select
-                      name="type"
-                      defaultValue={editingLesson.type}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-                      required
-                    >
-                      <option value="reading">Reading</option>
-                      <option value="vocabulary">Vocabulary</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Cấp độ truy cập</label>
-                    <select
-                      name="accessLevel"
-                      defaultValue={editingLesson.accessLevel}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-                      required
-                    >
-                      <option value="free">Miễn phí</option>
-                      <option value="basic">Basic</option>
-                      <option value="advanced">Advanced</option>
-                      <option value="premium">Premium</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">File Word mới (tùy chọn)</label>
-                    <label htmlFor="editFile"
-                      className={`flex items-center justify-center gap-3 px-4 py-10 border-2 border-dashed rounded-lg cursor-pointer transition ${
-                        editFile ? "border-green-500 bg-green-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-                      }`}>
-                      <Upload size={24} className={editFile ? "text-green-600" : "text-gray-500"} />
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-gray-700">{editFile ? editFile.name : "Kéo thả hoặc click để chọn file"}</p>
-                        <p className="text-xs text-gray-500 mt-1">Chỉ chấp nhận .docx</p>
-                      </div>
-                    </label>
-                    <input id="editFile" type="file" accept=".docx" className="hidden" onChange={handleEditFileChange} />
-                  </div>
-                  <button type="submit"
-                    disabled={isUpdating}
-                    className="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-70 flex items-center justify-center gap-2">
-                    {isUpdating ? "Đang cập nhật..." : "Lưu thay đổi"}
-                  </button>
-                </form>
-              </div>
-            </div>,
-            document.body
-          )}
+        {isEditModalOpen && editingLesson && (
+          <EditLessonModal
+            isOpen={isEditModalOpen}
+            lesson={editingLesson}
+            isUpdating={isUpdating}
+            editFile={editFile}
+            onFileChange={handleEditFileChange}
+            onSubmit={handleUpdateLesson}
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setEditingLesson(null);
+              setEditFile(null);
+            }}
+          />
+        )}
 
         {/* Modal delete */}
-        {deleteConfirmId &&
-          createPortal(
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full">
-                <div className="text-center">
-                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                    <Trash2 size={24} className="text-red-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Xác nhận xóa</h3>
-                  <p className="mt-2 text-sm text-gray-600">Bạn có chắc chắn muốn xóa bài học này?<br></br> Hành động này không thể hoàn tác.</p>
-                </div>
-                <div className="mt-6 flex gap-3 justify-center">
-                  <button onClick={() => handleDelete(deleteConfirmId)}
-                    className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                    Xóa
-                  </button>
-                  <button onClick={() => setDeleteConfirmId(null)}
-                    className="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
-                    Hủy
-                  </button>
-                </div>
-              </div>
-            </div>,
-            document.body
-          )}
+        {deleteConfirmId && (
+          <DeleteLessonModal
+            lessonId={deleteConfirmId}
+            onConfirm={handleDelete}
+            onClose={() => setDeleteConfirmId(null)}
+          />
+        )}
 
           {/* Modal Import Listening Fill-in-the-blank */}
           {isFillBlankModalOpen &&
