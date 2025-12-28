@@ -484,8 +484,8 @@ const LessonManagementPage: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white shadow-lg rounded-xl overflow-hidden">
-          <table className="w-full table-auto">
+        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-visible">
+          <table className="w-full">
             <thead>
               <tr className="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
                 <th className="py-3 px-4 text-left">STT</th>

@@ -1,11 +1,11 @@
-import React, { useRef, useState } from "react";
-import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import { FaTimes, FaUpload } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { getAllTest, getAllTestForAdmin, modifyTest } from "../../../service/testService";
+import { useNavigate } from "react-router-dom";
+import React, { useRef, useState } from "react";
+import { FaTimes, FaUpload } from "react-icons/fa";
+import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import Pagination from "../../../components/common/Pagination/Pagination";
-import { MoreHorizontal, Plus, HelpCircle, Trash2, CheckCircle, Edit2 } from "lucide-react";
+import { getAllTest, getAllTestForAdmin, modifyTest } from "../../../service/testService";
+import { MoreHorizontal, Plus, Trash2, CheckCircle, Edit2 } from "lucide-react";
 
 interface Test {
   title: string;
@@ -22,9 +22,6 @@ interface Test {
   limit?: number; // Giới hạn số test mỗi trang
   showPagination?: boolean; // Ẩn/hiện phân trang
 }
-
-// Dropdown Component
-
 
 const TestManagementPage: React.FC<Test> = ({
   limit = 8,
@@ -74,20 +71,18 @@ const TestManagementPage: React.FC<Test> = ({
       <div className="flex-1 p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Quản lý đề thi</h1>
-          <button
-            onClick={() => handleNavigate("/admin/import-test")}
+          <button onClick={() => handleNavigate("/admin/import-test")}
             className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl 
                      hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 
-                     font-semibold flex items-center gap-2"
-          >
+                     font-semibold flex items-center gap-2">
             <Plus size={16} />
             Tạo đề thi mới
           </button>
         </div>
 
         {/* Bảng danh sách đề thi */}
-        <div className="bg-white shadow-lg rounded-xl overflow-hidden">
-          <table className="w-full table-auto">
+        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-visible">
+          <table className="w-full">
             <thead>
               <tr className="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
                 <th className="py-3 px-4 text-left">ID</th>
@@ -102,12 +97,10 @@ const TestManagementPage: React.FC<Test> = ({
             </thead>
             <tbody className="text-gray-600 text-sm">
               {tests.map((test, index) => (
-                <tr
-                  key={test.testCode}
+                <tr key={test.testCode}
                   className={`border-b hover:bg-gray-100 transition ${
                     index % 2 === 0 ? "bg-gray-50" : ""
-                  }`}
-                >
+                  }`}>
                   <td className="py-4 px-4">
                     <span className="font-mono text-blue-600 font-semibold">
                       {test.testCode}
@@ -135,14 +128,8 @@ const TestManagementPage: React.FC<Test> = ({
                     {new Date(test.updatedAt).toLocaleDateString("vi-VN")}
                   </td>
                   <td className="py-4 px-4 text-center">
-                    <span
-                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold
-                              ${
-                                test.isActive
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                    >
+                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold
+                      ${test.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
                       {test.isActive === true ? "Active" : "Inactive"}
                     </span>
                   </td>

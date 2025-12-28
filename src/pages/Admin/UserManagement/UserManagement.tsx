@@ -510,7 +510,7 @@ const UserManagementPage: React.FC = () => {
         )}
 
         {/* User Table */}
-        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-visible">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-100 text-gray-700 text-left text-base font-semibold">
