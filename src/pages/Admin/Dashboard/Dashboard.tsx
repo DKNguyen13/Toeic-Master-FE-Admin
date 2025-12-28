@@ -1,22 +1,10 @@
 import { motion } from "framer-motion";
 import { Chart } from "react-chartjs-2";
 import api from "../../../config/axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import { Users, FileText, LineChart, CheckCircle2, BarChart as BarChartIcon } from "lucide-react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  LineController,
-  BarController,
-} from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, LineController, BarController } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, LineController, BarController, BarElement, Title, Tooltip, Legend);
 
@@ -29,6 +17,7 @@ const DashboardPage: React.FC = () => {
   const [revenueStats, setRevenueStats] = useState<any>(null);
   const [chartType, setChartType] = useState<"line" | "bar">("line");
   const [testStats, setTestStats] = useState<any>(null);
+  const chartRef = useRef<any>(null);
 
   const fetchDashboard = async (year: number) => {
     try {
@@ -39,6 +28,16 @@ const DashboardPage: React.FC = () => {
       setTestStats(data.testStats || {});
     } catch (err) {
       console.error("Lỗi khi load dashboard:", err);
+    }
+  };
+
+  const handleExportChart = () => {
+    if (chartRef.current) {
+      const url = chartRef.current.toBase64Image();
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Rev_${selectedYear}.png`;
+      link.click();
     }
   };
 
@@ -232,12 +231,17 @@ const DashboardPage: React.FC = () => {
                   Cột
                 </button>
               </div>
+
+              <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition" onClick={handleExportChart}>
+                Xuất ảnh
+              </button>
             </div>
           </div>
 
-          {/* Chart - DÙNG MỘT CHART DUY NHẤT */}
+          {/* Chart */}
           <div className="h-96">
             <Chart
+              ref={chartRef}
               type={chartType}
               data={chartData}
               options={options}
