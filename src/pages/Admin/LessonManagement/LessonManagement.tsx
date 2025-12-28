@@ -10,8 +10,7 @@ import ImportFillBlankModal from "./Modals/ImportFillBlankModal";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import React, { useEffect, useState, useCallback, useMemo, useRef} from "react";
 import Pagination from "../../../components/common/Pagination/Pagination";
-import { BookOpen, Download, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
-
+import { BookOpen, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
 
 interface Lesson {
   _id: string;
@@ -628,20 +627,20 @@ const LessonManagementPage: React.FC = () => {
           />
         )}
 
-          {/* Modal Import Listening Fill-in-the-blank */}
-          <ImportFillBlankModal
-            isOpen={isFillBlankModalOpen}
-            excelFile={excelFile}
-            previewData={previewData}
-            isImporting={isImporting}
-            onExcelFileChange={handleExcelFileChange}
-            onImport={handleImportListeningQuestions}
-            onClose={() => {
-              setIsFillBlankModalOpen(false);
-              setExcelFile(null);
-              setPreviewData([]);
-            }}
-          />
+       {/* Modal Import Listening Fill-in-the-blank */}
+        <ImportFillBlankModal
+          isOpen={isFillBlankModalOpen}
+          excelFile={excelFile}
+          previewData={previewData}
+          isImporting={isImporting}
+          onExcelFileChange={handleExcelFileChange}
+          onImport={handleImportListeningQuestions}
+          onClose={() => {
+            setIsFillBlankModalOpen(false);
+            setExcelFile(null);
+            setPreviewData([]);
+          }}
+        />
       </div>
     </div>
   );
