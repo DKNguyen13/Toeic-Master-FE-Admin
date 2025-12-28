@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
 import api from "../../../config/axios";
-import { showToast } from "../../../utils/toast";
-import { Eye, EyeOff, User, Lock, Shield, Camera, Calendar, Mail, Check } from "lucide-react";
-import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import DatePicker from "react-datepicker";
+import { showToast } from "../../../utils/toast";
 import "react-datepicker/dist/react-datepicker.css";
+import React, { useState, useEffect, useRef } from "react";
+import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
+import { Eye, EyeOff, User, Lock, Shield, Camera, Calendar, Mail, Check } from "lucide-react";
 
 const UpdateProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"basic" | "privacy" | "password">("basic");

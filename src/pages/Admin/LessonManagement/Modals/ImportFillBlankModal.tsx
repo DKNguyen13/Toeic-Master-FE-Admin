@@ -76,7 +76,7 @@ const ImportFillBlankModal: React.FC<Props> = ({
             />
 
             <div className="text-center mt-4">
-              <a href="../../templates/listening-fillblank-template.xlsx" download
+              <a href="/templates/listening-fillblank-template.xlsx" download
                 className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium text-sm underline">
                 <Download size={16} />
                 Tải file Excel mẫu (.xlsx)

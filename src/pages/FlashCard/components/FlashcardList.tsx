@@ -5,6 +5,8 @@ import { useLocation } from "react-router-dom";
 import { showToast } from "../../../utils/toast";
 import React, { useEffect, useState } from "react";
 import { Book } from "lucide-react";
+import * as XLSX from "xlsx";
+import FlashcardImportExcelModal from "./FlashcardImportModal";
 
 export interface Flashcard {
   _id?: string;
@@ -36,6 +38,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
   const [correctCard, setCorrectCard] = useState<Flashcard | null>(null);
   const [error, setError] = useState("");
   const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const type = propType || location.state?.type || "myList";
   const editable = type === "myList";
@@ -57,6 +60,28 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = evt.target?.result;
+      if (!data) return;
+
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData: Flashcard[] = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+      setFlashcards((prev) => [...prev, ...jsonData]);
+      showToast("Import thành công!", "success", { autoClose: 1000 });
+      setShowImportModal(false);
+    };
+
+    reader.readAsArrayBuffer(file);
   };
 
   const handleAdd = async () => {
@@ -378,7 +403,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
         {editable && showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
             onClick={closeModal}>
-            <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl transform transition-all duration-300 scale-100"
+            <div className="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl transform transition-all duration-300 scale-100"
               onClick={(e) => e.stopPropagation()}>
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Tạo Flashcard Mới</h2>
@@ -451,19 +476,34 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
                   </span>
                 </div>
               </div>
-              
               <div className="flex gap-4 mt-8">
                 <button onClick={handleAdd}
-                  className="flex-1 px-6 py-3 text-base font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200">
+                  className="flex-1 px-5 py-2 text-base font-semibold text-white bg-blue-600 rounded-2xl shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200">
                   Tạo mới
                 </button>
+
                 <button onClick={closeModal}
-                  className="flex-1 px-6 py-3 text-base font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
+                  className="flex-1 px-5 py-2 text-base font-semibold text-gray-600 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
                   Hủy
                 </button>
+
+                <button onClick={() => {
+                  closeModal();
+                  setShowImportModal(true);
+                }} className="flex-1 px-5 py-2 text-base font-semibold text-green-600 bg-green-100 border border-green-300 rounded-2xl hover:bg-green-200 hover:border-green-400 transition-all duration-200">
+                   Import file
+                </button>
               </div>
+
             </div>
           </div>
+        )}
+        {showImportModal && setId && (
+          <FlashcardImportExcelModal
+            setId={setId}
+            onClose={() => setShowImportModal(false)}
+            onImportSuccess={fetchFlashcards}
+          />
         )}
       </div>
     </div>
