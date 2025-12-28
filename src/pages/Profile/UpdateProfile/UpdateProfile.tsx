@@ -253,7 +253,7 @@ const UpdateProfile: React.FC = () => {
                   selected={dob ? new Date(dob) : null}
                   onChange={(date: Date | null) => setDob(date ? date.toISOString().split("T")[0] : null)}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-transparent transition-all text-gray-700"
-                  dateFormat="yyyy-MM-dd"
+                  dateFormat="dd/MM/yyyy"
                   placeholderText="Chọn ngày sinh"
                   maxDate={new Date()}
                   showMonthDropdown
