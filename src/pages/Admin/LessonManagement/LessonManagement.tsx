@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { showToast } from "../../../utils/toast";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import React, { useEffect, useState, useCallback, useMemo} from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef} from "react";
 import Pagination from "../../../components/common/Pagination/Pagination";
 import { BookOpen, Download, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, X } from "lucide-react";
 
@@ -33,12 +33,13 @@ const LessonManagementPage: React.FC = () => {
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [editFile, setEditFile] = useState<File | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [menuState, setMenuState] = useState<{ lessonId: string; coords: DOMRect } | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [isFillBlankModalOpen, setIsFillBlankModalOpen] = useState(false);
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [isImporting, setIsImporting] = useState(false);
-
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"reading" | "vocabulary" | "">("");
   const [filterLevel, setFilterLevel] = useState<"free" | "basic" | "advanced" | "premium" | "">("");
@@ -187,6 +188,22 @@ const LessonManagementPage: React.FC = () => {
     }
   };
 
+  const toggleMenu = (lessonId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setMenuOpenId(menuOpenId === lessonId ? null : lessonId);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuOpenId && menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpenId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpenId]);
+
   const filteredLessons = useMemo(() => {
     return lessons.filter((lesson) => {
       const matchesSearch = lesson.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -218,33 +235,12 @@ const LessonManagementPage: React.FC = () => {
       await api.patch(`/lessons/${id}/delete`);
       setLessons((prev) => prev.filter((l) => l._id !== id));
       showToast("Xóa bài học thành công!", "success");
-      closeMenu();
       setDeleteConfirmId(null);
     } catch (err) {
       console.error(err);
       showToast("Xóa bài học thất bại!", "error");
     }
   };
-
-  // Menu control
-  const openMenu = (lessonId: string, e: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMenuState({ lessonId, coords: rect });
-  };
-
-  const closeMenu = useCallback(() => setMenuState(null), []);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!menuState) return;
-      const target = e.target as HTMLElement;
-      if (!document.getElementById(`menu-${menuState.lessonId}`)?.contains(target)) {
-        closeMenu();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [menuState, closeMenu]);
 
   // File selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -528,11 +524,53 @@ const LessonManagementPage: React.FC = () => {
                   <td className="py-4 px-4 text-center">
                     {new Date(lesson.createdAt).toLocaleDateString("vi-VN")}
                   </td>
-                  <td className="py-4 px-4 text-center relative">
-                    <button className="text-gray-500 hover:text-gray-700 transition"
-                      onClick={(e) => openMenu(lesson._id, e)}>
-                      <MoreHorizontal size={18} />
+                                    <td className="py-4 px-4 text-center relative">
+                    <button
+                      onClick={(e) => toggleMenu(lesson._id, e)}
+                      className="text-gray-500 hover:text-blue-600 transition"
+                    >
+                      <MoreHorizontal size={20} />
                     </button>
+
+                    {/* Dropdown menu */}
+                    {menuOpenId === lesson._id && (
+                      <div ref={menuRef}
+                        className={`absolute right-4 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden ${
+                          [paginatedLessons.length - 1, paginatedLessons.length - 2, paginatedLessons.length - 3]
+                            .includes(paginatedLessons.findIndex(l => l._id === lesson._id))
+                            ? "bottom-full mb-2"
+                            : "top-full mt-2"
+                        }`}
+                        onClick={(e) => e.stopPropagation()}>
+                        <button onClick={() => {
+                            navigate(`/resource/${lesson._id}`);
+                            setMenuOpenId(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 text-gray-700 transition">
+                          <Eye className="w-5 h-5" />
+                          Xem chi tiết
+                        </button>
+
+                        <button onClick={() => {
+                            setEditingLesson(lesson);
+                            setIsEditModalOpen(true);
+                            setMenuOpenId(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 text-gray-700 transition">
+                          <Upload className="w-5 h-5" />
+                          Cập nhật bài học
+                        </button>
+
+                        <button onClick={() => {
+                            setDeleteConfirmId(lesson._id);
+                            setMenuOpenId(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-red-50 text-red-600 transition">
+                          <Trash2 className="w-5 h-5" />
+                          Xóa bài học
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -548,43 +586,6 @@ const LessonManagementPage: React.FC = () => {
             onPageChange={goToPage}
           />
         )}
-
-        {/* Menu via Portal */}
-        {menuState &&
-          createPortal(
-            <div id={`menu-${menuState.lessonId}`}
-              style={{
-                position: "absolute",
-                top: menuState.coords.bottom + 4,
-                left: menuState.coords.left,
-                width: 140,
-                zIndex: 1000,
-              }}
-              className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 w-40">
-              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition"
-              onClick={() => navigate(`/resource/${menuState.lessonId}`)}>
-                Xem chi tiết
-              </button>
-
-              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition"
-                onClick={() => {
-                  const lesson = lessons.find((l) => l._id === menuState.lessonId);
-                  if (lesson) {
-                    setEditingLesson(lesson);
-                    setIsEditModalOpen(true);
-                  }
-                  closeMenu();
-                }}>
-                Cập nhật
-              </button>
-
-              <button className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition"
-                onClick={() => setDeleteConfirmId(menuState.lessonId)}>
-                Xóa
-              </button>
-            </div>,
-            document.body
-          )}
 
         {/* Modal add */}
         {isModalOpen &&
