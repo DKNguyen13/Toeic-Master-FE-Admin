@@ -160,7 +160,7 @@ const DashboardPage: React.FC = () => {
               color: "text-green-600",
             },
             {
-              title: "Tổng lượt tham gia thi TOEIC",
+              title: "Tổng lượt thi TOEIC",
               value: testStats?.totalAttempts?.toLocaleString("vi-VN") || "0",
               change: "Dữ liệu tổng hợp đến hiện tại",
               icon: FileText,
