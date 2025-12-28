@@ -210,7 +210,7 @@ const FlashcardImportExcelModal: React.FC<Props> = ({
                 </p>
               )}
 
-              <div className="max-h-96 overflow-x-auto border border-gray-200 rounded-lg">
+              <div className="max-h-[60vh] overflow-y-auto border border-gray-200 rounded-lg">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-100 sticky top-0">
                     <tr>
