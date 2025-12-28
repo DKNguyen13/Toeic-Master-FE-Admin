@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
 import api from "../../../config/axios";
-import { showToast } from "../../../utils/toast";
-import { Eye, EyeOff, User, Lock, Shield, Camera, Calendar, Mail, Check } from "lucide-react";
-import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import DatePicker from "react-datepicker";
+import { showToast } from "../../../utils/toast";
 import "react-datepicker/dist/react-datepicker.css";
+import React, { useState, useEffect, useRef } from "react";
+import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
+import { Eye, EyeOff, User, Lock, Shield, Camera, Calendar, Mail, Check } from "lucide-react";
 
 const UpdateProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"basic" | "privacy" | "password">("basic");
@@ -253,7 +253,7 @@ const UpdateProfile: React.FC = () => {
                   selected={dob ? new Date(dob) : null}
                   onChange={(date: Date | null) => setDob(date ? date.toISOString().split("T")[0] : null)}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-transparent transition-all text-gray-700"
-                  dateFormat="yyyy-MM-dd"
+                  dateFormat="dd/MM/yyyy"
                   placeholderText="Chọn ngày sinh"
                   maxDate={new Date()}
                   showMonthDropdown

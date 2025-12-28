@@ -59,6 +59,7 @@ const Login: React.FC = () => {
         localStorage.setItem("avatarUrl", user.avatarUrl);
         localStorage.setItem("role", user.role);
         localStorage.setItem("userId", user.id);
+        localStorage.setItem("dob", user.dob || "");
         window.dispatchEvent(new Event("userUpdated"));
 
         if (user.role === "admin") navigate("/admin/dashboard");

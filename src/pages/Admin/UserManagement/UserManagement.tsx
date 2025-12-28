@@ -41,55 +41,61 @@ const UserManagementPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const pageSize = 8;
 
-  const exportExcel = () => {
-    if (!users || users.length === 0) return;
+  const exportExcel = async () => {
+    try {
+      const res = await api.get("/admin/users/export");
+      const allUsers = res.data.data;
 
-    // Tạo sheet từ dữ liệu
-    const ws = XLSX.utils.json_to_sheet(
-      users.map((u) => ({
-        ID: u.id,
-        Tên: u.fullname,
-        Email: u.email,
-        SĐT: u.phone,
-        LoạiTK: u.authType === "google" ? "Google" : "Thường",
-        NgàyĐK: u.registerDate || "N/A",
-        TrạngThái: u.status,
-      }))
-    );
+      if (!allUsers || allUsers.length === 0) {
+        showToast("Không có dữ liệu để xuất", "warn", { autoClose: 500 });
+        return;
+      }
+      const sortedUsers = [...allUsers].sort((a: any, b: any) =>
+        (a.fullname || "").localeCompare(b.fullname || "", "vi", {
+          sensitivity: "base",
+        })
+      );
 
-    // Tính độ rộng cột tự động
-    const rows = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1 }) as any[][];
-    const maxLengths: number[] = [];
-    rows.forEach((row) => {
-      row.forEach((cell, idx) => {
-        const len = cell ? cell.toString().length : 10;
-        maxLengths[idx] = Math.max(maxLengths[idx] || 10, len);
+      const ws = XLSX.utils.json_to_sheet(
+        sortedUsers.map((u: any, index: number) => ({
+          STT: index + 1,
+          Tên: u.fullname,
+          Email: u.email,
+          SĐT: u.phone || "",
+          "Loại TK": u.authType === "google" ? "Google" : "Thường",
+          "Trạng thái": u.isActive ? "Active" : "Inactive",
+          VIP: u.vip?.isActive ? u.vip.type : "Không",
+          "Ngày đăng ký": u.createdAt
+            ? new Date(u.createdAt).toLocaleDateString("vi-VN")
+            : "",
+        }))
+      );
+
+      // Auto width
+      const rows = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1 }) as any[][];
+      ws["!cols"] = rows[0].map((_: any, i: number) => ({
+        wch: Math.max(
+          ...rows.map((r) => (r[i] ? r[i].toString().length : 10)),
+          10
+        ) + 2,
+      }));
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Users");
+
+      const buffer = XLSX.write(wb, {
+        bookType: "xlsx",
+        type: "array",
       });
-    });
 
-    ws["!cols"] = maxLengths.map((width) => ({ wch: width + 2 }));
-
-    const range = XLSX.utils.decode_range(ws["!ref"] || "");
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!ws[cellAddress]) continue;
-      ws[cellAddress].s = {
-        font: { bold: true, color: { rgb: "FFFFFF" } },
-        fill: { fgColor: { rgb: "1E40AF" } },
-        alignment: { horizontal: "center", vertical: "center" },
-      };
+      FileSaver.saveAs(
+        new Blob([buffer], { type: "application/octet-stream" }),
+        "toeic_master_users.xlsx"
+      );
+    } catch (err) {
+      console.error(err);
+      showToast("Xuất Excel thất bại", "error", { autoClose: 500 });
     }
-    // Tạo workbook và xuất
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Người dùng");
-
-    const wbout = XLSX.write(wb, {
-      bookType: "xlsx",
-      type: "array",
-      cellStyles: true,
-    });
-    const blob = new Blob([wbout], { type: "application/octet-stream" });
-    FileSaver.saveAs(blob, "users.xlsx");
   };
 
   const handleViewDetail = async (userId: string) => {
@@ -125,6 +131,14 @@ const UserManagementPage: React.FC = () => {
     return statusMatch && authMatch;
   });
 
+  const formatDateDDMMYY = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = String(d.getFullYear()).slice(-2);
+    return `${day}/${month}/${year}`;
+  };
+
   const fetchUsers = async (page: number) => {
     setLoading(true);
     try {
@@ -139,7 +153,7 @@ const UserManagementPage: React.FC = () => {
           phone: user.phone,
           role: user.role,
           authType: user.authType || "normal",
-          registerDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "",
+          registerDate: user.createdAt ? formatDateDDMMYY(user.createdAt) : "",
           status: user.isActive ? "Active" : "Inactive",
         }))
       );
@@ -187,7 +201,7 @@ const UserManagementPage: React.FC = () => {
       setUsers(
         data.map((user: any, index: number) => ({
           id: index + 1,
-          _id: user.id,
+          _id: user._id,
           fullname: user.fullname,
           email: user.email,
           phone: user.phone,
@@ -502,7 +516,7 @@ const UserManagementPage: React.FC = () => {
         )}
 
         {/* User Table */}
-        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-visible">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-100 text-gray-700 text-left text-base font-semibold">
