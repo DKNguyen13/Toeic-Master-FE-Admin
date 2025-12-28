@@ -125,6 +125,14 @@ const UserManagementPage: React.FC = () => {
     return statusMatch && authMatch;
   });
 
+  const formatDateDDMMYY = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = String(d.getFullYear()).slice(-2);
+    return `${day}/${month}/${year}`;
+  };
+
   const fetchUsers = async (page: number) => {
     setLoading(true);
     try {
@@ -139,7 +147,7 @@ const UserManagementPage: React.FC = () => {
           phone: user.phone,
           role: user.role,
           authType: user.authType || "normal",
-          registerDate: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "",
+          registerDate: user.createdAt ? formatDateDDMMYY(user.createdAt) : "",
           status: user.isActive ? "Active" : "Inactive",
         }))
       );
