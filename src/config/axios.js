@@ -56,7 +56,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await api.post("/auth/refresh-token");
+        const res = await api.post("/auth/refresh-token/admin");
         const newAccessToken = res.data.data?.newAccessToken;
         setAccessToken(newAccessToken);
         processQueue(null, newAccessToken);

@@ -1,22 +1,10 @@
 import { motion } from "framer-motion";
 import { Chart } from "react-chartjs-2";
 import api from "../../../config/axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import { Users, FileText, LineChart, CheckCircle2, BarChart as BarChartIcon } from "lucide-react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  LineController,
-  BarController,
-} from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, LineController, BarController } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, LineController, BarController, BarElement, Title, Tooltip, Legend);
 
@@ -28,6 +16,8 @@ const DashboardPage: React.FC = () => {
   const [userStats, setUserStats] = useState<any>(null);
   const [revenueStats, setRevenueStats] = useState<any>(null);
   const [chartType, setChartType] = useState<"line" | "bar">("line");
+  const [testStats, setTestStats] = useState<any>(null);
+  const chartRef = useRef<any>(null);
 
   const fetchDashboard = async (year: number) => {
     try {
@@ -35,8 +25,19 @@ const DashboardPage: React.FC = () => {
       const data = res.data.data;
       setUserStats(data.userStats || {});
       setRevenueStats(data.revenueStats || {});
+      setTestStats(data.testStats || {});
     } catch (err) {
       console.error("Lỗi khi load dashboard:", err);
+    }
+  };
+
+  const handleExportChart = () => {
+    if (chartRef.current) {
+      const url = chartRef.current.toBase64Image();
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Rev_${selectedYear}.png`;
+      link.click();
     }
   };
 
@@ -73,6 +74,7 @@ const DashboardPage: React.FC = () => {
     const monthData = revenueData.find((item) => item.month === i + 1);
     return monthData ? monthData.totalRevenue : 0;
   });
+  const completionRate = testStats?.totalAttempts > 0 ? Math.round((testStats.completedAttempts / testStats.totalAttempts) * 100) : 0;
 
   // Cấu hình dữ liệu chart - tối ưu cho cả line và bar
   const chartData = {
@@ -150,23 +152,23 @@ const DashboardPage: React.FC = () => {
               color: "text-blue-600",
             },
             {
-              title: "Tổng số bài thi đã làm",
-              value: "10",
-              change: "+1.3% so với tuần trước",
-              icon: FileText,
-              color: "text-orange-500",
-            },
-            {
               title: `Tổng doanh thu ${selectedYear}`,
               value: `${(revenueStats?.totalRevenue || 0).toLocaleString("vi-VN")} ₫`,
-              change: `${revenueStats?.growth?.toFixed(1) ?? 0}% tăng trưởng`,
+              change: `${revenueStats?.growth?.toFixed(1) ?? 0}% so với năm trước`,
               icon: LineChart,
               color: "text-green-600",
             },
             {
+              title: "Tổng lượt thi TOEIC",
+              value: testStats?.totalAttempts?.toLocaleString("vi-VN") || "0",
+              change: "Dữ liệu tổng hợp đến hiện tại",
+              icon: FileText,
+              color: "text-orange-500",
+            },
+            {
               title: "Tỷ lệ hoàn thành bài",
-              value: "80%",
-              change: "+1.8% so với hôm qua",
+              value: `${completionRate}%`,
+              change: "Hoàn thành / Tham gia (%)",
               icon: CheckCircle2,
               color: "text-rose-500",
             },
@@ -229,12 +231,17 @@ const DashboardPage: React.FC = () => {
                   Cột
                 </button>
               </div>
+
+              <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition" onClick={handleExportChart}>
+                Xuất ảnh
+              </button>
             </div>
           </div>
 
-          {/* Chart - DÙNG MỘT CHART DUY NHẤT */}
+          {/* Chart */}
           <div className="h-96">
             <Chart
+              ref={chartRef}
               type={chartType}
               data={chartData}
               options={options}
