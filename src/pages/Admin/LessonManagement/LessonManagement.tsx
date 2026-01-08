@@ -412,7 +412,15 @@ const LessonManagementPage: React.FC = () => {
       });
       showToast("Tạo bài học thành công!", "success");
       await fetchLessons();
-      //setLessons((prev) => [...prev, res.data.data]);
+      setLessons((prev) => [
+        ...prev,
+        {
+          ...res.data.data,
+          views: res.data.data.views ?? 0,
+          favoriteCount: res.data.data.favoriteCount ?? 0,
+          isFavorite: res.data.data.isFavorite ?? false,
+        },
+      ]);
       setIsModalOpen(false);
       setSelectedFile(null);
       form.reset();
