@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import { Book } from "lucide-react";
 import * as XLSX from "xlsx";
 import FlashcardImportExcelModal from "./FlashcardImportModal";
+import AddFlashcardModal from "../modal/AddFlashcardModal";
 
 export interface Flashcard {
   _id?: string;
@@ -26,7 +27,6 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ word: "", meaning: "", example: "", note: "" });
   const [mode, setMode] = useState("Xem toàn bộ thẻ");
   const [randomIndex, setRandomIndex] = useState(0);
   const [quizIndex, setQuizIndex] = useState(0);
@@ -36,17 +36,11 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
   const [score, setScore] = useState(0);
   const [canQuiz, setCanQuiz] = useState(true);
   const [correctCard, setCorrectCard] = useState<Flashcard | null>(null);
-  const [error, setError] = useState("");
   const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
 
   const type = propType || location.state?.type || "myList";
   const editable = type === "myList";
-
-  const closeModal = () => {
-    setShowModal(false);
-    setError("");
-  };
 
   const fetchFlashcards = async () => {
     if (!setId) return;
@@ -82,25 +76,6 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
     };
 
     reader.readAsArrayBuffer(file);
-  };
-
-  const handleAdd = async () => {
-    if (!form.word || !form.meaning) {
-      setError("Từ và nghĩa không được bỏ trống!");
-      return;
-    }
-    if (!setId) return;
-
-    try {
-      const res = await api.post("/flashcard", { ...form, set: setId });
-      setFlashcards((prev) => [...prev, res.data.data]);
-      setShowModal(false);
-      setForm({ word: "", meaning: "", example: "", note: "" });
-      showToast("Thêm flashcard thành công!", "success", {autoClose: 1000});
-      setError("");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Lỗi khi tạo flashcard!");
-    }
   };
 
   const confirmDeleteCard = async () => {
@@ -361,7 +336,7 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {editable && (
               <div 
                 onClick={() => setShowModal(true)}
@@ -400,103 +375,15 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
         )}
 
         {/* Modal */}
-        {editable && showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={closeModal}>
-            <div className="bg-white rounded-3xl p-6 w-full max-w-lg shadow-2xl transform transition-all duration-300 scale-100"
-              onClick={(e) => e.stopPropagation()}>
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Tạo Flashcard Mới</h2>
-                <p className="text-gray-500 mt-2">Thêm vào các từ mới vào bộ từng vựng của bạn</p>
-                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Từ vựng: <span className="text-red-500">*</span></label>
-                  <input 
-                    name="word" 
-                    placeholder="Nhập từ vựng..." 
-                    value={form.word}
-                    onChange={(e) => setForm({ ...form, word: e.target.value })}
-                    maxLength={100}
-                    className={`w-full border-2 rounded-xl px-4 py-3 transition-all duration-200 ${
-                      error.includes("Từ") ? "border-red-500" : "border-gray-200"
-                    }`} 
-                  />
-                  <span className="text-xs text-gray-500">
-                    {form.word.length}/100 ký tự
-                  </span>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Nghĩa: <span className="text-red-500">*</span></label>
-                  <input 
-                    name="meaning" 
-                    placeholder="Nhập nghĩa..." 
-                    value={form.meaning}
-                    maxLength={100}
-                    onChange={(e) => setForm({ ...form, meaning: e.target.value })}
-                    className={`w-full border-2 rounded-xl px-4 py-3 transition-all duration-200 ${
-                      error.includes("nghĩa") ? "border-red-500" : "border-gray-200"
-                    }`} 
-                  />
-                  <span className="text-xs text-gray-500">
-                    {form.meaning.length}/100 ký tự
-                  </span>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ví dụ:</label>
-                  <input 
-                    name="example" 
-                    placeholder="Nhập ví dụ..." 
-                    value={form.example}
-                    maxLength={200}
-                    onChange={(e) => setForm({ ...form, example: e.target.value })}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 transition-all duration-200" 
-                  />
-                  <span className="text-xs text-gray-500">
-                    {form.example.length}/200 ký tự
-                  </span>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Ghi chú:</label>
-                  <input 
-                    name="note" 
-                    placeholder="Nhập ghi chú..." 
-                    value={form.note}
-                    maxLength={200}
-                    onChange={(e) => setForm({ ...form, note: e.target.value })}
-                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 transition-all duration-200" 
-                  />
-                  <span className="text-xs text-gray-500">
-                    {form.note.length}/200 ký tự
-                  </span>
-                </div>
-              </div>
-              <div className="flex gap-4 mt-8">
-                <button onClick={handleAdd}
-                  className="flex-1 px-5 py-2 text-base font-semibold text-white bg-blue-600 rounded-2xl shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200">
-                  Tạo mới
-                </button>
-
-                <button onClick={closeModal}
-                  className="flex-1 px-5 py-2 text-base font-semibold text-gray-600 bg-white border border-gray-300 rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
-                  Hủy
-                </button>
-
-                <button onClick={() => {
-                  closeModal();
-                  setShowImportModal(true);
-                }} className="flex-1 px-5 py-2 text-base font-semibold text-green-600 bg-green-100 border border-green-300 rounded-2xl hover:bg-green-200 hover:border-green-400 transition-all duration-200">
-                   Import file
-                </button>
-              </div>
-
-            </div>
-          </div>
+        {editable && showModal && setId && (
+          <AddFlashcardModal
+            setId={setId}
+            onClose={() => setShowModal(false)}
+            onSuccess={(newCard) =>
+              setFlashcards((prev) => [...prev, newCard])
+            }
+            onOpenImport={() => setShowImportModal(true)}
+          />
         )}
         {showImportModal && setId && (
           <FlashcardImportExcelModal
