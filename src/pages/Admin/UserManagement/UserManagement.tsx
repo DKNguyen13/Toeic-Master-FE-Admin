@@ -4,9 +4,11 @@ import api from "../../../config/axios";
 import { showToast } from "../../../utils/toast";
 import UserDetailModal from "./Component/UserDetailModal";
 import React, { useEffect, useRef, useState } from "react";
+import { formatDateDDMMYY } from "../../../utils/formatDateDDMMYY";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
 import Pagination from "../../../components/common/Pagination/Pagination";
 import LoadingSkeleton from "../../../components/common/LoadingSpinner/LoadingSkeleton";
+import { mapUser } from "../../../mappers/user.mapper";
 import { Search, Users, Filter, Download, RefreshCw, CheckCircle, XCircle, MoreVertical, Check, X, CaseUpper, Shield, User } from "lucide-react";
 
 interface User {
@@ -65,19 +67,14 @@ const UserManagementPage: React.FC = () => {
           "Loại TK": u.authType === "google" ? "Google" : "Thường",
           "Trạng thái": u.isActive ? "Active" : "Inactive",
           VIP: u.vip?.isActive ? u.vip.type : "Không",
-          "Ngày đăng ký": u.createdAt
-            ? new Date(u.createdAt).toLocaleDateString("vi-VN")
-            : "",
+          "Ngày đăng ký": u.createdAt ? formatDateDDMMYY(u.createdAt) : "",
         }))
       );
 
       // Auto width
       const rows = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1 }) as any[][];
       ws["!cols"] = rows[0].map((_: any, i: number) => ({
-        wch: Math.max(
-          ...rows.map((r) => (r[i] ? r[i].toString().length : 10)),
-          10
-        ) + 2,
+        wch: Math.max(...rows.map((r) => (r[i] ? r[i].toString().length : 10)), 10) + 2,
       }));
 
       const wb = XLSX.utils.book_new();
@@ -131,32 +128,12 @@ const UserManagementPage: React.FC = () => {
     return statusMatch && authMatch;
   });
 
-  const formatDateDDMMYY = (dateStr: string) => {
-    const d = new Date(dateStr);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = String(d.getFullYear()).slice(-2);
-    return `${day}/${month}/${year}`;
-  };
-
   const fetchUsers = async (page: number) => {
     setLoading(true);
     try {
       const res = await api.get(`/admin/users?page=${page}&limit=${pageSize}`);
       const data = res.data.data;
-      setUsers(
-        data.users.map((user: any, index: number) => ({
-          id: (page - 1) * pageSize + index + 1,
-          _id: user._id,
-          fullname: user.fullname,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-          authType: user.authType || "normal",
-          registerDate: user.createdAt ? formatDateDDMMYY(user.createdAt) : "",
-          status: user.isActive ? "Active" : "Inactive",
-        }))
-      );
+      setUsers(data.users.map((u: any, i: number) => mapUser(u, i, currentPage, pageSize)));
       setTotalUsers(data.total);
       setAllUsersCount(data.total);
     } catch (err) {
@@ -250,78 +227,85 @@ const UserManagementPage: React.FC = () => {
     <div className="min-h-screen flex bg-gray-50">
       <LeftSidebarAdmin customHeight="h-auto w-64" />
       <div className="flex-1 p-8 max-w-[1600px] mx-auto">
-        {/* Header */}
-        <div className="mb-6 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-800 mb-3">
-              Quản lý người dùng
-            </h1>
-            <p className="text-gray-600 text-sm flex items-center gap-2">
-              <Users className="w-5 h-5 text-gray-800" />
+        <div className="mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+
+        {/* Title */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Quản lý người dùng</h1>
+
+          <p className="mt-2 text-md text-gray-500 flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <span>
+              Tổng người dùng:{" "}
               <span className="font-semibold text-gray-800">
-                Tổng người dùng: {allUsersCount}
+                {allUsersCount}
               </span>
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => fetchUsers(currentPage)}
-              className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-gray-700 hover:bg-gray-200 transition">
-              <RefreshCw className="w-4 h-4 animate-spin-slow" />
-              Làm mới
-            </button>
-            <button onClick={exportExcel}
-              className="flex items-center gap-1 px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition">
-              <Download className="w-4 h-4" />
-              Xuất Excel
-            </button>
+            </span>
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-3">
+          <button onClick={() => fetchUsers(currentPage)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition">
+            <RefreshCw className="w-4 h-4" />
+            Làm mới
+          </button>
+
+          <button onClick={exportExcel}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition shadow-sm">
+            <Download className="w-4 h-4" />
+            Xuất Excel
+          </button>
+
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* Card */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Tổng người dùng</p>
+
+          <div className="mt-1 flex items-end justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {totalUsers}
+            </h2>
+
+            <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Users className="w-5 h-5 text-blue-600" />
+            </div>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Total Users */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Tổng người dùng</p>
-                <p className="text-3xl font-bold text-gray-900">{totalUsers}</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
-                <Users className="text-white" size={24} />
-              </div>
-            </div>
-          </div>
+        {/* Active */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Đang hoạt động</p>
 
-          {/* Active Users */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Đang hoạt động</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {activeUsers}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-xl flex items-center justify-center">
-                <CheckCircle className="text-white" size={24} />
-              </div>
-            </div>
-          </div>
+          <div className="mt-1 flex items-end justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {activeUsers}
+            </h2>
 
-          {/* Inactive Users */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Không hoạt động</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {inactiveUsers}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-xl flex items-center justify-center">
-                <XCircle className="text-white" size={24} />
-              </div>
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-emerald-600" />
             </div>
           </div>
         </div>
+
+        {/* Inactive */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Không hoạt động</p>
+
+          <div className="mt-1 flex items-end justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {inactiveUsers}
+            </h2>
+
+            <div className="w-11 h-11 rounded-xl bg-gray-100 flex items-center justify-center">
+              <XCircle className="w-5 h-5 text-gray-600" />
+            </div>
+          </div>
+        </div>
+      </div>
 
         {/* Search & Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">

@@ -436,124 +436,118 @@ const LessonManagementPage: React.FC = () => {
     <div className="min-h-screen flex bg-gray-100">
       <LeftSidebarAdmin customHeight="h-auto w-64" />
       <div className="flex-1 p-8">
-        {/* Header */}
-        <div className="mb-10">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900">
-                Quản lý bài học
-              </h1>
-              <p className="text-gray-600 mt-2 text-lg">
-                Quản lý toàn bộ nội dung bài học trong hệ thống
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-3 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105"
-              >
-                Tạo bài mới
-              </button>
-
-              <button
-                onClick={() => setIsFillBlankModalOpen(true)}
-                className="flex items-center gap-3 bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-semibold px-7 py-3 rounded-2xl shadow-xl transition-all transform hover:scale-105"
-              >
-                Thêm bài điền khuyết
-              </button>
-            </div>
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
+          {/* Title */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Quản lý bài học</h1>
+            <p className="mt-2 text-sm text-gray-500">Quản lý toàn bộ nội dung bài học trong hệ thống</p>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-12 gap-5">
-            {/* Search */}
-            <div className="relative md:col-span-8">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Tìm kiếm bài học theo tiêu đề..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-5 py-3 bg-white border border-gray-200 rounded-2xl outline-none transition-all text-gray-800 placeholder-gray-400 shadow-md text-base"
-              />
-            </div>
+          {/* Actions */}
+          <div className="flex items-center gap-3">
+            <button onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm">
+              Tạo bài mới
+            </button>
 
-            {/* Filter Type */}
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as any)}
-              className="md:col-span-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl outline-none transition-all shadow-md"
-            >
-              <option value="">Tất cả loại bài</option>
-              <option value="reading">Reading</option>
-              <option value="vocabulary">Vocabulary</option>
-            </select>
-
-            {/* Filter Level */}
-            <select
-              value={filterLevel}
-              onChange={(e) => setFilterLevel(e.target.value as any)}
-              className="md:col-span-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl outline-none transition-all shadow-md"
-            >
-              <option value="">Tất cả cấp độ</option>
-              <option value="free">Miễn phí</option>
-              <option value="basic">Basic</option>
-              <option value="advanced">Advanced</option>
-              <option value="premium">Premium</option>
-            </select>
+            <button onClick={() => setIsFillBlankModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition shadow-sm">
+              Thêm điền khuyết
+            </button>
           </div>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Total lessons */}
-          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Tổng bài học</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {lessons.length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                <BookOpen className="text-white" size={24} />
-              </div>
-            </div>
-          </div>
+        {/* Total lessons */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Tổng bài học</p>
 
-          {/* Tổng lượt xem */}
-          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Tổng lượt xem</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {lessons
-                    .reduce((sum, l) => sum + l.views, 0)
-                    .toLocaleString()}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
-                <Eye className="text-white" size={24} />
-              </div>
-            </div>
-          </div>
+          <div className="mt-2 flex items-end justify-between">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {lessons.length}
+            </h2>
 
-          {/* Total favorite */}
-          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Tổng yêu thích</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {lessons
-                    .reduce((sum, l) => sum + l.favoriteCount, 0)
-                    .toLocaleString()}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl flex items-center justify-center">
-                <Heart className="text-white" size={24} />
-              </div>
+            <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-blue-600" />
             </div>
           </div>
         </div>
+
+        {/* Views */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Tổng lượt xem</p>
+
+          <div className="mt-2 flex items-end justify-between">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {lessons.reduce((sum, l) => sum + l.views, 0).toLocaleString()}
+            </h2>
+
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <Eye className="w-5 h-5 text-emerald-600" />
+            </div>
+          </div>
+        </div>
+
+        {/* Favorites */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+          <p className="text-sm text-gray-500">Tổng yêu thích</p>
+
+          <div className="mt-2 flex items-end justify-between">
+            <h2 className="text-3xl font-bold text-gray-900">
+              {lessons.reduce((sum, l) => sum + l.favoriteCount, 0).toLocaleString()}
+            </h2>
+
+            <div className="w-11 h-11 rounded-xl bg-rose-50 flex items-center justify-center">
+              <Heart className="w-5 h-5 text-rose-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+        {/* Filters */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+
+          {/* Search */}
+          <div className="relative md:col-span-8">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+
+            <input
+              type="text"
+              placeholder="Tìm kiếm bài học theo tiêu đề..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition"
+            />
+          </div>
+
+          {/* Type */}
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value as any)}
+            className="md:col-span-2 px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition"
+          >
+            <option value="">Tất cả loại</option>
+            <option value="reading">Reading</option>
+            <option value="vocabulary">Vocabulary</option>
+          </select>
+
+          {/* Level */}
+          <select
+            value={filterLevel}
+            onChange={(e) => setFilterLevel(e.target.value as any)}
+            className="md:col-span-2 px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition"
+          >
+            <option value="">Tất cả cấp độ</option>
+            <option value="free">Miễn phí</option>
+            <option value="basic">Basic</option>
+            <option value="advanced">Advanced</option>
+            <option value="premium">Premium</option>
+          </select>
+
+        </div>
+      </div>
 
         {/* Table */}
         <div className="bg-white rounded-lg shadow border border-gray-200 overflow-visible">
