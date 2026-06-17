@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Flashcard } from "./FlashcardList";
-import { Trash, Music, Volume2, Lightbulb } from "lucide-react";
+import { Trash, Music, Volume2, Lightbulb, Pencil } from "lucide-react";
 
 interface FlashcardItemProps {
   flashcard: Flashcard;
   onDelete?: (id: string) => void;
+  onEdit?: (flashcard: Flashcard) => void;
 }
 
-const FlashcardItem: React.FC<FlashcardItemProps> = ({ flashcard, onDelete }) => {
+const FlashcardItem: React.FC<FlashcardItemProps> = ({ flashcard, onDelete, onEdit }) => {
   const [flipped, setFlipped] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -95,17 +96,35 @@ const FlashcardItem: React.FC<FlashcardItemProps> = ({ flashcard, onDelete }) =>
               </div>
             </div>
             
-            {flashcard._id && onDelete && (
-              <div className="flex justify-center mt-3 pt-3 border-t border-gray-100">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(flashcard._id!);
-                  }}
-                  className="px-4 py-2 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors duration-200 flex items-center gap-2">
-                  <Trash className="text-white text-xl" />
-                  <span className="font-medium">Xóa</span>
-                </button>
+            {flashcard._id && (onDelete || onEdit) && (
+              <div className="flex justify-center gap-3 mt-3 pt-3 border-t border-gray-100">
+                
+                {/* EDIT */}
+                {onEdit && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(flashcard);
+                    }}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition flex items-center gap-2">
+                    <Pencil className="w-4 h-4" />
+                    Sửa
+                  </button>
+                )}
+
+                {/* DELETE */}
+                {onDelete && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(flashcard._id!);
+                    }}
+                    className="px-4 py-2 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition flex items-center gap-2">
+                    <Trash className="w-4 h-4" />
+                    Xóa
+                  </button>
+                )}
+
               </div>
             )}
           </div>

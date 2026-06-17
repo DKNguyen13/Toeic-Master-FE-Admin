@@ -8,6 +8,7 @@ import { ArrowLeft, Book } from "lucide-react";
 import * as XLSX from "xlsx";
 import FlashcardImportExcelModal from "./FlashcardImportModal";
 import AddFlashcardModal from "../modal/AddFlashcardModal";
+import EditFlashcardModal from "./EditFlashcardModal";
 
 export interface Flashcard {
   _id?: string;
@@ -32,6 +33,8 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType, on
   const [showImportModal, setShowImportModal] = useState(false);
   const type = propType || location.state?.type || "myList";
   const editable = type === "myList";
+  const [editCard, setEditCard] = useState<Flashcard | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const fetchFlashcards = async () => {
     if (!setId) return;
@@ -150,6 +153,10 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType, on
                 key={card._id}
                 flashcard={card}
                 onDelete={editable ? (id: string) => setDeleteCardId(id) : undefined}
+                onEdit={(card) => {
+                  setEditCard(card);
+                  setShowEditModal(true);
+                }}
               />
             ))
           ) : (
@@ -180,6 +187,28 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType, on
             onOpenImport={() => setShowImportModal(true)}
           />
         )}
+
+        {showEditModal && editCard && (
+          <EditFlashcardModal
+            flashcard={editCard}
+            onClose={() => setShowEditModal(false)}
+            onSave={async (data) => {
+              try {
+                const res = await api.put(`/flashcard/${data._id}`, data);
+
+                setFlashcards((prev) =>
+                  prev.map((f) => (f._id === data._id ? res.data.data : f))
+                );
+
+                setShowEditModal(false);
+                showToast("Cập nhật thành công!", "success");
+              } catch (err: any) {
+                showToast(err.response?.data?.message || "Lỗi update", "error");
+              }
+            }}
+          />
+        )}
+
         {showImportModal && setId && (
           <FlashcardImportExcelModal
             setId={setId}
