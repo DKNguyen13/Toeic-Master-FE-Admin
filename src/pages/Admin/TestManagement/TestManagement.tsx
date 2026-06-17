@@ -70,7 +70,7 @@ const TestManagementPage: React.FC<Test> = ({
       <LeftSidebarAdmin customHeight="h-auto w-64" />
       <div className="flex-1 p-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Quản lý đề thi</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Quản lý đề thi</h1>
           <button onClick={() => handleNavigate("/admin/import-test")}
             className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl 
                      hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 

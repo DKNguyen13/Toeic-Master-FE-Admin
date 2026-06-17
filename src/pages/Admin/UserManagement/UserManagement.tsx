@@ -232,9 +232,8 @@ const UserManagementPage: React.FC = () => {
         {/* Title */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Quản lý người dùng</h1>
-
           <p className="mt-2 text-md text-gray-500 flex items-center gap-2">
-            <Users className="w-4 h-4" />
+            <Users className="w-4 h-4 text-blue-500" />
             <span>
               Tổng người dùng:{" "}
               <span className="font-semibold text-gray-800">
@@ -260,7 +259,7 @@ const UserManagementPage: React.FC = () => {
 
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Card */}
         <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition">
           <p className="text-sm text-gray-500">Tổng người dùng</p>
@@ -270,7 +269,7 @@ const UserManagementPage: React.FC = () => {
               {totalUsers}
             </h2>
 
-            <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
               <Users className="w-5 h-5 text-blue-600" />
             </div>
           </div>
@@ -285,7 +284,7 @@ const UserManagementPage: React.FC = () => {
               {activeUsers}
             </h2>
 
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-emerald-600" />
             </div>
           </div>
@@ -300,7 +299,7 @@ const UserManagementPage: React.FC = () => {
               {inactiveUsers}
             </h2>
 
-            <div className="w-11 h-11 rounded-xl bg-gray-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
               <XCircle className="w-5 h-5 text-gray-600" />
             </div>
           </div>

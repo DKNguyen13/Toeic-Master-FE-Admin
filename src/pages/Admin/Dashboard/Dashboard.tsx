@@ -3,7 +3,7 @@ import { Chart } from "react-chartjs-2";
 import api from "../../../config/axios";
 import React, { useEffect, useRef, useState } from "react";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import { Users, FileText, LineChart, CheckCircle2, BarChart as BarChartIcon } from "lucide-react";
+import { Users, FileText, LineChart, CheckCircle2, BarChart as BarChartIcon, LayoutDashboard } from "lucide-react";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, LineController, BarController } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, LineController, BarController, BarElement, Title, Tooltip, Legend);
@@ -137,10 +137,11 @@ const DashboardPage: React.FC = () => {
 
       {/* Main content */}
       <div className="flex-1 p-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8 tracking-tight">
-          Dashboard
-        </h1>
-
+        <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Dashboard</h1>
+        <div className="flex items-center gap-2 text-gray-500 text-md mb-8">
+          <LayoutDashboard className="w-5 h-5 text-blue-500" />
+          <span>Theo dõi toàn bộ dữ liệu người dùng, doanh thu</span>
+        </div>
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {[

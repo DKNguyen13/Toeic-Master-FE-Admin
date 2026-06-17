@@ -442,7 +442,10 @@ const LessonManagementPage: React.FC = () => {
           {/* Title */}
           <div>
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Quản lý bài học</h1>
-            <p className="mt-2 text-sm text-gray-500">Quản lý toàn bộ nội dung bài học trong hệ thống</p>
+            <div className="flex items-center gap-2 text-gray-500 text-md mt-2">
+              <BookOpen className="w-5 h-5 text-blue-500" />
+              <span>Quản lý toàn bộ nội dung bài học trong hệ thống</span>
+            </div>
           </div>
 
           {/* Actions */}
@@ -459,47 +462,47 @@ const LessonManagementPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Total lessons */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+        <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition">
           <p className="text-sm text-gray-500">Tổng bài học</p>
 
-          <div className="mt-2 flex items-end justify-between">
-            <h2 className="text-3xl font-bold text-gray-900">
+          <div className="mt-1 flex items-end justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
               {lessons.length}
             </h2>
 
-            <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-blue-600" />
             </div>
           </div>
         </div>
 
         {/* Views */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition">
           <p className="text-sm text-gray-500">Tổng lượt xem</p>
 
-          <div className="mt-2 flex items-end justify-between">
-            <h2 className="text-3xl font-bold text-gray-900">
+          <div className="mt-1 flex items-end justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
               {lessons.reduce((sum, l) => sum + l.views, 0).toLocaleString()}
             </h2>
 
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
               <Eye className="w-5 h-5 text-emerald-600" />
             </div>
           </div>
         </div>
 
         {/* Favorites */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition">
           <p className="text-sm text-gray-500">Tổng yêu thích</p>
 
-          <div className="mt-2 flex items-end justify-between">
-            <h2 className="text-3xl font-bold text-gray-900">
+          <div className="mt-1 flex items-end justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
               {lessons.reduce((sum, l) => sum + l.favoriteCount, 0).toLocaleString()}
             </h2>
 
-            <div className="w-11 h-11 rounded-xl bg-rose-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
               <Heart className="w-5 h-5 text-rose-600" />
             </div>
           </div>
