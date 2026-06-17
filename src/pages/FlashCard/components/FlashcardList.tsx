@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useLocation } from "react-router-dom";
 import { showToast } from "../../../utils/toast";
 import React, { useEffect, useState } from "react";
-import { Book } from "lucide-react";
+import { ArrowLeft, Book } from "lucide-react";
 import * as XLSX from "xlsx";
 import FlashcardImportExcelModal from "./FlashcardImportModal";
 import AddFlashcardModal from "../modal/AddFlashcardModal";
@@ -20,9 +20,10 @@ export interface Flashcard {
 interface FlashcardListProps {
   setId?: string;
   type?: "myList" | "explore";
+  onBack?: () => void;
 }
 
-const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) => {
+const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType, onBack }) => {
   const location = useLocation();
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(false);
@@ -166,11 +167,18 @@ const FlashcardList: React.FC<FlashcardListProps> = ({ setId, type: propType }) 
     <div className="min-h-screen">
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            📚 Flashcards
-          </h1>
-          <p className="text-gray-600">Học từ vựng hiệu quả với flashcards</p>
+        <div className="relative mb-8">
+          {onBack && (
+            <button onClick={onBack}
+              className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all duration-200">
+              <ArrowLeft size={18} />Quay lại
+            </button>
+          )}
+
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">📚 Flashcards</h1>
+            <p className="text-gray-600">Học từ vựng hiệu quả với flashcards</p>
+          </div>
         </div>
 
         {/* Mode Controls */}
