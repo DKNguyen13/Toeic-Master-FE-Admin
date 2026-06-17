@@ -180,10 +180,10 @@ const DashboardPage: React.FC = () => {
               transition={{ type: "spring", stiffness: 300 }}
               className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl border border-gray-200 transition-all">
               <div className="flex justify-between items-start mb-3">
-                <h2 className="text-lg font-semibold text-gray-700">{card.title}</h2>
-                <card.icon className={`${card.color} w-7 h-7`} />
+                <h2 className="text-md font-semibold text-gray-700">{card.title}</h2>
+                <card.icon className={`${card.color} w-6 h-6`} />
               </div>
-              <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
               <p className="text-sm text-green-600 mt-1">{card.change}</p>
             </motion.div>
           ))}

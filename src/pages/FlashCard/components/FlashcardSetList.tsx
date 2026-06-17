@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { showToast } from "../../../utils/toast";
 import React, { useEffect, useRef, useState } from "react";
 import LoginModal from "../../../layouts/common/LoginModal";
-import { Book, Inbox, Library, Search, Star, Trash } from "lucide-react";
+import { Book, Edit2, Inbox, Library, Search, Star, Trash } from "lucide-react";
+import EditFlashcardSetModal from "../modal/EditFlashcardSetModal";
 
 export interface FlashcardSet {
   _id?: string;
@@ -30,6 +31,8 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
   const [deleteSetId, setDeleteSetId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [editSet, setEditSet] = useState<FlashcardSet | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const closeModal = () => {
     setShowModal(false);
@@ -181,7 +184,7 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
               sets.map((set) => (
                 <div  key={set._id}
                   onClick={() => handleSetClick(set._id)}
-                  className="group relative bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 h-56 flex flex-col justify-between cursor-pointer transform hover:scale-105 border border-gray-100 hover:border-blue-300 overflow-hidden">
+                  className="group relative bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 h-56 flex flex-col justify-between cursor-pointer transform hover:scale-105 border border-gray-200 hover:border-blue-300 overflow-hidden">
                   {/* Gradient Background Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     <div className="relative z-10">
@@ -190,14 +193,29 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
                           <Book className="text-white text-2xl" />
                         </div>
                         {type === "myList" && isLoggedIn && (
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteSetId(set._id!);
-                            }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2 rounded-lg hover:bg-red-50">
-                            <Trash className="text-red-500 text-lg" />
-                          </button>
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            {/* EDIT BUTTON */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditSet(set);
+                                setShowEditModal(true);
+                              }}
+                              className="p-2 rounded-lg hover:bg-blue-200 transition">
+                              <Edit2 className="text-blue-500 w-4 h-4" />
+                            </button>
+
+                            {/* DELETE BUTTON */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteSetId(set._id!);
+                              }}
+                              className="p-2 rounded-lg hover:bg-red-200 transition">
+                              <Trash className="text-red-500 w-4 h-4" />
+                            </button>
+
+                          </div>
                         )}
                       </div>
                       
@@ -329,6 +347,20 @@ const FlashcardSetList: React.FC<FlashcardSetListProps> = ({
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onSuccess={() => window.location.reload()}
+      />
+
+      <EditFlashcardSetModal
+        open={showEditModal}
+        set={editSet}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditSet(null);
+        }}
+        onUpdated={(updated) => {
+          setSets((prev) =>
+            prev.map((s) => (s._id === updated._id ? updated : s))
+          );
+        }}
       />
     </div>
   );
