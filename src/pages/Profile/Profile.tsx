@@ -1,9 +1,9 @@
 import api from "../../config/axios";
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import LeftSidebarAdmin from "../../components/LeftSidebarAdmin";
 import { User, Mail, Phone, Calendar, Crown, Edit, CheckCircle, XCircle } from "lucide-react";
 import LoadingSkeleton from "../../components/common/LoadingSpinner/LoadingSkeleton";
+import LeftSidebarAdmin from "../../components/LeftSidebarAdmin";
 
 interface VipInfo {
   isActive: boolean;
@@ -56,45 +56,41 @@ const Profile: React.FC = () => {
     fetchUserInfo();
   }, []);
 
-const getVipConfig = (type: string | null) => {
+  const getVipConfig = (type: string | null) => {
     switch (type) {
       case "basic":
-        return { 
-          bg: "bg-gradient-to-br from-slate-400 via-slate-500 to-slate-600", 
-          icon: "", 
+        return {
           label: "BASIC",
-          glow: "shadow-lg shadow-slate-500/50"
+          card: "bg-slate-100 border-slate-200",
+          iconBg: "bg-slate-100",
+          iconColor: "text-slate-600",
+          badge: "text-slate-700",
         };
+
       case "advanced":
-        return { 
-          bg: "bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600", 
-          icon: "", 
+        return {
           label: "ADVANCED",
-          glow: "shadow-lg shadow-blue-500/50"
+          card: "bg-gray-100 border-blue-200",
+          iconBg: "bg-blue-100",
+          iconColor: "text-blue-600",
+          badge: "text-blue-700",
         };
+
       case "premium":
-        return { 
-          bg: "bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500", 
-          icon: "", 
-          label: "PREMIUM", 
-          textColor: "text-white",
-          glow: "shadow-lg shadow-yellow-500/50"
+        return {
+          label: "PREMIUM",
+          card: "bg-amber-50 border-amber-200",
+          iconBg: "bg-amber-100",
+          iconColor: "text-amber-600",
+          badge: "text-amber-700",
         };
+
       default:
         return null;
     }
   };
 
   if (loading) return <LoadingSkeleton/>
-    // return (
-    //   <div className="min-h-screen flex justify-center items-center bg-gray-50">
-    //     <div className="text-center">
-    //       <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-    //       <p className="text-gray-600 font-medium">Đang tải...</p>
-    //     </div>
-    //   </div>
-    // );
-
   if (error)
     return (
       <div className="min-h-screen flex justify-center items-center bg-gray-50">
@@ -104,7 +100,7 @@ const getVipConfig = (type: string | null) => {
         </div>
       </div>
     );
-
+    
   const vipConfig = user.vip.isActive ? getVipConfig(user.vip.type) : null;
 
   return (
@@ -148,27 +144,41 @@ const getVipConfig = (type: string | null) => {
                 if (!user.vip.isActive) {
                   window.location.href = "/payment";
                 }
-              }}
-            >
+              }}>
               <div className="flex items-center mb-4">
                 <Crown className="w-5 h-5 text-yellow-500 mr-2" />
                 <h3 className="font-semibold text-gray-800">Trạng thái tài khoản</h3>
               </div>
               {user.vip.isActive && vipConfig ? (
-                <div className="space-y-3">
-                  <div className={`${vipConfig.bg} ${vipConfig.textColor || "text-white"} rounded-xl p-4 text-center shadow-md`}>
-                    <div className="flex items-center justify-center mb-2 space-x-2">
-                      <span className="text-2xl">{vipConfig.icon}</span>
-                      <span className="font-bold text-lg">{vipConfig.label}</span>
+                <div className={`rounded-xl border p-4 ${vipConfig.card}`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-xs font-medium uppercase tracking-wide ${vipConfig.badge}`}>Gói thành viên</p>
+                      <h4 className="mt-1 text-lg font-bold text-gray-800">{vipConfig.label}</h4>
                     </div>
-                    <div className="text-sm opacity-90 flex items-center justify-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>Đến {formatDate(user.vip.endDate ? new Date(user.vip.endDate) : null)}</span>
+
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100">
+                      <Crown className="w-5 h-5 text-yellow-500" />
                     </div>
                   </div>
-                  <div className="flex items-center text-sm text-green-600 bg-green-50 rounded-lg p-2 justify-center space-x-2">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Tài khoản VIP đang hoạt động</span>
+
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2 text-yellow-600" />
+                      Hết hạn:
+                      <span className="ml-1 font-medium text-gray-800">
+                        {formatDate(
+                          user.vip.endDate
+                            ? new Date(user.vip.endDate)
+                            : null
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center text-sm text-green-600">
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Đang hoạt động
+                    </div>
                   </div>
                 </div>
               ) : (
