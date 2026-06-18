@@ -24,8 +24,10 @@ import {
   Search,
   Trash2,
   Upload,
-  X,
+  Plus,
+  FileSpreadsheet,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface Lesson {
   _id: string;
@@ -39,6 +41,51 @@ interface Lesson {
 }
 
 const ITEMS_PER_PAGE = 8;
+
+const ACCESS_LEVEL_STYLES: Record<string, string> = {
+  free: "bg-emerald-50 text-emerald-700",
+  basic: "bg-blue-50 text-blue-700",
+  advanced: "bg-violet-50 text-violet-700",
+  premium: "bg-amber-50 text-amber-700",
+};
+
+const ACCESS_LEVEL_LABELS: Record<string, string> = {
+  free: "Miễn phí",
+  basic: "Basic",
+  advanced: "Advanced",
+  premium: "Premium",
+};
+
+const StatCard = ({
+  label,
+  value,
+  icon: Icon,
+  accent,
+  index,
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ElementType;
+  accent: string;
+  index: number;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 14 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.3, delay: index * 0.07 }}
+    className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex items-center justify-between"
+  >
+    <div>
+      <p className="text-sm text-gray-400 mb-1">{label}</p>
+      <p className="text-2xl font-semibold text-gray-900 tracking-tight">
+        {typeof value === "number" ? value.toLocaleString("vi-VN") : value}
+      </p>
+    </div>
+    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent}`}>
+      <Icon className="w-5 h-5" strokeWidth={1.8} />
+    </div>
+  </motion.div>
+);
 
 const LessonManagementPage: React.FC = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -58,16 +105,11 @@ const LessonManagementPage: React.FC = () => {
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<"reading" | "vocabulary" | "">(
-    ""
-  );
-  const [filterLevel, setFilterLevel] = useState<
-    "free" | "basic" | "advanced" | "premium" | ""
-  >("");
+  const [filterType, setFilterType] = useState<"reading" | "vocabulary" | "">("");
+  const [filterLevel, setFilterLevel] = useState<"free" | "basic" | "advanced" | "premium" | "">("");
 
   const navigate = useNavigate();
 
-  // Fetch lessons
   const fetchLessons = useCallback(async () => {
     try {
       const res = await api.get("/lessons");
@@ -85,20 +127,16 @@ const LessonManagementPage: React.FC = () => {
   const handleExcelFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const validTypes = [
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "application/vnd.ms-excel",
     ];
-
     if (!validTypes.includes(file.type)) {
       showToast("Chỉ chấp nhận file Excel (.xlsx, .xls)", "error");
       return;
     }
-
     setExcelFile(file);
     setPreviewData([]);
-
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
@@ -106,36 +144,21 @@ const LessonManagementPage: React.FC = () => {
         const workbook = XLSX.read(data, { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
         const processed = jsonData
           .map((row: any, index) => {
             const sentence = String(
-              row["Câu hỏi"] ||
-                row["Cau hoi"] ||
-                row["sentence"] ||
-                row["Sentence"] ||
-                ""
+              row["Câu hỏi"] || row["Cau hoi"] || row["sentence"] || row["Sentence"] || ""
             ).trim();
-
             if (!sentence) return null;
-
             const blankMap = new Map<number, string>();
-
             for (let i = 1; i <= 10; i++) {
-              const value =
-                row[`Blank ${i}`] ||
-                row[`blank ${i}`] ||
-                row[`Blank${i}`] ||
-                "";
+              const value = row[`Blank ${i}`] || row[`blank ${i}`] || row[`Blank${i}`] || "";
               if (!value) continue;
-
               const text = String(value).trim();
               if (!text) continue;
-
               const match = text.match(/^(\d+):?\s*(.+)$/i);
               let pos: number;
               let answer: string;
-
               if (match) {
                 pos = parseInt(match[1], 10) - 1;
                 answer = match[2].trim().toLowerCase();
@@ -143,45 +166,26 @@ const LessonManagementPage: React.FC = () => {
                 pos = i - 1;
                 answer = text.trim().toLowerCase();
               }
-
               if (pos < 0) continue;
-              if (blankMap.has(pos)) {
-                console.warn(
-                  `Cảnh báo: Vị trí ${pos + 1} bị trùng ở câu ${index + 1}`
-                );
-              }
               blankMap.set(pos, answer);
             }
-
             const blanks = Array.from(blankMap.entries())
               .sort(([a], [b]) => a - b)
               .map(([position, answer]) => ({ position, answer }));
-
-            return {
-              no: index + 1,
-              sentence,
-              blanks,
-              blankCount: blanks.length,
-            };
+            return { no: index + 1, sentence, blanks, blankCount: blanks.length };
           })
           .filter(Boolean) as any[];
-
         setPreviewData(processed);
-
         if (processed.length === 0) {
           showToast("Không tìm thấy dữ liệu hợp lệ nào!", "warn");
         } else {
-          showToast(
-            `Đã tải ${processed.length} câu hỏi thành công!`,
-            "success"
-          );
+          showToast(`Đã tải ${processed.length} câu hỏi thành công!`, "success");
         }
       } catch (err) {
         console.error(err);
         showToast("Lỗi khi đọc file Excel!", "error");
       }
     };
-
     reader.readAsArrayBuffer(file);
   };
 
@@ -190,38 +194,19 @@ const LessonManagementPage: React.FC = () => {
       showToast("Không có dữ liệu để nhập!", "error");
       return;
     }
-
     setIsImporting(true);
-
     try {
-      const questions = previewData.map((item) => ({
-        sentence: item.sentence,
-        blanks: item.blanks,
-      }));
-
+      const questions = previewData.map((item) => ({ sentence: item.sentence, blanks: item.blanks }));
       const res = await api.post("/practice/import", { questions });
-
-      if (res.data.errors && res.data.errors.length > 0) {
+      if (res.data.errors?.length > 0) {
         res.data.errors.forEach((err: string) => showToast(err, "warn"));
       }
-      showToast(
-        `Nhập thành công ${
-          res.data.data?.importedCount || questions.length
-        } câu hỏi!`,
-        "success"
-      );
-
+      showToast(`Nhập thành công ${res.data.data?.importedCount || questions.length} câu hỏi!`, "success");
       setIsFillBlankModalOpen(false);
       setExcelFile(null);
       setPreviewData([]);
     } catch (err: any) {
-      console.error("Import error:", err);
-
-      const message =
-        err.response?.data?.message ||
-        err.response?.data?.errors?.[0] ||
-        "Nhập dữ liệu thất bại! Vui lòng kiểm tra lại file.";
-
+      const message = err.response?.data?.message || err.response?.data?.errors?.[0] || "Nhập dữ liệu thất bại!";
       showToast(message, "error");
     } finally {
       setIsImporting(false);
@@ -235,31 +220,23 @@ const LessonManagementPage: React.FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuOpenId &&
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
+      if (menuOpenId && menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setMenuOpenId(null);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpenId]);
 
   const filteredLessons = useMemo(() => {
     return lessons.filter((lesson) => {
-      const matchesSearch = lesson.title
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      const matchesSearch = lesson.title.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesType = !filterType || lesson.type === filterType;
       const matchesLevel = !filterLevel || lesson.accessLevel === filterLevel;
       return matchesSearch && matchesType && matchesLevel;
     });
   }, [lessons, searchTerm, filterType, filterLevel]);
 
-  // Pagination
   const totalPages = Math.ceil(filteredLessons.length / ITEMS_PER_PAGE);
   const paginatedLessons = filteredLessons.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -275,7 +252,6 @@ const LessonManagementPage: React.FC = () => {
     setCurrentPage(1);
   }, [searchTerm, filterType, filterLevel]);
 
-  // Delete lesson
   const handleDelete = async (id: string) => {
     try {
       await api.patch(`/lessons/${id}/delete`);
@@ -288,7 +264,6 @@ const LessonManagementPage: React.FC = () => {
     }
   };
 
-  // File selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -321,31 +296,18 @@ const LessonManagementPage: React.FC = () => {
     }
   };
 
-  // Submit edit form
   const handleUpdateLesson = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editingLesson) return;
-
     const form = e.currentTarget;
-    const title = (
-      form.elements.namedItem("title") as HTMLInputElement
-    )?.value.trim();
+    const title = (form.elements.namedItem("title") as HTMLInputElement)?.value.trim();
     const type = form.type.value;
     const accessLevel = form.accessLevel.value;
-
     if (!title || !type || !accessLevel) {
       showToast("Vui lòng điền đầy đủ thông tin!", "error");
       return;
     }
-
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("type", type);
-    formData.append("accessLevel", accessLevel);
-    if (editFile) formData.append("file", editFile);
-
     setIsUpdating(true);
-
     try {
       let res;
       if (editFile) {
@@ -354,22 +316,14 @@ const LessonManagementPage: React.FC = () => {
         formData.append("type", type);
         formData.append("accessLevel", accessLevel);
         formData.append("file", editFile);
-
         res = await api.put(`/lessons/${editingLesson._id}/upload`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
-        res = await api.put(`/lessons/${editingLesson._id}`, {
-          title,
-          type,
-          accessLevel,
-        });
+        res = await api.put(`/lessons/${editingLesson._id}`, { title, type, accessLevel });
       }
-
       showToast("Cập nhật bài học thành công!", "success");
-      setLessons((prev) =>
-        prev.map((l) => (l._id === editingLesson._id ? res.data.data : l))
-      );
+      setLessons((prev) => prev.map((l) => (l._id === editingLesson._id ? res.data.data : l)));
       setIsEditModalOpen(false);
       setEditFile(null);
       setEditingLesson(null);
@@ -380,16 +334,12 @@ const LessonManagementPage: React.FC = () => {
     }
   };
 
-  // Submit form
   const handleCreateLesson = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
-    const title = (
-      form.elements.namedItem("title") as HTMLInputElement
-    )?.value.trim();
+    const title = (form.elements.namedItem("title") as HTMLInputElement)?.value.trim();
     const type = form.type.value;
     const accessLevel = form.accessLevel.value;
-
     if (!selectedFile) {
       showToast("Vui lòng chọn file .docx trước khi tạo!", "error");
       return;
@@ -398,13 +348,11 @@ const LessonManagementPage: React.FC = () => {
       showToast("Vui lòng điền đầy đủ thông tin!", "error");
       return;
     }
-
     const formData = new FormData();
     formData.append("title", title);
     formData.append("type", type);
     formData.append("accessLevel", accessLevel);
     formData.append("file", selectedFile);
-
     setIsSubmitting(true);
     try {
       const res = await api.post("/lessons/upload", formData, {
@@ -433,114 +381,96 @@ const LessonManagementPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex bg-[#f5f4fb]">
       <LeftSidebarAdmin customHeight="h-auto w-64" />
-      <div className="flex-1 p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
-          {/* Title */}
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Quản lý bài học</h1>
-            <div className="flex items-center gap-2 text-gray-500 text-md mt-2">
-              <BookOpen className="w-5 h-5 text-blue-500" />
-              <span>Quản lý toàn bộ nội dung bài học trong hệ thống</span>
+
+      <div className="flex-1 p-8 max-w-screen-xl">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-1">
+            <BookOpen className="w-4 h-4 text-indigo-400" strokeWidth={1.8} />
+            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">
+              Nội dung
+            </span>
+          </div>
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
+                Quản lý bài học
+              </h1>
+              <p className="text-sm text-gray-400 mt-0.5">
+                Quản lý toàn bộ nội dung bài học trong hệ thống
+              </p>
             </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm">
-              Tạo bài mới
-            </button>
-
-            <button onClick={() => setIsFillBlankModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition shadow-sm">
-              Thêm điền khuyết
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        {/* Total lessons */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition">
-          <p className="text-sm text-gray-500">Tổng bài học</p>
-
-          <div className="mt-1 flex items-end justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {lessons.length}
-            </h2>
-
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-blue-600" />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 h-9 px-4 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
+              >
+                <Plus className="w-4 h-4" strokeWidth={2} />
+                Tạo bài mới
+              </button>
+              <button
+                onClick={() => setIsFillBlankModalOpen(true)}
+                className="flex items-center gap-2 h-9 px-4 rounded-xl border border-gray-200 bg-white text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm"
+              >
+                <FileSpreadsheet className="w-4 h-4" strokeWidth={1.8} />
+                Thêm điền khuyết
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Views */}
-        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition">
-          <p className="text-sm text-gray-500">Tổng lượt xem</p>
-
-          <div className="mt-1 flex items-end justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {lessons.reduce((sum, l) => sum + l.views, 0).toLocaleString()}
-            </h2>
-
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-              <Eye className="w-5 h-5 text-emerald-600" />
-            </div>
-          </div>
+        {/* Stat cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <StatCard
+            label="Tổng bài học"
+            value={lessons.length}
+            icon={BookOpen}
+            accent="bg-indigo-50 text-indigo-500"
+            index={0}
+          />
+          <StatCard
+            label="Tổng lượt xem"
+            value={lessons.reduce((s, l) => s + l.views, 0)}
+            icon={Eye}
+            accent="bg-violet-50 text-violet-500"
+            index={1}
+          />
+          <StatCard
+            label="Tổng yêu thích"
+            value={lessons.reduce((s, l) => s + l.favoriteCount, 0)}
+            icon={Heart}
+            accent="bg-fuchsia-50 text-fuchsia-500"
+            index={2}
+          />
         </div>
-
-        {/* Favorites */}
-        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition">
-          <p className="text-sm text-gray-500">Tổng yêu thích</p>
-
-          <div className="mt-1 flex items-end justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {lessons.reduce((sum, l) => sum + l.favoriteCount, 0).toLocaleString()}
-            </h2>
-
-            <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
-              <Heart className="w-5 h-5 text-rose-600" />
-            </div>
-          </div>
-        </div>
-      </div>
 
         {/* Filters */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-4">
-
-          {/* Search */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-5">
           <div className="relative md:col-span-8">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Tìm kiếm bài học theo tiêu đề..."
+              placeholder="Tìm kiếm theo tiêu đề..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition"
+              className="w-full pl-10 pr-4 h-9 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
             />
           </div>
-
-          {/* Type */}
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as any)}
-            className="md:col-span-2 px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition"
+            className="md:col-span-2 h-9 px-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
           >
             <option value="">Tất cả loại</option>
             <option value="reading">Reading</option>
             <option value="vocabulary">Vocabulary</option>
           </select>
-
-          {/* Level */}
           <select
             value={filterLevel}
             onChange={(e) => setFilterLevel(e.target.value as any)}
-            className="md:col-span-2 px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition"
+            className="md:col-span-2 h-9 px-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
           >
             <option value="">Tất cả cấp độ</option>
             <option value="free">Miễn phí</option>
@@ -548,143 +478,148 @@ const LessonManagementPage: React.FC = () => {
             <option value="advanced">Advanced</option>
             <option value="premium">Premium</option>
           </select>
-
         </div>
-      </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow border border-gray-200 overflow-visible">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.21 }}
+          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+        >
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
-                <th className="py-3 px-4 text-left">STT</th>
-                <th className="py-3 px-4 text-left">Tiêu đề</th>
-                <th className="py-3 px-4 text-left">Loại</th>
-                <th className="py-3 px-4 text-left">Quyền</th>
-                <th className="py-3 px-4 text-center">Views</th>
-                <th className="py-3 px-4 text-center">Thích</th>
-                <th className="py-3 px-4 text-center">Ngày tạo</th>
-                <th className="py-3 px-4 text-center">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-600 text-sm">
-              {paginatedLessons.map((lesson, index) => (
-                <tr
-                  key={lesson._id}
-                  className={`border-b hover:bg-gray-100 transition ${
-                    index % 2 === 0 ? "bg-gray-50" : ""
-                  }`}
-                >
-                  <td className="py-4 px-4">
-                    {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
-                  </td>
-                  <td className="py-4 px-4">{lesson.title}</td>
-                  <td className="py-4 px-4">
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full font-semibold ${
-                        lesson.type === "reading"
-                          ? "bg-blue-200 text-blue-800"
-                          : "bg-yellow-200 text-yellow-800"
+              <tr className="border-b border-gray-100 bg-gray-50">
+                {["STT", "Tiêu đề", "Loại", "Cấp độ", "Views", "Yêu thích", "Ngày tạo", ""].map(
+                  (h, i) => (
+                    <th
+                      key={i}
+                      className={`py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide ${
+                        i === 0 || i >= 4 ? "text-center" : "text-left"
                       }`}
                     >
-                      {lesson.type}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 capitalize">{lesson.accessLevel}</td>
-                  <td className="py-4 px-4 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <Eye size={16} className="text-rose-400" />
-                      <span>{lesson.views}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <Heart size={16} className="text-rose-400" />
-                      <span>{lesson.favoriteCount}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4 text-center">
-                    {new Date(lesson.createdAt).toLocaleDateString("vi-VN")}
-                  </td>
-                  <td className="py-4 px-4 text-center relative">
-                    <button
-                      onClick={(e) => toggleMenu(lesson._id, e)}
-                      className="text-gray-500 hover:text-blue-600 transition"
-                    >
-                      <MoreHorizontal size={20} />
-                    </button>
-
-                    {/* Dropdown menu */}
-                    {menuOpenId === lesson._id && (
-                      <div
-                        ref={menuRef}
-                        className={`absolute right-4 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden ${
-                          [
-                            paginatedLessons.length - 1,
-                            paginatedLessons.length - 2,
-                            paginatedLessons.length - 3,
-                          ].includes(
-                            paginatedLessons.findIndex(
-                              (l) => l._id === lesson._id
-                            )
-                          )
-                            ? "bottom-full mb-2"
-                            : "top-full mt-2"
-                        }`}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          onClick={() => {
-                            navigate(`/resource/${lesson._id}`);
-                            setMenuOpenId(null);
-                          }}
-                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 text-gray-700 transition"
-                        >
-                          <Eye className="w-5 h-5" />
-                          Xem chi tiết
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setEditingLesson(lesson);
-                            setIsEditModalOpen(true);
-                            setMenuOpenId(null);
-                          }}
-                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 text-gray-700 transition"
-                        >
-                          <Upload className="w-5 h-5" />
-                          Cập nhật bài học
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setDeleteConfirmId(lesson._id);
-                            setMenuOpenId(null);
-                          }}
-                          className="w-full flex items-center gap-3 px-5 py-4 hover:bg-red-50 text-red-600 transition"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                          Xóa bài học
-                        </button>
-                      </div>
-                    )}
+                      {h}
+                    </th>
+                  )
+                )}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {paginatedLessons.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-16 text-center text-sm text-gray-400">
+                    Không tìm thấy bài học nào.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                paginatedLessons.map((lesson, index) => (
+                  <tr key={lesson._id} className="hover:bg-gray-50/60 transition-colors group">
+                    <td className="py-3.5 px-4 text-center text-sm text-gray-400 w-12">
+                      {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+                    </td>
+                    <td className="py-3.5 px-4 text-sm font-medium text-gray-800 max-w-[240px] truncate">
+                      {lesson.title}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium ${
+                          lesson.type === "reading"
+                            ? "bg-blue-50 text-blue-700"
+                            : "bg-amber-50 text-amber-700"
+                        }`}
+                      >
+                        {lesson.type === "reading" ? "Reading" : "Vocabulary"}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium ${
+                          ACCESS_LEVEL_STYLES[lesson.accessLevel] || "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {ACCESS_LEVEL_LABELS[lesson.accessLevel] || lesson.accessLevel}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <span className="inline-flex items-center justify-center gap-1 text-sm text-gray-500">
+                        <Eye className="w-3.5 h-3.5 text-gray-300" strokeWidth={1.8} />
+                        {lesson.views.toLocaleString()}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <span className="inline-flex items-center justify-center gap-1 text-sm text-gray-500">
+                        <Heart className="w-3.5 h-3.5 text-rose-300" strokeWidth={1.8} />
+                        {lesson.favoriteCount.toLocaleString()}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-center text-sm text-gray-400">
+                      {new Date(lesson.createdAt).toLocaleDateString("vi-VN")}
+                    </td>
+                    <td className="py-3.5 px-4 text-center relative w-12">
+                      <button
+                        onClick={(e) => toggleMenu(lesson._id, e)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                      >
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+
+                      {menuOpenId === lesson._id && (
+                        <div
+                          ref={menuRef}
+                          onClick={(e) => e.stopPropagation()}
+                          className={`absolute right-3 w-52 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden py-1 ${
+                            [
+                              paginatedLessons.length - 1,
+                              paginatedLessons.length - 2,
+                              paginatedLessons.length - 3,
+                            ].includes(paginatedLessons.findIndex((l) => l._id === lesson._id))
+                              ? "bottom-full mb-1"
+                              : "top-full mt-1"
+                          }`}
+                        >
+                          <button
+                            onClick={() => { navigate(`/resource/${lesson._id}`); setMenuOpenId(null); }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                          >
+                            <Eye className="w-4 h-4 text-gray-400" strokeWidth={1.8} />
+                            Xem chi tiết
+                          </button>
+                          <button
+                            onClick={() => { setEditingLesson(lesson); setIsEditModalOpen(true); setMenuOpenId(null); }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                          >
+                            <Upload className="w-4 h-4 text-gray-400" strokeWidth={1.8} />
+                            Cập nhật bài học
+                          </button>
+                          <div className="my-1 border-t border-gray-50" />
+                          <button
+                            onClick={() => { setDeleteConfirmId(lesson._id); setMenuOpenId(null); }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-50 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" strokeWidth={1.8} />
+                            Xóa bài học
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-        </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={goToPage}
-          />
-        )}
+          {totalPages > 1 && (
+            <div className="px-4 py-3 border-t border-gray-50">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+              />
+            </div>
+          )}
+        </motion.div>
 
-        {/* Modal add */}
+        {/* Modals */}
         {isModalOpen && (
           <CreateLessonModal
             isOpen={isModalOpen}
@@ -692,14 +627,9 @@ const LessonManagementPage: React.FC = () => {
             selectedFile={selectedFile}
             onFileChange={handleFileChange}
             onSubmit={handleCreateLesson}
-            onClose={() => {
-              setIsModalOpen(false);
-              setSelectedFile(null);
-            }}
+            onClose={() => { setIsModalOpen(false); setSelectedFile(null); }}
           />
         )}
-
-        {/* Modal update */}
         {isEditModalOpen && editingLesson && (
           <EditLessonModal
             isOpen={isEditModalOpen}
@@ -708,15 +638,9 @@ const LessonManagementPage: React.FC = () => {
             editFile={editFile}
             onFileChange={handleEditFileChange}
             onSubmit={handleUpdateLesson}
-            onClose={() => {
-              setIsEditModalOpen(false);
-              setEditingLesson(null);
-              setEditFile(null);
-            }}
+            onClose={() => { setIsEditModalOpen(false); setEditingLesson(null); setEditFile(null); }}
           />
         )}
-
-        {/* Modal delete */}
         {deleteConfirmId && (
           <DeleteLessonModal
             lessonId={deleteConfirmId}
@@ -724,8 +648,6 @@ const LessonManagementPage: React.FC = () => {
             onClose={() => setDeleteConfirmId(null)}
           />
         )}
-
-        {/* Modal Import Listening Fill-in-the-blank */}
         <ImportFillBlankModal
           isOpen={isFillBlankModalOpen}
           excelFile={excelFile}
@@ -733,11 +655,7 @@ const LessonManagementPage: React.FC = () => {
           isImporting={isImporting}
           onExcelFileChange={handleExcelFileChange}
           onImport={handleImportListeningQuestions}
-          onClose={() => {
-            setIsFillBlankModalOpen(false);
-            setExcelFile(null);
-            setPreviewData([]);
-          }}
+          onClose={() => { setIsFillBlankModalOpen(false); setExcelFile(null); setPreviewData([]); }}
         />
       </div>
     </div>
