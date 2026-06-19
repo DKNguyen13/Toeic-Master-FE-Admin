@@ -116,7 +116,7 @@ const VipManagementPage: React.FC = () => {
             </span>
           </div>
           <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Quản lý gói VIP</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Chỉnh sửa giá và mô tả cho từng gói thành viên</p>
+          <p className="text-sm text-gray-400 mt-1">Chỉnh sửa giá và mô tả cho từng gói thành viên</p>
         </div>
 
         {/* Package cards */}

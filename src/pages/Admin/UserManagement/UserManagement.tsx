@@ -254,16 +254,12 @@ const UserManagementPage: React.FC = () => {
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-1">
             <Users className="w-4 h-4 text-indigo-400" strokeWidth={1.8} />
-            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">
-              Tài khoản
-            </span>
+            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">Tài khoản</span>
           </div>
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
-                Quản lý người dùng
-              </h1>
-              <p className="text-sm text-gray-400 mt-0.5">
+              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Quản lý người dùng</h1>
+              <p className="text-sm text-gray-400 mt-1">
                 Tổng cộng{" "}
                 <span className="font-medium text-gray-600">{allUsersCount.toLocaleString("vi-VN")}</span>{" "}
                 tài khoản trong hệ thống
@@ -292,7 +288,7 @@ const UserManagementPage: React.FC = () => {
         </div>
 
         {/* Search & Filter */}
-        <div className="flex flex-col md:flex-row gap-3 mb-4">
+        <div className="flex flex-col md:flex-row gap-3 mb-6">
           {/* Search */}
           <div className="relative flex-1 flex gap-2">
             <div className="relative flex-1">
@@ -422,19 +418,17 @@ const UserManagementPage: React.FC = () => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.21 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-        >
+          className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                {["#", "Họ tên", "Email", "SĐT", "Loại", "Ngày đăng ký", "Trạng thái", ""].map(
+              <tr className="border-b border-gray-200 bg-gray-200">
+                {["STT", "Họ tên", "Email", "SĐT", "Loại", "Ngày đăng ký", "Trạng thái", ""].map(
                   (h, i) => (
                     <th
                       key={i}
-                      className={`py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide ${
+                      className={`py-3 px-4 text-xs font-semibold text-gray-800 uppercase tracking-wide ${
                         i === 0 || i === 7 ? "text-center" : "text-left"
-                      }`}
-                    >
+                      }`}>
                       {h}
                     </th>
                   )
@@ -444,14 +438,14 @@ const UserManagementPage: React.FC = () => {
             <tbody className="divide-y divide-gray-50">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user, index) => (
-                  <tr key={user._id} className="hover:bg-gray-50/60 transition-colors">
+                  <tr key={user._id} className="hover:bg-gray-100 transition-colors">
                     <td className="py-3.5 px-4 text-center text-sm text-gray-400 w-12">
                       {user.id}
                     </td>
                     <td className="py-3.5 px-4 text-sm font-medium text-gray-800 max-w-[180px] truncate">
                       {user.fullname}
                     </td>
-                    <td className="py-3.5 px-4 text-sm text-gray-600 max-w-[200px] truncate">
+                    <td className="py-3.5 px-4 text-sm text-gray-800 max-w-[200px] truncate">
                       {user.email}
                     </td>
                     <td className="py-3.5 px-4 text-sm text-gray-500">
@@ -468,7 +462,7 @@ const UserManagementPage: React.FC = () => {
                         {user.authType === "google" ? "Google" : "Thường"}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-sm text-gray-400">
+                    <td className="py-3.5 px-4 text-sm text-gray-500">
                       {user.registerDate || "—"}
                     </td>
                     <td className="py-3.5 px-4">

@@ -361,14 +361,8 @@ const TestEditor: React.FC = () => {
           </h2>
           <div className="space-y-4">
             <div>
-              <label
-                htmlFor="title"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Tên đề thi
-              </label>
-              <input
-                id="title"
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Tên đề thi</label>
+              <input id="title"
                 type="text"
                 value={testData.test.title}
                 onChange={(e) => updateTestField("title", e.target.value)}

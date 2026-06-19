@@ -82,7 +82,7 @@ const TestManagementPage: React.FC<Pick<Test, "limit" | "showPagination">> = ({
               <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
                 Quản lý đề thi
               </h1>
-              <p className="text-sm text-gray-400 mt-0.5">
+              <p className="text-sm text-gray-400 mt-1">
                 Tổng cộng{" "}
                 <span className="font-medium text-gray-600">{totalTests.toLocaleString("vi-VN")}</span>{" "}
                 đề thi trong hệ thống
@@ -142,18 +142,17 @@ const TestManagementPage: React.FC<Pick<Test, "limit" | "showPagination">> = ({
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.21 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
+              <tr className="border-b border-gray-200 bg-gray-200">
                 {["Mã đề", "Tên đề thi", "Lượt làm", "Ngày tạo", "Cập nhật", "Trạng thái", ""].map(
                   (h, i) => (
                     <th
                       key={i}
-                      className={`py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide ${
+                      className={`py-3 px-4 text-xs font-semibold text-gray-800 uppercase tracking-wide ${
                         i === 0 || i >= 2 ? "text-center" : "text-left"
-                      }`}
-                    >
+                      }`}>
                       {h}
                     </th>
                   )
@@ -169,7 +168,7 @@ const TestManagementPage: React.FC<Pick<Test, "limit" | "showPagination">> = ({
                 </tr>
               ) : (
                 tests.map((test, index) => (
-                  <tr key={test.testCode} className="hover:bg-gray-50/60 transition-colors">
+                  <tr key={test.testCode} className="hover:bg-gray-100 transition-colors">
                     <td className="py-3.5 px-4 text-center">
                       <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">
                         {test.testCode}
@@ -183,10 +182,10 @@ const TestManagementPage: React.FC<Pick<Test, "limit" | "showPagination">> = ({
                         {test.statistics.totalAttempts.toLocaleString("vi-VN")}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-center text-sm text-gray-400">
+                    <td className="py-3.5 px-4 text-center text-sm text-gray-800">
                       {new Date(test.createdAt).toLocaleDateString("vi-VN")}
                     </td>
-                    <td className="py-3.5 px-4 text-center text-sm text-gray-400">
+                    <td className="py-3.5 px-4 text-center text-sm text-gray-800">
                       {new Date(test.updatedAt).toLocaleDateString("vi-VN")}
                     </td>
                     <td className="py-3.5 px-4 text-center">

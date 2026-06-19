@@ -398,7 +398,7 @@ const LessonManagementPage: React.FC = () => {
               <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
                 Quản lý bài học
               </h1>
-              <p className="text-sm text-gray-400 mt-0.5">
+              <p className="text-sm text-gray-400 mt-1">
                 Quản lý toàn bộ nội dung bài học trong hệ thống
               </p>
             </div>
@@ -447,7 +447,7 @@ const LessonManagementPage: React.FC = () => {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-5">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-6">
           <div className="relative md:col-span-8">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -458,20 +458,16 @@ const LessonManagementPage: React.FC = () => {
               className="w-full pl-10 pr-4 h-9 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
             />
           </div>
-          <select
-            value={filterType}
+          <select value={filterType}
             onChange={(e) => setFilterType(e.target.value as any)}
-            className="md:col-span-2 h-9 px-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
-          >
+            className="md:col-span-2 h-9 px-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition">
             <option value="">Tất cả loại</option>
             <option value="reading">Reading</option>
             <option value="vocabulary">Vocabulary</option>
           </select>
-          <select
-            value={filterLevel}
+          <select value={filterLevel}
             onChange={(e) => setFilterLevel(e.target.value as any)}
-            className="md:col-span-2 h-9 px-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
-          >
+            className="md:col-span-2 h-9 px-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition">
             <option value="">Tất cả cấp độ</option>
             <option value="free">Miễn phí</option>
             <option value="basic">Basic</option>
@@ -485,16 +481,15 @@ const LessonManagementPage: React.FC = () => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.21 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-        >
+          className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
+              <tr className="border-b border-gray-200 bg-gray-200">
                 {["STT", "Tiêu đề", "Loại", "Cấp độ", "Views", "Yêu thích", "Ngày tạo", ""].map(
                   (h, i) => (
                     <th
                       key={i}
-                      className={`py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide ${
+                      className={`py-3 px-4 text-xs font-semibold text-gray-800 uppercase tracking-wide ${
                         i === 0 || i >= 4 ? "text-center" : "text-left"
                       }`}
                     >
@@ -513,7 +508,7 @@ const LessonManagementPage: React.FC = () => {
                 </tr>
               ) : (
                 paginatedLessons.map((lesson, index) => (
-                  <tr key={lesson._id} className="hover:bg-gray-50/60 transition-colors group">
+                  <tr key={lesson._id} className="hover:bg-gray-100 transition-colors group">
                     <td className="py-3.5 px-4 text-center text-sm text-gray-400 w-12">
                       {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
                     </td>
@@ -541,18 +536,18 @@ const LessonManagementPage: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-center">
-                      <span className="inline-flex items-center justify-center gap-1 text-sm text-gray-500">
+                      <span className="inline-flex items-center justify-center gap-1 text-sm text-gray-800">
                         <Eye className="w-3.5 h-3.5 text-gray-300" strokeWidth={1.8} />
                         {lesson.views.toLocaleString()}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-center">
-                      <span className="inline-flex items-center justify-center gap-1 text-sm text-gray-500">
+                      <span className="inline-flex items-center justify-center gap-1 text-sm text-gray-800">
                         <Heart className="w-3.5 h-3.5 text-rose-300" strokeWidth={1.8} />
                         {lesson.favoriteCount.toLocaleString()}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-center text-sm text-gray-400">
+                    <td className="py-3.5 px-4 text-center text-sm text-gray-800">
                       {new Date(lesson.createdAt).toLocaleDateString("vi-VN")}
                     </td>
                     <td className="py-3.5 px-4 text-center relative w-12">
