@@ -257,7 +257,7 @@ const DashboardPage: React.FC = () => {
           <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
             Dashboard
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="text-sm text-gray-400 mt-1">
             Theo dõi người dùng, doanh thu và hoạt động học tập
           </p>
         </div>
