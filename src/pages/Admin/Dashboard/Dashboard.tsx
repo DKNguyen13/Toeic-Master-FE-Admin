@@ -3,29 +3,8 @@ import { Chart } from "react-chartjs-2";
 import api from "../../../config/axios";
 import React, { useEffect, useRef, useState } from "react";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import {
-  Users,
-  FileText,
-  TrendingUp,
-  CheckCircle2,
-  BarChart2,
-  Activity,
-  LayoutDashboard,
-  Download,
-} from "lucide-react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  LineController,
-  BarController,
-} from "chart.js";
+import { Users, FileText, TrendingUp, CheckCircle2, BarChart2, Activity, LayoutDashboard, Download } from "lucide-react";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, LineController, BarController } from "chart.js";
 
 ChartJS.register(
   CategoryScale,
@@ -244,22 +223,15 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-[#f5f4fb]">
       <LeftSidebarAdmin customHeight="h-auto w-64" />
-
       <div className="flex-1 p-8 max-w-screen-xl">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-1">
             <LayoutDashboard className="w-5 h-5 text-indigo-400" strokeWidth={1.8} />
-            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">
-              Tổng quan
-            </span>
+            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">Tổng quan</span>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
-            Dashboard
-          </h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Theo dõi người dùng, doanh thu và hoạt động học tập
-          </p>
+          <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Dashboard</h1>
+          <p className="text-sm text-gray-400 mt-1">Theo dõi người dùng, doanh thu và hoạt động học tập</p>
         </div>
 
         {/* Stat cards */}
@@ -274,26 +246,19 @@ const DashboardPage: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.28 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
-        >
+          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           {/* Chart header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <p className="text-xs text-gray-400 uppercase tracking-widest font-medium mb-0.5">
-                Doanh thu theo tháng
-              </p>
-              <p className="text-xl font-semibold text-gray-900">
-                {totalRevenue.toLocaleString("vi-VN")} ₫
-              </p>
+              <p className="text-xs text-gray-400 uppercase tracking-widest font-medium mb-0.5">Doanh thu theo tháng</p>
+              <p className="text-xl font-semibold text-gray-900">{totalRevenue.toLocaleString("vi-VN")} ₫</p>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
               {/* Year selector */}
-              <select
-                value={selectedYear}
+              <select value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="h-9 px-3 text-sm rounded-xl border border-gray-200 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer"
-              >
+                className="h-9 px-3 text-sm rounded-xl border border-gray-200 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer">
                 {YEARS.map((y) => (
                   <option key={y} value={y}>{y}</option>
                 ))}
@@ -307,8 +272,7 @@ const DashboardPage: React.FC = () => {
                     chartType === "line"
                       ? "bg-indigo-600 text-white"
                       : "text-gray-500 bg-white hover:bg-gray-50"
-                  }`}
-                >
+                  }`}>
                   <Activity className="w-3.5 h-3.5" strokeWidth={2} />
                   Đường
                 </button>
@@ -318,18 +282,15 @@ const DashboardPage: React.FC = () => {
                     chartType === "bar"
                       ? "bg-indigo-600 text-white"
                       : "text-gray-500 bg-white hover:bg-gray-50"
-                  }`}
-                >
+                  }`}>
                   <BarChart2 className="w-3.5 h-3.5" strokeWidth={2} />
                   Cột
                 </button>
               </div>
 
               {/* Export */}
-              <button
-                onClick={handleExportChart}
-                className="h-9 px-3 flex items-center gap-1.5 text-sm rounded-xl border border-gray-200 text-gray-500 bg-white hover:bg-gray-50 transition-colors"
-              >
+              <button onClick={handleExportChart}
+                className="h-9 px-3 flex items-center gap-1.5 text-sm rounded-xl border border-emerald-100 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 transition-colors">
                 <Download className="w-3.5 h-3.5" strokeWidth={2} />
                 Xuất ảnh
               </button>

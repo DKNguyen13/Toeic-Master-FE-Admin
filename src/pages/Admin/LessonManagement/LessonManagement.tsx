@@ -499,7 +499,7 @@ const LessonManagementPage: React.FC = () => {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-200">
               {paginatedLessons.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-16 text-center text-sm text-gray-400">
@@ -572,17 +572,13 @@ const LessonManagementPage: React.FC = () => {
                               : "top-full mt-1"
                           }`}
                         >
-                          <button
-                            onClick={() => { navigate(`/resource/${lesson._id}`); setMenuOpenId(null); }}
-                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                          >
+                          <button onClick={() => { navigate(`/resource/${lesson._id}`); setMenuOpenId(null); }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
                             <Eye className="w-4 h-4 text-gray-400" strokeWidth={1.8} />
                             Xem chi tiết
                           </button>
-                          <button
-                            onClick={() => { setEditingLesson(lesson); setIsEditModalOpen(true); setMenuOpenId(null); }}
-                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                          >
+                          <button onClick={() => { setEditingLesson(lesson); setIsEditModalOpen(true); setMenuOpenId(null); }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
                             <Upload className="w-4 h-4 text-gray-400" strokeWidth={1.8} />
                             Cập nhật bài học
                           </button>
@@ -604,7 +600,7 @@ const LessonManagementPage: React.FC = () => {
           </table>
 
           {totalPages > 1 && (
-            <div className="px-4 py-3 border-t border-gray-50">
+            <div className="px-4 py-4 border-t border-gray-200">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}

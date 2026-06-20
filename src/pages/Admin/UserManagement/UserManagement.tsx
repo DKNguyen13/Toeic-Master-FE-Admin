@@ -435,7 +435,7 @@ const UserManagementPage: React.FC = () => {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-200">
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user, index) => (
                   <tr key={user._id} className="hover:bg-gray-100 transition-colors">
@@ -496,12 +496,9 @@ const UserManagementPage: React.FC = () => {
                             ].includes(filteredUsers.findIndex((u) => u._id === user._id))
                               ? "bottom-full mb-1"
                               : "top-full mt-1"
-                          }`}
-                        >
-                          <button
-                            onClick={() => handleViewDetail(user._id)}
-                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-                          >
+                          }`}>
+                          <button onClick={() => handleViewDetail(user._id)}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
                             <User className="w-4 h-4 text-gray-400" strokeWidth={1.8} />
                             Xem chi tiết
                           </button>
@@ -533,7 +530,7 @@ const UserManagementPage: React.FC = () => {
           </table>
 
           {!searchTerm && users.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-50">
+            <div className="px-4 py-4 border-t border-gray-200">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}

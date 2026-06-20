@@ -159,7 +159,7 @@ const TestManagementPage: React.FC<Pick<Test, "limit" | "showPagination">> = ({
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-200">
               {tests.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-16 text-center text-sm text-gray-400">
@@ -170,21 +170,15 @@ const TestManagementPage: React.FC<Pick<Test, "limit" | "showPagination">> = ({
                 tests.map((test, index) => (
                   <tr key={test.testCode} className="hover:bg-gray-100 transition-colors">
                     <td className="py-3.5 px-4 text-center">
-                      <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">
-                        {test.testCode}
-                      </span>
+                      <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">{test.testCode}</span>
                     </td>
-                    <td className="py-3.5 px-4 text-sm font-medium text-gray-800 max-w-[260px] truncate">
-                      {test.title}
-                    </td>
+                    <td className="py-3.5 px-4 text-sm font-medium text-gray-800 max-w-[260px] truncate">{test.title}</td>
                     <td className="py-3.5 px-4 text-center">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-violet-50 text-violet-700">
                         {test.statistics.totalAttempts.toLocaleString("vi-VN")}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-center text-sm text-gray-800">
-                      {new Date(test.createdAt).toLocaleDateString("vi-VN")}
-                    </td>
+                    <td className="py-3.5 px-4 text-center text-sm text-gray-800">{new Date(test.createdAt).toLocaleDateString("vi-VN")}</td>
                     <td className="py-3.5 px-4 text-center text-sm text-gray-800">
                       {new Date(test.updatedAt).toLocaleDateString("vi-VN")}
                     </td>
@@ -247,7 +241,7 @@ const TestManagementPage: React.FC<Pick<Test, "limit" | "showPagination">> = ({
           </table>
 
           {showPagination && totalTests > limit && (
-            <div className="px-4 py-3 border-t border-gray-50">
+            <div className="px-4 py-4 border-t border-gray-200">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
