@@ -1,33 +1,18 @@
 import * as XLSX from "xlsx";
+import { motion } from "framer-motion";
 import api from "../../../config/axios";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { showToast } from "../../../utils/toast";
+import EditLessonModal from "./Modals/UpdateLessonModal";
 import CreateLessonModal from "./Modals/CreateLessonModal";
 import DeleteLessonModal from "./Modals/DeleteLessonModal";
-import EditLessonModal from "./Modals/UpdateLessonModal";
 import ImportFillBlankModal from "./Modals/ImportFillBlankModal";
 import LeftSidebarAdmin from "../../../components/LeftSidebarAdmin";
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
 import Pagination from "../../../components/common/Pagination/Pagination";
-import {
-  BookOpen,
-  Eye,
-  Heart,
-  MoreHorizontal,
-  Search,
-  Trash2,
-  Upload,
-  Plus,
-  FileSpreadsheet,
-} from "lucide-react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { BookOpen, Eye, Heart, MoreHorizontal, Search, Trash2, Upload, Plus, FileSpreadsheet,} from "lucide-react";
+import DataFilterBar from "../../../components/common/FilterBar/DataFilterBar";
 
 interface Lesson {
   _id: string;
@@ -105,8 +90,8 @@ const LessonManagementPage: React.FC = () => {
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<"reading" | "vocabulary" | "">("");
-  const [filterLevel, setFilterLevel] = useState<"free" | "basic" | "advanced" | "premium" | "">("");
+  const [filterType, setFilterType] = useState<string>("");
+  const [filterLevel, setFilterLevel] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -389,31 +374,21 @@ const LessonManagementPage: React.FC = () => {
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-1">
             <BookOpen className="w-4 h-4 text-indigo-400" strokeWidth={1.8} />
-            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">
-              Nội dung
-            </span>
+            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">Nội dung</span>
           </div>
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
-                Quản lý bài học
-              </h1>
-              <p className="text-sm text-gray-400 mt-1">
-                Quản lý toàn bộ nội dung bài học trong hệ thống
-              </p>
+              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Quản lý bài học</h1>
+              <p className="text-sm text-gray-400 mt-1">Quản lý toàn bộ nội dung bài học trong hệ thống</p>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 h-9 px-4 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
-              >
+              <button onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 h-9 px-4 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
                 <Plus className="w-4 h-4" strokeWidth={2} />
                 Tạo bài mới
               </button>
-              <button
-                onClick={() => setIsFillBlankModalOpen(true)}
-                className="flex items-center gap-2 h-9 px-4 rounded-xl border border-gray-200 bg-white text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm"
-              >
+              <button onClick={() => setIsFillBlankModalOpen(true)}
+                className="flex items-center gap-2 h-9 px-4 rounded-xl border border-gray-200 bg-white text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
                 <FileSpreadsheet className="w-4 h-4" strokeWidth={1.8} />
                 Thêm điền khuyết
               </button>
@@ -447,34 +422,43 @@ const LessonManagementPage: React.FC = () => {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-6">
-          <div className="relative md:col-span-8">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Tìm kiếm theo tiêu đề..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 h-9 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
-            />
-          </div>
-          <select value={filterType}
-            onChange={(e) => setFilterType(e.target.value as any)}
-            className="md:col-span-2 h-9 px-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition">
-            <option value="">Tất cả loại</option>
-            <option value="reading">Reading</option>
-            <option value="vocabulary">Vocabulary</option>
-          </select>
-          <select value={filterLevel}
-            onChange={(e) => setFilterLevel(e.target.value as any)}
-            className="md:col-span-2 h-9 px-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition">
-            <option value="">Tất cả cấp độ</option>
-            <option value="free">Miễn phí</option>
-            <option value="basic">Basic</option>
-            <option value="advanced">Advanced</option>
-            <option value="premium">Premium</option>
-          </select>
-        </div>
+        <DataFilterBar
+          search={{
+            value: searchTerm,
+            onChange: setSearchTerm,
+            placeholder: "Tìm kiếm theo tiêu đề...",
+          }}
+          selects={[
+            {
+              key: "type",
+              label: "Loại bài học",
+              value: filterType,
+              onChange: setFilterType,
+              color: "blue",
+              options: [
+                { value: "reading", label: "Reading" },
+                { value: "vocabulary", label: "Vocabulary" },
+              ],
+            },
+            {
+              key: "level",
+              label: "Cấp độ truy cập",
+              value: filterLevel,
+              onChange: setFilterLevel,
+              color: "violet",
+              options: [
+                { value: "free", label: "Miễn phí" },
+                { value: "basic", label: "Basic" },
+                { value: "advanced", label: "Advanced" },
+                { value: "premium", label: "Premium" },
+              ],
+            },
+          ]}
+          onResetFilters={() => {
+            setFilterType("");
+            setFilterLevel("");
+          }}
+        />
 
         {/* Table */}
         <motion.div
@@ -551,10 +535,8 @@ const LessonManagementPage: React.FC = () => {
                       {new Date(lesson.createdAt).toLocaleDateString("vi-VN")}
                     </td>
                     <td className="py-3.5 px-4 text-center relative w-12">
-                      <button
-                        onClick={(e) => toggleMenu(lesson._id, e)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                      >
+                      <button onClick={(e) => toggleMenu(lesson._id, e)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
 
