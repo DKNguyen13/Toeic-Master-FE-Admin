@@ -68,7 +68,7 @@ const TestManagementPage: React.FC<Pick<Test, "limit" | "showPagination">> = ({
     <div className="min-h-screen flex bg-[#f5f4fb]">
       <LeftSidebarAdmin customHeight="h-auto w-64" />
 
-      <div className="flex-1 p-8 max-w-screen-xl">
+      <div className="flex-1 p-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-1">
