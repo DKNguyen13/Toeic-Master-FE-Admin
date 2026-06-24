@@ -79,10 +79,10 @@ const PartEditModal: React.FC<PartEditModalProps> = ({
   const hasAudio = LISTENING_PARTS.includes(part.partNumber)
 
   const [form, setForm] = useState({
-    instructions: part.instructions,
-    description: part.description,
-    audioFile: part.audioFile,
-    totalQuestions: part.totalQuestions,
+    instructions: (part.instructions === "undefined" || part.instructions === "null") ? "" : (part.instructions || ""),
+    description: (part.description === "undefined" || part.description === "null") ? "" : (part.description || ""),
+    audioFile: (part.audioFile === "undefined" || part.audioFile === "null") ? "" : (part.audioFile || ""),
+    totalQuestions: part.totalQuestions || 0,
   })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -132,9 +132,9 @@ const PartEditModal: React.FC<PartEditModalProps> = ({
 
       // Tạo FormData để gửi cả file lẫn text fields trong 1 request
       const formData = new FormData()
-      formData.append("instructions", form.instructions)
-      formData.append("description", form.description)
-      formData.append("totalQuestions", String(form.totalQuestions))
+      formData.append("instructions", form.instructions || "")
+      formData.append("description", form.description || "")
+      formData.append("totalQuestions", String(form.totalQuestions || 0))
 
       // Chỉ append file nếu người dùng đã chọn file mới
       if (audioFileObject) {
@@ -366,20 +366,20 @@ const PartEditModal: React.FC<PartEditModalProps> = ({
 
         {/* Footer */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
-          {saveError ? (
-            <div className="flex items-center gap-1.5 text-xs text-red-600">
-              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-              {saveError}
-            </div>
-          ) : (
-            <span />
-          )}
-          <button
-            onClick={onClose}
-            className="px-5 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
-          >
-            Hủy
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="px-5 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              Hủy
+            </button>
+            {saveError && (
+              <div className="flex items-center gap-1.5 text-xs text-red-600">
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                {saveError}
+              </div>
+            )}
+          </div>
           <button
             onClick={handleSave}
             disabled={saving || saved}

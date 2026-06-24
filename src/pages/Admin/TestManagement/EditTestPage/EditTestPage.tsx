@@ -13,7 +13,7 @@ import {
   BookOpen
 } from "lucide-react"
 import { getTestInfo, updateTest } from "../../../../service/testService.js"
-import PartEditModal from "./PartEditModal.js"
+import PartEditModal from "./PartEditModal.tsx"
 import AudioUploader from "../../../../components/common/AudioUploader/AudioUploader.tsx"
 
 interface Choice {
@@ -139,7 +139,19 @@ const TestEditor: React.FC = () => {
       setLoading(true)
       setError(null)
       const response = await getTestInfo(slug)
-      setTestData(await response)
+      
+      // Sanitize parts to clean up any "undefined" or "null" string values from database
+      const sanitizedParts = response.parts?.map((part: any) => ({
+        ...part,
+        instructions: (part.instructions === "undefined" || part.instructions === "null") ? "" : (part.instructions || ""),
+        description: (part.description === "undefined" || part.description === "null") ? "" : (part.description || ""),
+        audioFile: (part.audioFile === "undefined" || part.audioFile === "null") ? "" : (part.audioFile || ""),
+      })) || []
+
+      setTestData({
+        ...response,
+        parts: sanitizedParts
+      })
     } catch (err) {
       setError("Failed to load test data")
     } finally {
