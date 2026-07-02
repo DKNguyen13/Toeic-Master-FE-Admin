@@ -1,50 +1,52 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
+import AudioUploader from "../../../../components/common/AudioUploader/AudioUploader";
+import { Music } from "lucide-react";
 
 interface TestImportFormProps {
   onSubmit: (formData: FormData) => Promise<void>;
   onCancel: () => void;
 }
 
-interface FormData {
+interface FormFields {
   title: string;
-  audio: string;
 }
 
 const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState<FormData>({
-    title: "",
-    audio: "",
-  });
+  const [title, setTitle] = useState<string>("");
+  const [titleError, setTitleError] = useState<string>("");
 
+  // Audio file state
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string>("");
+  const [audioError, setAudioError] = useState<string>("");
+
+  // Excel file state
   const [excelFile, setExcelFile] = useState<File | null>(null);
-  const [errors, setErrors] = useState<Partial<FormData>>({});
   const [fileError, setFileError] = useState<string>("");
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    
-    if (errors[name as keyof FormData]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+    if (titleError) setTitleError("");
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFileError("");
-    
+
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      
+
       const validExtensions = [".xlsx", ".xls"];
-      const fileExtension = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
-      
+      const fileExtension = file.name
+        .substring(file.name.lastIndexOf("."))
+        .toLowerCase();
+
       if (!validExtensions.includes(fileExtension)) {
         setFileError("Vui lòng chọn file Excel (.xlsx hoặc .xls)");
         setExcelFile(null);
         e.target.value = "";
         return;
       }
-      
+
       const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
         setFileError("File vượt quá dung lượng cho phép (10MB)");
@@ -52,61 +54,47 @@ const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) =
         e.target.value = "";
         return;
       }
-      
+
       setExcelFile(file);
     }
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
+    let valid = true;
 
-    if (!formData.title.trim()) {
-      newErrors.title = "Tên đề thi không được để trống";
-    } else if (formData.title.length < 3) {
-      newErrors.title = "Tên đề thi phải có ít nhất 3 ký tự";
+    if (!title.trim()) {
+      setTitleError("Tên đề thi không được để trống");
+      valid = false;
+    } else if (title.length < 3) {
+      setTitleError("Tên đề thi phải có ít nhất 3 ký tự");
+      valid = false;
     }
 
-    // if (!formData.testCode.trim()) {
-    //   newErrors.testCode = "Mã đề thi không được để trống";
-    // } else if (!/^[A-Z0-9]+$/i.test(formData.testCode)) {
-    //   newErrors.testCode = "Mã đề thi chỉ được chứa chữ cái và số";
-    // }
-
-    if (formData.audio && !isValidUrl(formData.audio)) {
-      newErrors.audio = "URL không hợp lệ";
+    if (!audioFile) {
+      setAudioError("Vui lòng chọn file audio cho đề thi");
+      valid = false;
     }
 
     if (!excelFile) {
       setFileError("Vui lòng chọn file Excel");
+      valid = false;
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0 && !!excelFile;
-  };
-
-  const isValidUrl = (url: string): boolean => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
+    return valid;
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     const submitFormData = new FormData();
-    submitFormData.append("title", formData.title.trim());
-    
-    if (formData.audio.trim()) {
-      submitFormData.append("audio", formData.audio.trim());
+    submitFormData.append("title", title.trim());
+
+    if (audioFile) {
+      submitFormData.append("audio", audioFile);
     }
-    
+
     if (excelFile) {
       submitFormData.append("file", excelFile);
     }
@@ -125,52 +113,23 @@ const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) =
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Tên đề thi <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="VD: TOEIC Practice Test 2024"
-            maxLength={200}
-            className={`w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-400 focus:outline-none transition ${
-              errors.title ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {errors.title && (
-            <p className="text-red-500 text-xs mt-1 flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {errors.title}
-            </p>
-          )}
-        </div>
-      </div>
-
+      {/* Title */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          URL Audio <span className="text-red-500">*</span>
+          Tên đề thi <span className="text-red-500">*</span>
         </label>
         <input
-          type="url"
-          name="audio"
-          value={formData.audio}
-          onChange={handleChange}
-          placeholder="https://cdn.example.com/audio/test-audio.mp3"
+          type="text"
+          name="title"
+          value={title}
+          onChange={handleTitleChange}
+          placeholder="VD: TOEIC Practice Test 2024"
+          maxLength={200}
           className={`w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-400 focus:outline-none transition ${
-            errors.audio ? "border-red-500" : "border-gray-300"
+            titleError ? "border-red-500" : "border-gray-300"
           }`}
         />
-        {errors.audio && (
+        {titleError && (
           <p className="text-red-500 text-xs mt-1 flex items-center">
             <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -179,19 +138,53 @@ const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) =
                 clipRule="evenodd"
               />
             </svg>
-            {errors.audio}
+            {titleError}
+          </p>
+        )}
+      </div>
+
+      {/* Audio upload */}
+      <div>
+        <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-2">
+          <Music className="w-4 h-4" />
+          File Audio <span className="text-red-500">*</span>
+        </label>
+        <AudioUploader
+          currentUrl={audioPreviewUrl}
+          onFileChange={(file, previewUrl) => {
+            setAudioFile(file);
+            setAudioPreviewUrl(previewUrl);
+            if (audioError) setAudioError("");
+          }}
+          onClear={() => {
+            setAudioFile(null);
+            setAudioPreviewUrl("");
+          }}
+          accentColor="#2563eb"
+        />
+        {audioError && (
+          <p className="text-red-500 text-xs mt-1 flex items-center">
+            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {audioError}
           </p>
         )}
         <p className="text-gray-500 text-xs mt-1">
-          Nhập URL trỏ đến file audio cho phần Listening của đề thi
+          File audio cho phần Listening của đề thi. Hỗ trợ MP3, WAV, M4A, OGG (tối đa 50MB)
         </p>
       </div>
 
+      {/* Excel file */}
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50 hover:border-blue-400 transition">
         <label className="block text-sm font-semibold text-gray-700 mb-3">
           File Excel <span className="text-red-500">*</span>
         </label>
-        
+
         {!excelFile ? (
           <div className="flex flex-col items-center justify-center">
             <svg
@@ -261,7 +254,7 @@ const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) =
             </button>
           </div>
         )}
-        
+
         {fileError && (
           <p className="text-red-500 text-sm mt-2 flex items-center">
             <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -276,6 +269,7 @@ const TestImportForm: React.FC<TestImportFormProps> = ({ onSubmit, onCancel }) =
         )}
       </div>
 
+      {/* Actions */}
       <div className="flex justify-between items-center pt-4 border-t border-gray-200">
         <button
           type="button"

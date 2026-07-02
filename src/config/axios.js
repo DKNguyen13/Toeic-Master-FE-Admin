@@ -3,7 +3,6 @@ import { config } from "./env.config";
 
 const api = axios.create({
   baseURL: `${config.apiBaseUrl}/api`,
-  headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
 
