@@ -2,7 +2,10 @@
 import React, { useState } from "react";
 import AdminHeader from "./common/Header";
 import Footer from "./common/Footer";
+import useRefreshTokenOnLoad from "../hooks/useRefreshTokenOnLoad";
 const MainLayout = ({ children }) => {
+	useRefreshTokenOnLoad();
+
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (

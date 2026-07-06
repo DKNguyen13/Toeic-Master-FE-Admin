@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 //import useRefreshTokenOnLoad from "../hooks/useRefreshTokenOnLoad";
+import api from "../config/axios";
+import LoadingSkeleton from "../components/common/LoadingSpinner/LoadingSkeleton";
 
 // Layout
 import Login from "../pages/Login/Login";
@@ -27,18 +30,60 @@ import AdminPrivacy from "../pages/Info/Privacy";
 import AdminTerms from "../pages/Info/Terms";
 import Profile from "../pages/Profile/Profile";
 
+const SessionGate = ({ authedElement, guestElement }) => {
+  const [status, setStatus] = useState("checking");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const resolveSession = async () => {
+      try {
+        const res = await api.get("/auth/check-role");
+        const role = String(res.data.data?.role || "").toLowerCase();
+        if (isMounted) {
+          setStatus(role === "admin" ? "authed" : "guest");
+        }
+      } catch {
+        if (isMounted) {
+          setStatus("guest");
+        }
+      }
+    };
+
+    resolveSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (status === "checking") return <LoadingSkeleton />;
+
+  return status === "authed" ? authedElement : guestElement;
+};
+
 // Cấu hình routes
 const routes = [
   {
     path: "/",
-    element: <Navigate to="/login" replace />,
+    element: (
+      <SessionGate
+        authedElement={<Navigate to="/admin/dashboard" replace />}
+        guestElement={<Navigate to="/login" replace />}
+      />
+    ),
   },
   {
     path: "/login", // Trang dành cho Guest (Guest-only)
     element: (
-      <MainLayout>
-        <Login />
-      </MainLayout>
+      <SessionGate
+        authedElement={<Navigate to="/admin/dashboard" replace />}
+        guestElement={
+          <MainLayout>
+            <Login />
+          </MainLayout>
+        }
+      />
     ),
   },
   {

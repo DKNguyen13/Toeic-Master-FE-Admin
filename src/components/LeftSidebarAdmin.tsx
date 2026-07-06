@@ -2,7 +2,7 @@ import React from "react";
 import { showToast } from "../utils/toast.js";
 import { config } from "../config/env.config.js";
 import { Link, useNavigate } from "react-router-dom";
-import api, { setAccessToken } from "../config/axios.js";
+import api, { clearAuthData } from "../config/axios.js";
 import { LayoutDashboard, Users, FileText, Crown, LogOut, UserCircle, PieChart, Search } from "lucide-react";
 
 
@@ -22,14 +22,14 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
-      localStorage.clear();
-      sessionStorage.clear();
+      clearAuthData();
+      window.dispatchEvent(new Event("userUpdated"));
       //showToast("Đăng xuất thành công!", "success", { autoClose: 500 });
     } catch (err) {
       console.error("Logout server failed:", err);
       showToast("Đăng xuất thất bại. Vui lòng thử lại.", "error", { autoClose: 1000 });
     } finally {
-      setAccessToken(null);
+      clearAuthData();
       setFullname("Guest User");
       setAvatarUrl("/img/avatar/default_avatar.jpg");
       navigate("/", { replace: true });
