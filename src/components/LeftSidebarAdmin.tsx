@@ -3,7 +3,7 @@ import { showToast } from "../utils/toast.js";
 import { config } from "../config/env.config.js";
 import { Link, useNavigate } from "react-router-dom";
 import api, { clearAuthData } from "../config/axios.js";
-import { LayoutDashboard, Users, FileText, Crown, LogOut, UserCircle, PieChart, Search } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Crown, LogOut, UserCircle, PieChart, Search, ShieldAlert } from "lucide-react";
 
 
 interface LeftSidebarAdminProps {
@@ -42,8 +42,8 @@ const LeftSidebarAdmin: React.FC<LeftSidebarAdminProps> = ({ customHeight }) => 
     { to: "/admin/usermanagement", icon: Users, label: "Người dùng" },
     { to: "/admin/lessonmanagement", icon: Search, label: "Tài nguyên" },
     { to: "/admin/testmanagement", icon: FileText, label: "Đề thi" },
-    //{ to: "/admin/flashcard", icon: Sparkles, label: "Flashcard" },
     { to: "/admin/vipmanagement", icon: Crown, label: "VIP/Premium" },
+    { to: "/admin/maintenance", icon: ShieldAlert, label: "Bảo trì hệ thống" },
     { to: `${config.userPortalUrl}`, icon: LayoutDashboard, label: "Truy cập User Portal", external: true },
   ];
 

@@ -29,6 +29,7 @@ import EditTestPage from "../pages/Admin/TestManagement/EditTestPage/EditTestPag
 import AdminPrivacy from "../pages/Info/Privacy";
 import AdminTerms from "../pages/Info/Terms";
 import Profile from "../pages/Profile/Profile";
+import MaintenanceManagementPage from "../pages/Admin/Maintenance/MaintenanceManagementPage";
 
 const SessionGate = ({ authedElement, guestElement }) => {
   const [status, setStatus] = useState("checking");
@@ -226,6 +227,16 @@ const routes = [
       <ProtectedRoute allowedRoles={["admin"]}>
         <MainLayout>
           <VipManagement />
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/maintenance",
+    element: (
+      <ProtectedRoute allowedRoles={["admin"]}>
+        <MainLayout>
+          <MaintenanceManagementPage />
         </MainLayout>
       </ProtectedRoute>
     ),
