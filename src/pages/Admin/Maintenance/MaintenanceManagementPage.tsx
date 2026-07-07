@@ -27,6 +27,16 @@ const MaintenanceManagementPage: React.FC = () => {
     message: "Hệ thống đang được bảo trì, vui lòng quay lại sau.",
   });
 
+  const toLocalInputValue = (dateValue: string) => {
+    const date = new Date(dateValue);
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    return date.toISOString().slice(0, 16);
+  };
+
+  const toISOStringFromLocalInput = (value: string) => {
+    return new Date(value).toISOString();
+  };
+
   const fetchData = async () => {
     try {
       const res = await api.get("/admin/maintenance");
@@ -37,8 +47,8 @@ const MaintenanceManagementPage: React.FC = () => {
       setForm((prev) => ({
         ...prev,
         message: data?.message || prev.message,
-        startAt: data?.startAt ? data.startAt.slice(0, 16) : "",
-        endAt: data?.endAt ? data.endAt.slice(0, 16) : "",
+        startAt: data?.startAt ? toLocalInputValue(data.startAt) : "",
+        endAt: data?.endAt ? toLocalInputValue(data.endAt) : "",
       }));
     } catch (err) {
       console.error(err);
@@ -118,12 +128,15 @@ const MaintenanceManagementPage: React.FC = () => {
       return;
     }
 
-    if (form.startAt && new Date(form.startAt) < new Date()) {
+    const startDate = form.startAt ? new Date(form.startAt) : new Date();
+    const endDate = new Date(form.endAt);
+    
+    if (form.startAt && startDate < new Date()) {
       showToast("Thời gian bắt đầu không được nhỏ hơn hiện tại", "warn");
       return;
     }
 
-    if (new Date(form.endAt) <= new Date(form.startAt || new Date())) {
+    if (endDate <= startDate) {
       showToast("Thời gian kết thúc phải lớn hơn thời gian bắt đầu", "warn");
       return;
     }
@@ -132,8 +145,12 @@ const MaintenanceManagementPage: React.FC = () => {
 
     try {
       const payload = {
-        startAt: form.startAt || new Date().toISOString(),
-        endAt: form.endAt,
+        startAt: form.startAt
+          ? toISOStringFromLocalInput(form.startAt)
+          : new Date().toISOString(),
+
+        endAt: toISOStringFromLocalInput(form.endAt),
+
         message: form.message,
       };
 
