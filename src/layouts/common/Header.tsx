@@ -1,7 +1,7 @@
 import { showToast } from "../../utils/toast.js";
 import React, { useState, useEffect, useRef } from "react";
 import { useSocket } from "../../context/SocketContext.jsx";
-import api, { setAccessToken } from "../../config/axios.js";
+import api, { clearAuthData } from "../../config/axios.js";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Bell, Users, Search, Crown, PieChart, LogOut, Sparkles, Menu } from "lucide-react";
 
@@ -171,13 +171,13 @@ const AdminHeader: React.FC = () => {
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
-      localStorage.clear();
-      sessionStorage.clear();
+      clearAuthData();
+      window.dispatchEvent(new Event("userUpdated"));
     } catch (err) {
       console.error("Logout server failed:", err);
       showToast("Đăng xuất thất bại. Vui lòng thử lại.", "error", { autoClose: 1000 });
     } finally {
-      setAccessToken(null);
+      clearAuthData();
       setFullname("Guest User");
       setAvatarUrl("/img/avatar/default_avatar.jpg");
       navigate("/", { replace: true });
